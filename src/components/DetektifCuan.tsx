@@ -5,7 +5,7 @@ import { doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { playCorrect, playWrong, playLose, playWin, playClick, setGameViewTrack, subscribeToPause } from '../lib/audio';
 import { useTranslation } from '../lib/LanguageContext';
-import { calculateLevelFromCoins } from './Dashboard';
+
 import { SettingsModal } from './SettingsModal';
 import { LEVEL_SCENARIOS } from './DetektifCuanData';
 import { Settings } from 'lucide-react';
@@ -65,7 +65,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
   const currentScenario = shuffledScenarios[currentIndex];
 
   const displayCoins = userData?.totalCoins || userData?.coins || 0;
-  const playerLevel = calculateLevelFromCoins(displayCoins);
+  const playerLevel = userData?.league !== undefined ? userData?.league : 0;
   const baseTime = Math.max(4, 7 - playerLevel * 0.5); // Starts tighter at higher levels eg 4.5 sec at lvl 5
   const TIME_LIMIT = Math.max(2.5, baseTime - (correctCount * 0.5));
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
@@ -84,12 +84,12 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
 
   const getLevelBadgeName = (lvl: number) => {
     switch (lvl) {
-      case 5: return language === 'id' ? 'Sultan Cuan 💎' : 'Wealth Master 💎';
-      case 4: return language === 'id' ? 'Ahli Anggaran 👑' : 'Budget Expert 👑';
-      case 3: return language === 'id' ? 'Investor Cerdas 📈' : 'Smart Investor 📈';
-      case 2: return language === 'id' ? 'Bijak Belanja 🛒' : 'Wise Spender 🛒';
-      case 1: return language === 'id' ? 'Sadar Finansial 📘' : 'Financially Aware 📘';
-      default: return language === 'id' ? 'Pemula 🌱' : 'Beginner 🌱';
+      case 5: return language === 'id' ? 'Master Kekayaan 👑' : 'Wealth Master 👑';
+      case 4: return language === 'id' ? 'Ahli Anggaran 💎' : 'Budget Expert 💎';
+      case 3: return language === 'id' ? 'Investor Cerdas 🏅' : 'Smart Investor 🏅';
+      case 2: return language === 'id' ? 'Bijak Belanja 🥇' : 'Wise Spender 🥇';
+      case 1: return language === 'id' ? 'Sadar Finansial 🥈' : 'Financially Aware 🥈';
+      default: return language === 'id' ? 'Pemula 🥉' : 'Beginner 🥉';
     }
   };
 
@@ -228,9 +228,9 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
       setIsSaving(true);
       try {
         const docRef = doc(db, 'users', user.uid);
-        await updateDoc(docRef, { totalCoins: increment(score) });
+        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, score));
       } catch (err) {
-        console.error("Gagal update score on victory:", err);
+        console.warn("Gagal update score on victory:", err);
       } finally {
         setIsSaving(false);
       }
@@ -246,9 +246,9 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
       setIsSaving(true);
       try {
         const docRef = doc(db, 'users', user.uid);
-        await updateDoc(docRef, { totalCoins: increment(score) });
+        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, score));
       } catch (err) {
-        console.error("Gagal update score:", err);
+        console.warn("Gagal update score:", err);
       } finally {
         setIsSaving(false);
       }
@@ -294,7 +294,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
                     {language === 'id' ? "Pangkat Detektif" : "Detective Rank"}
                   </p>
                   <p className="text-base font-black text-slate-800 font-poppins flex flex-col items-start leading-tight mt-0.5">
-                    <span>Level {playerLevel}</span>
+                    <span>{language === 'id' ? 'Liga' : 'League'} {playerLevel}</span>
                     <span className="text-[11px] text-emerald-600 font-black mt-0.5">{getLevelBadgeName(playerLevel)}</span>
                   </p>
                 </div>
@@ -360,9 +360,9 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
               <div className="flex justify-between w-full mb-3 pb-3 border-b border-emerald-200/50">
                 <div className="text-left">
                   <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
-                    {language === 'id' ? "Level Intelijen" : "Intelligence Level"}
+                    {language === 'id' ? "Liga Intelijen" : "Intelligence League"}
                   </p>
-                  <p className="text-lg font-bold text-slate-700 font-poppins">Level {playerLevel}</p>
+                  <p className="text-lg font-bold text-slate-700 font-poppins">{language === 'id' ? 'Liga' : 'League'} {playerLevel}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
@@ -552,7 +552,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
             </div>
           )}
           <div>
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Level {playerLevel}</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{language === 'id' ? 'Liga' : 'League'} {playerLevel}</div>
             <div className="font-bold font-poppins text-slate-700">{language === 'id' ? "Skor:" : "Score:"} <span className="text-blue-500">{score}</span></div>
           </div>
           <button 

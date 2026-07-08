@@ -6,7 +6,6 @@ import { db } from '../firebase';
 import { playCorrect, playWrong, playLose, playWin, playClick, setGameViewTrack, subscribeToPause } from '../lib/audio';
 import { useTranslation } from '../lib/LanguageContext';
 
-import { calculateLevelFromCoins } from './Dashboard';
 import { SettingsModal } from './SettingsModal';
 import { LEVEL_ORDERS, EMERGENCY_SCENARIOS } from './KokiAnggaranData';
 
@@ -54,7 +53,7 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
   
   // Real level
   const displayCoins = userData?.totalCoins || userData?.coins || 0;
-  const playerLevel = calculateLevelFromCoins(displayCoins);
+  const playerLevel = userData?.league !== undefined ? userData?.league : 0;
   
   // Current Order
   const [currentOrderIndex, setCurrentOrderIndex] = useState(0);
@@ -123,12 +122,12 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
 
   const getLevelBadgeName = (lvl: number) => {
     switch (lvl) {
-      case 5: return language === 'id' ? 'Sultan Cuan 💎' : 'Wealth Master 💎';
-      case 4: return language === 'id' ? 'Ahli Anggaran 👑' : 'Budget Expert 👑';
-      case 3: return language === 'id' ? 'Investor Cerdas 📈' : 'Smart Investor 📈';
-      case 2: return language === 'id' ? 'Bijak Belanja 🛒' : 'Wise Spender 🛒';
-      case 1: return language === 'id' ? 'Sadar Finansial 📘' : 'Financially Aware 📘';
-      default: return language === 'id' ? 'Pemula 🌱' : 'Beginner 🌱';
+      case 5: return language === 'id' ? 'Master Kekayaan 👑' : 'Wealth Master 👑';
+      case 4: return language === 'id' ? 'Ahli Anggaran 💎' : 'Budget Expert 💎';
+      case 3: return language === 'id' ? 'Investor Cerdas 🏅' : 'Smart Investor 🏅';
+      case 2: return language === 'id' ? 'Bijak Belanja 🥇' : 'Wise Spender 🥇';
+      case 1: return language === 'id' ? 'Sadar Finansial 🥈' : 'Financially Aware 🥈';
+      default: return language === 'id' ? 'Pemula 🥉' : 'Beginner 🥉';
     }
   };
 
@@ -270,9 +269,9 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
       setIsSaving(true);
       try {
         const docRef = doc(db, 'users', user.uid);
-        await updateDoc(docRef, { totalCoins: increment(finalScore) });
+        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, finalScore));
       } catch (err) {
-        console.error("Gagal menyimpan skor kemenangan Koki Anggaran:", err);
+        console.warn("Gagal menyimpan skor kemenangan Koki Anggaran:", err);
       } finally {
         setIsSaving(false);
       }
@@ -289,9 +288,9 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
       setIsSaving(true);
       try {
         const docRef = doc(db, 'users', user.uid);
-        await updateDoc(docRef, { totalCoins: increment(finalScore) });
+        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, finalScore));
       } catch (err) {
-        console.error("Gagal menyimpan skor Koki Anggaran:", err);
+        console.warn("Gagal menyimpan skor Koki Anggaran:", err);
       } finally {
         setIsSaving(false);
       }
@@ -326,10 +325,10 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
               <div className="flex justify-between w-full mb-3 pb-3 border-b border-emerald-200/50">
                 <div className="text-left">
                   <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
-                    {language === 'id' ? "Level Koki" : "Chef Level"}
+                    {language === 'id' ? "Liga Koki" : "Chef League"}
                   </p>
                   <p className="text-base font-black text-slate-800 font-poppins flex flex-col items-start leading-tight mt-0.5">
-                    <span>Level {playerLevel}</span>
+                    <span>{language === 'id' ? 'Liga' : 'League'} {playerLevel}</span>
                     <span className="text-[11px] text-emerald-600 font-black mt-0.5">{getLevelBadgeName(playerLevel)}</span>
                   </p>
                 </div>

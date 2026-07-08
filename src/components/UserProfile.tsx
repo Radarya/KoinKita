@@ -45,7 +45,7 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
 
   const showMessage = (text: string, type: 'success' | 'error') => {
     setMessage({ text, type });
-    setTimeout(() => setMessage({ text, type: '' }), 3000);
+    setTimeout(() => setMessage({ text: '', type: '' }), 3000);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +81,7 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
       });
       showMessage(language === 'id' ? 'Foto profil berhasil diperbarui!' : 'Profile photo updated successfully!', 'success');
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.warn("Error uploading file:", error);
       showMessage(language === 'id' ? 'Gagal mengunggah foto.' : 'Failed to upload photo.', 'error');
     } finally {
       setIsUploading(false);
@@ -99,7 +99,7 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
       });
       showMessage(language === 'id' ? 'Foto profil telah dihapus.' : 'Profile photo removed.', 'success');
     } catch (error) {
-      console.error("Error removing photo:", error);
+      console.warn("Error removing photo:", error);
       showMessage(language === 'id' ? 'Gagal menghapus foto.' : 'Failed to remove photo.', 'error');
     } finally {
       setIsUploading(false);
@@ -123,7 +123,7 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
       await updateDoc(doc(db, 'users', user.uid), updates);
       showMessage(language === 'id' ? 'Profil berhasil disimpan!' : 'Profile saved successfully!', 'success');
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.warn("Error updating profile:", error);
       showMessage(language === 'id' ? 'Gagal menyimpan profil.' : 'Failed to save profile.', 'error');
     } finally {
       setIsSaving(false);

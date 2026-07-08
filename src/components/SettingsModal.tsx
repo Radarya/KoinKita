@@ -58,7 +58,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
       setShowDeleteFinal(false);
       onClose();
     } catch (err: any) {
-      console.error("Account deletion failed:", err);
+      console.warn("Account deletion failed:", err);
       if (err.code === 'auth/requires-recent-login' || err.message?.includes('recent login')) {
         setDeleteError(language === 'id' 
           ? 'Demi keamanan, hapus akun memerlukan login terbaru. Silakan keluar (logout), lalu klik masuk lagi sebelum mencoba kembali.' 

@@ -6,7 +6,6 @@ import { db } from '../firebase';
 import { playClick, playCorrect, playWrong, playWin, playLose, setGameViewTrack, subscribeToPause } from '../lib/audio';
 import { useTranslation } from '../lib/LanguageContext';
 
-import { calculateLevelFromCoins } from './Dashboard';
 import { LEVEL_WORDS } from './FinWordleData';
 import { SettingsModal } from './SettingsModal';
 import { Settings } from 'lucide-react';
@@ -35,7 +34,7 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
 
   // Real global coins from snapshot
   const displayCoins = userData?.totalCoins || userData?.coins || 0;
-  const userLevel = calculateLevelFromCoins(displayCoins);
+  const userLevel = userData?.league !== undefined ? userData?.league : 0;
   
   const currentLevelBank = LEVEL_WORDS[userLevel] || LEVEL_WORDS[0];
   const [targetWordObj, setTargetWordObj] = useState(currentLevelBank[0]);
@@ -115,10 +114,10 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
     if (user?.uid) {
       try {
         const docRef = doc(db, 'users', user.uid);
-        await updateDoc(docRef, { totalCoins: increment(amount) });
+        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, amount));
         setSessionEarned(prev => prev + amount);
       } catch (err) {
-        console.error("Gagal tambah coin:", err);
+        console.warn("Gagal tambah coin:", err);
       }
     }
   }, [user]);
@@ -290,9 +289,9 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
     if (user?.uid) {
       try {
         const docRef = doc(db, 'users', user.uid);
-        await updateDoc(docRef, { totalCoins: increment(-20) });
+        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, -20, 0));
       } catch (err) {
-        console.error("Gagal mengurangi coin:", err);
+        console.warn("Gagal mengurangi coin:", err);
       }
     }
     
@@ -393,7 +392,7 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
         <div className="flex flex-col items-center">
           <h1 className="font-poppins font-bold text-xl text-slate-700 tracking-wider leading-tight">FIN-WORDLE</h1>
           <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full mt-1">
-            Level {userLevel}
+            {language === 'id' ? 'Liga' : 'League'} {userLevel}
           </span>
         </div>
         <div className="flex items-center gap-2">

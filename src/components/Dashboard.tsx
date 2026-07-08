@@ -48,6 +48,7 @@ import { AchievementsModal, ACHIEVEMENTS } from './AchievementsModal';
 import { playClick, playWin, setGameViewTrack } from '../lib/audio';
 import { useTranslation } from '../lib/LanguageContext';
 import { FINANCIAL_TIPS } from '../lib/tips';
+import { getCurrentWeekId, calculateInitialLeague, getLeagueInfo } from '../lib/leagueUtils';
 
 interface DashboardProps {
   user: any;
@@ -61,12 +62,12 @@ interface DashboardProps {
  * @returns {number} The calculated level (0 to 5)
  */
 export function calculateLevelFromCoins(coins: number): number {
-  if (coins >= 6001) return 5; // Level 5 is 6001-10000+
-  if (coins >= 4001) return 4; // Level 4 is 4001-6000
-  if (coins >= 2001) return 3; // Level 3 is 2001-4000
-  if (coins >= 601) return 2;  // Level 2 is 601-2000
-  if (coins >= 100) return 1;  // Level 1 is 100-600
-  return 0;                    // Level 0 is 0-99 (starting level)
+  if (coins >= 50000) return 5;
+  if (coins >= 30000) return 4;
+  if (coins >= 15000) return 3;
+  if (coins >= 5000) return 2;
+  if (coins >= 1000) return 1;
+  return 0;
 }
 
 export default function Dashboard({ user, onShowTerms, triggerToast }: DashboardProps) {
@@ -76,8 +77,11 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
   const [showProfile, setShowProfile] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leagueCheckDone, setLeagueCheckDone] = useState(false);
 
   const [pendingFriendData, setPendingFriendData] = useState<any | null>(null);
+  const [unreadInboxCount, setUnreadInboxCount] = useState(0);
+  const [leaguePopup, setLeaguePopup] = useState<{status: string, newLeague: number} | null>(null);
 
   useEffect(() => {
     const checkPendingFriend = async () => {
@@ -97,7 +101,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
              localStorage.removeItem('pendingFriendRequest');
           }
         } catch(e) {
-          console.error(e);
+          console.warn(e);
         }
       }
     };
@@ -160,9 +164,130 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
     import('../lib/audio').then(m => m.setGameViewTrack('dashboard'));
   }, [activeGame]);
 
+  // Weekly League Processing
+  useEffect(() => {
+    if (!userData || !user?.uid || leagueCheckDone) return;
+    
+    const processLeague = async () => {
+      try {
+        const currentWeekId = getCurrentWeekId();
+        let userLeague = userData.league;
+        
+        // Initialize league if undefined
+        if (userLeague === undefined) {
+          userLeague = calculateInitialLeague(userData.totalXp || 0);
+          await updateDoc(doc(db, 'users', user.uid), { league: userLeague });
+        }
+        
+        // If week has changed
+        if (userData.currentWeekId !== currentWeekId) {
+          let newLeague = userLeague;
+          let status = 'stayed';
+          let oldRank = null;
+          
+          // Check previous group standings if exists
+          if (userData.leagueGroupId) {
+            const oldGroupRef = doc(db, 'league_groups', userData.leagueGroupId);
+            const { getDoc } = await import('firebase/firestore');
+            const oldGroupSnap = await getDoc(oldGroupRef);
+            
+            if (oldGroupSnap.exists()) {
+              const oldGroupData = oldGroupSnap.data();
+              const playersObj = oldGroupData.players || {};
+              // Convert to array and sort by XP
+              const playersArr = Object.entries(playersObj).map(([uid, data]: [string, any]) => ({ uid, xp: data.xp || 0 }));
+              playersArr.sort((a, b) => b.xp - a.xp);
+              
+              const myIndex = playersArr.findIndex(p => p.uid === user.uid);
+              if (myIndex !== -1) {
+                oldRank = myIndex + 1;
+                if (oldRank <= 5) {
+                  newLeague = Math.min(5, newLeague + 1);
+                  status = 'promoted';
+                } else if (oldRank >= 25) {
+                  newLeague = Math.max(0, newLeague - 1);
+                  status = 'demoted';
+                }
+                
+                // Send inbox message about promotion/demotion
+                if (status !== 'stayed') {
+                  const inboxRef = collection(db, 'inbox');
+                  await setDoc(doc(inboxRef), {
+                    type: 'league_result',
+                    userId: user.uid,
+                    fromUserId: 'system',
+                    fromUserName: 'Sistem Liga',
+                    status,
+                    oldRank,
+                    newLeague,
+                    createdAt: Date.now()
+                  });
+                }
+              }
+            }
+          }
+          
+          // Find or create new group for current week
+          
+          const groupsRef = collection(db, 'league_groups');
+          const q = query(groupsRef, where('weekId', '==', currentWeekId));
+          const snap = await getDocs(q);
+          
+          let newGroupId = '';
+          const playerEntry = { xp: 0, displayName: userData.displayName || userData.name || 'Pemain', photoUrl: userData.profilePictureUrl || userData.profilePicUrl || '' };
+          
+          const groupDoc = snap.docs.find(d => d.data().league === newLeague && d.data().playerCount < 30);
+          if (groupDoc) {
+            newGroupId = groupDoc.id;
+            await updateDoc(doc(db, 'league_groups', newGroupId), {
+              playerCount: increment(1),
+              [`players.${user.uid}`]: playerEntry
+            });
+          } else {
+            const newGroupRef = doc(groupsRef);
+            newGroupId = newGroupRef.id;
+            await setDoc(newGroupRef, {
+              weekId: currentWeekId,
+              league: newLeague,
+              playerCount: 1,
+              players: {
+                [user.uid]: playerEntry
+              },
+              createdAt: Date.now()
+            });
+          }
+          
+          // Update user doc
+          await updateDoc(doc(db, 'users', user.uid), {
+            currentWeekId,
+            leagueGroupId: newGroupId,
+            league: newLeague,
+            lastLeagueStatus: status,
+            lastLeagueRank: oldRank
+          });
+          
+          if (status === 'promoted' || status === 'demoted') {
+            setLeaguePopup({ status, newLeague });
+          }
+        }
+      } catch (error) {
+        if ((error as any).code === 'permission-denied') {
+          console.warn("Permission denied for league processing. Please update Firestore rules.");
+        } else {
+          console.warn("League processing warning:", error);
+        }
+      } finally {
+        setLeagueCheckDone(true);
+      }
+    };
+    
+    processLeague();
+  }, [userData, user, leagueCheckDone]);
+
   // Sync firestore user statistics
   useEffect(() => {
     let unsubscribe = () => {};
+    let unsubscribeInbox = () => {};
     const fetchUserData = async () => {
       setIsDataLoading(true);
       if (user?.uid) {
@@ -176,7 +301,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
             
             if (!data.tag) {
                const newTag = Math.floor(1000 + Math.random() * 9000).toString();
-               updateDoc(docRef, { tag: newTag }).catch(console.error);
+               updateDoc(docRef, { tag: newTag }).catch(console.warn);
                data.tag = newTag;
             }
             setUserData(data);
@@ -226,7 +351,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
                      }
                    }
                  } catch (e) {
-                   console.error("Referral processing error", e);
+                   console.warn("Referral processing error", e);
                  }
                };
                processReferral();
@@ -240,7 +365,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
                   setLevelUpNotice({ show: true, oldLevel: dbLevel, newLevel: calculated });
                 }
               } catch (e) {
-                console.error("Failed to update user level doc:", e);
+                console.warn("Failed to update user level doc:", e);
               }
             }
 
@@ -260,21 +385,26 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
                   await updateDoc(docRef, { unlockedAchievements: arrayUnion(...newUnlocked) });
                   setToastQueue(prev => [...prev, ...newToasts]);
                } catch (e) {
-                  console.error("Failed to update unlockedAchievements:", e);
+                  console.warn("Failed to update unlockedAchievements:", e);
                }
             }
           }
           setIsDataLoading(false);
         }, (err) => {
-          console.error("Dashboard snapshot error:", err);
+          console.warn("Dashboard snapshot error:", err);
           setIsDataLoading(false);
+        });
+
+        const inboxQuery = query(collection(db, 'inbox'), where('userId', '==', user.uid), where('status', '==', 'unread'));
+        unsubscribeInbox = onSnapshot(inboxQuery, (snap) => {
+          setUnreadInboxCount(snap.docs.length);
         });
       } else {
         setIsDataLoading(false);
       }
     };
     fetchUserData();
-    return () => unsubscribe();
+    return () => { unsubscribe(); unsubscribeInbox(); };
   }, [user]);
 
   const handleLogout = async () => {
@@ -284,21 +414,21 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
       }
       await signOut(auth);
     } catch (error) {
-      console.error("Logout error:", error);
+      console.warn("Logout error:", error);
     }
   };
 
   
-  const userLevel = calculateLevelFromCoins(userData?.totalCoins || userData?.coins || 0);
+  const userLevel = userData?.league !== undefined ? userData?.league : 0;
 
   const getLevelName = (lvl: number, lang: 'id' | 'en') => {
     switch (lvl) {
-      case 5: return lang === 'id' ? 'Sultan Cuan 💎' : 'Wealth Master 💎';
-      case 4: return lang === 'id' ? 'Ahli Anggaran 👑' : 'Budget Expert 👑';
-      case 3: return lang === 'id' ? 'Investor Cerdas 📈' : 'Smart Investor 📈';
-      case 2: return lang === 'id' ? 'Bijak Belanja 🛒' : 'Wise Spender 🛒';
-      case 1: return lang === 'id' ? 'Sadar Finansial 📘' : 'Financially Aware 📘';
-      default: return lang === 'id' ? 'Pemula Keuangan 🌱' : 'Finance Beginner 🌱';
+      case 5: return lang === 'id' ? 'Master Kekayaan 👑' : 'Wealth Master 👑';
+      case 4: return lang === 'id' ? 'Ahli Anggaran 💎' : 'Budget Expert 💎';
+      case 3: return lang === 'id' ? 'Investor Cerdas 🏅' : 'Smart Investor 🏅';
+      case 2: return lang === 'id' ? 'Bijak Belanja 🥇' : 'Wise Spender 🥇';
+      case 1: return lang === 'id' ? 'Sadar Finansial 🥈' : 'Financially Aware 🥈';
+      default: return lang === 'id' ? 'Pemula 🥉' : 'Beginner 🥉';
     }
   };
 
@@ -437,10 +567,10 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[11px] font-black uppercase bg-slate-800 text-white px-2 py-0.5 rounded-md tracking-wider">
-                  Level {userLevel}
+                  {language === 'id' ? 'Liga' : 'League'}
                 </span>
                 <span className="text-xs text-slate-400 font-bold tracking-wide">
-                  {userLevel === 0 ? "Pemula" : userLevel === 1 ? "Sadar Finansial" : userLevel === 2 ? "Bijak Belanja" : userLevel === 3 ? "Investor Cerdas" : userLevel === 4 ? "Ahli Anggaran" : "Sultan Cuan"}
+                  {getLevelName(userLevel, language as 'id' | 'en')}
                 </span>
               </div>
               
@@ -497,7 +627,9 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
               className="p-3 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 relative"
             >
               <Bell className="w-6 h-6 text-slate-600" />
-              {/* Optional: Add unread badge here if you implement unread count later */}
+              {unreadInboxCount > 0 && (
+                <span className="absolute top-2 right-2 w-3 h-3 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
+              )}
             </button>
           </div>
         </motion.header>
@@ -645,6 +777,42 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
       </div>
 
       <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
+
+      {/* League Promotion/Demotion Popup */}
+      <AnimatePresence>
+        {leaguePopup && (() => {
+          const lInfo = getLeagueInfo(leaguePopup.newLeague);
+          const isPromoted = leaguePopup.status === 'promoted';
+          return (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm" onClick={() => setLeaguePopup(null)}>
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 20 }}
+                className={`bg-white rounded-[2rem] p-8 max-w-sm w-full text-center shadow-2xl border-4 ${isPromoted ? 'border-emerald-400' : 'border-rose-400'}`}
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="text-6xl mb-4 animate-bounce">
+                  {lInfo.emoji}
+                </div>
+                <h2 className={`text-3xl font-black mb-2 ${isPromoted ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  {isPromoted ? (language === 'id' ? 'NAIK LIGA!' : 'PROMOTED!') : (language === 'id' ? 'TURUN LIGA' : 'DEMOTED')}
+                </h2>
+                <p className="text-slate-600 font-medium mb-6">
+                  {language === 'id' ? `Kamu sekarang berada di ` : `You are now in `} 
+                  <strong className={`font-black ${lInfo.color}`}>{language === 'id' ? lInfo.nameId : lInfo.nameEn}</strong>.
+                </p>
+                <button 
+                  onClick={() => { playClick(); setLeaguePopup(null); }}
+                  className={`w-full py-4 rounded-xl font-bold text-white transition-all active:scale-95 ${isPromoted ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-800 hover:bg-slate-900'}`}
+                >
+                  {language === 'id' ? 'Lanjutkan' : 'Continue'}
+                </button>
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
 
       {/* Settings Modal Dialog */}
       {showInbox && <InboxModal onClose={() => setShowInbox(false)} user={user} userData={userData} triggerToast={triggerToast} />}
@@ -821,7 +989,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
                       const docRef = doc(db, 'users', user.uid);
                       updateDoc(docRef, {
                         [`dailyStats.${today}.gamesPlayed`]: increment(1)
-                      }).catch(console.error);
+                      }).catch(console.warn);
                     }
                   }}
                   className="flex-[2] py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm rounded-2xl cursor-pointer transition-all active:translate-y-[1px] border-b-[3px] border-emerald-700 hover:scale-[1.01]"

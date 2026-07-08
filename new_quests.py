@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import sys
+
+new_code = """import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Target, X, CheckCircle2, Coins, Sparkles, Loader2, Clock, Shield } from 'lucide-react';
 import { doc, updateDoc, arrayUnion, increment } from 'firebase/firestore';
-import { getCurrentWeekId } from '../lib/leagueUtils';
 import { db } from '../firebase';
 import { useTranslation } from '../lib/LanguageContext';
 import { playClick, playWin } from '../lib/audio';
@@ -14,7 +15,7 @@ interface DailyQuestsModalProps {
   triggerToast: (msg: string, type: 'success' | 'error' | 'warning' | 'info') => void;
 }
 
-export function DailyQuestsModal({ onClose, user, userData, triggerToast }: DailyQuestsModalProps) {
+export default function DailyQuestsModal({ onClose, user, userData, triggerToast }: DailyQuestsModalProps) {
   const { language } = useTranslation();
   const [claiming, setClaiming] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState('');
@@ -130,14 +131,7 @@ export function DailyQuestsModal({ onClose, user, userData, triggerToast }: Dail
         
         if (clubSnap.exists()) {
           const clubData = clubSnap.data();
-          const currentWeekId = getCurrentWeekId();
-          
-          let currentTreasury = clubData.treasury || 0;
-          if (clubData.weekId !== currentWeekId) {
-             currentTreasury = 0; // Reset if it's a new week
-          }
-          
-          let newTreasury = currentTreasury + pointsToAdd;
+          let newTreasury = (clubData.treasury || 0) + pointsToAdd;
           let newLevel = clubData.level || 1;
           let newCapacity = clubData.capacity || 5;
           let target = clubData.targetTreasury || 50000;
@@ -151,19 +145,13 @@ export function DailyQuestsModal({ onClose, user, userData, triggerToast }: Dail
             leveledUp = true;
           }
 
-          const updates: any = {
+          await updateDoc(clubRef, {
             treasury: newTreasury,
             level: newLevel,
             capacity: newCapacity,
             targetTreasury: target,
-            weekId: currentWeekId
-          };
-          if (clubData.weekId !== currentWeekId) {
-             updates.contributions = { [user.uid]: pointsToAdd };
-          } else {
-             updates[`contributions.${user.uid}`] = increment(pointsToAdd);
-          }
-          await updateDoc(clubRef, updates);
+            [`contributions.${user.uid}`]: increment(pointsToAdd)
+          });
           
           if (leveledUp) {
             if (triggerToast) triggerToast(language === 'id' ? `Klub Naik Level! Kapasitas Bertambah!` : `Club Leveled Up! Capacity Expanded!`, 'success');
@@ -305,3 +293,8 @@ export function DailyQuestsModal({ onClose, user, userData, triggerToast }: Dail
     </div>
   );
 }
+"""
+
+with open('src/components/DailyQuestsModal.tsx', 'w') as f:
+    f.write(new_code)
+print("Updated DailyQuestsModal.tsx successfully!")

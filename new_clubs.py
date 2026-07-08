@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import sys
+
+new_code = """import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Users, Plus, Shield, Coins, TrendingUp, Search, ChevronRight, Edit3, Trash2, UserMinus } from 'lucide-react';
 import { collection, query, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, increment, deleteDoc, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTranslation } from '../lib/LanguageContext';
 import { playClick, playWin } from '../lib/audio';
-import { getCurrentWeekId } from '../lib/leagueUtils';
 
 interface ClubsTabProps {
   currentUserUid: string;
@@ -32,27 +33,12 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
   useEffect(() => {
     const clubsRef = collection(db, 'clubs');
     const unsubscribe = onSnapshot(clubsRef, (snap) => {
-      const allClubs = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+      const allClubs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setClubs(allClubs);
       
       if (userData?.clubId) {
         const found = allClubs.find(c => c.id === userData.clubId);
-        if (found) {
-          const currentWeekId = getCurrentWeekId();
-          if (found.weekId !== currentWeekId) {
-             // Reset club weekly mission
-             updateDoc(doc(db, 'clubs', found.id), {
-                weekId: currentWeekId,
-                treasury: 0,
-                contributions: {}
-             }).catch(console.warn);
-             // We don't set myClub yet, it will re-trigger snapshot
-             return;
-          }
-          setMyClub(found);
-        } else {
-          setMyClub(null);
-        }
+        setMyClub(found || null);
       } else {
         setMyClub(null);
       }
@@ -106,8 +92,7 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
         contributions: {
           [currentUserUid]: 0
         },
-        profileUrl: '',
-        weekId: getCurrentWeekId()
+        profileUrl: ''
       });
       
       const userRef = doc(db, 'users', currentUserUid);
@@ -161,14 +146,8 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
         coins: increment(-amount)
       });
       
-      const currentWeekId = getCurrentWeekId();
-      let currentTreasury = myClub.treasury || 0;
-      if (myClub.weekId !== currentWeekId) {
-         currentTreasury = 0;
-      }
-      
       const pointsToAdd = amount * 10;
-      let newTreasury = currentTreasury + pointsToAdd;
+      let newTreasury = (myClub.treasury || 0) + pointsToAdd;
       let newLevel = myClub.level || 1;
       let newCapacity = myClub.capacity || 5;
       let target = myClub.targetTreasury || 50000;
@@ -183,19 +162,13 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
       }
 
       const clubRef = doc(db, 'clubs', myClub.id);
-      const updates: any = {
+      await updateDoc(clubRef, {
         treasury: newTreasury,
         level: newLevel,
         capacity: newCapacity,
         targetTreasury: target,
-        weekId: currentWeekId
-      };
-      if (myClub.weekId !== currentWeekId) {
-         updates.contributions = { [currentUserUid]: pointsToAdd };
-      } else {
-         updates[`contributions.${currentUserUid}`] = increment(pointsToAdd);
-      }
-      await updateDoc(clubRef, updates);
+        [`contributions.${currentUserUid}`]: increment(pointsToAdd)
+      });
 
       setDonateAmount('');
       if (leveledUp) {
@@ -525,3 +498,8 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
     </div>
   );
 }
+"""
+
+with open('src/components/ClubsTab.tsx', 'w') as f:
+    f.write(new_code)
+print("Updated ClubsTab.tsx successfully!")

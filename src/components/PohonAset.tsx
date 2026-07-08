@@ -6,7 +6,6 @@ import { db } from '../firebase';
 import { playCoin, playWrong, playWin, playLose, playClick, subscribeToPause, setGameViewTrack } from '../lib/audio';
 import { useTranslation } from '../lib/LanguageContext';
 
-import { calculateLevelFromCoins } from './Dashboard';
 import { SettingsModal } from './SettingsModal';
 
 // Define base target and duration
@@ -48,7 +47,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
   
   // Real global coins from snapshot
   const displayCoins = userData?.totalCoins || userData?.coins || 0;
-  const userLevel = calculateLevelFromCoins(displayCoins);
+  const userLevel = userData?.league !== undefined ? userData?.league : 0;
 
   // Scaling Factor
   const targetAset = BASE_TARGET * Math.pow(1.5, userLevel);
@@ -143,9 +142,9 @@ export default function PohonAset({ user, userData, onBack }: any) {
         const submitScore = async () => {
           try {
             const docRef = doc(db, 'users', user.uid);
-            await updateDoc(docRef, { totalCoins: increment(coinsWon) });
+            await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, coinsWon));
           } catch (err) {
-            console.error("Gagal update score:", err);
+            console.warn("Gagal update score:", err);
           } finally {
             setIsSaving(false);
           }
@@ -374,8 +373,8 @@ export default function PohonAset({ user, userData, onBack }: any) {
           </h1>
           <p className="text-center text-slate-500 mb-6 font-medium">
             {language === 'id' 
-              ? `Bantu Pohon Asetmu mencapai Rp ${formattedTarget} dalam ${GAME_DURATION} detik. Pilih investasi dan masukkan ke cabang yang TEPAT! (Level ${userLevel})` 
-              : `Help your Asset Tree reach IDR ${formattedTarget} in ${GAME_DURATION} seconds. Choose an investment and sort it into the RIGHT branch! (Level ${userLevel})`}
+              ? `Bantu Pohon Asetmu mencapai Rp ${formattedTarget} dalam ${GAME_DURATION} detik. Pilih investasi dan masukkan ke cabang yang TEPAT! (Liga ${userLevel})` 
+              : `Help your Asset Tree reach IDR ${formattedTarget} in ${GAME_DURATION} seconds. Choose an investment and sort it into the RIGHT branch! (League ${userLevel})`}
           </p>
           
           <div className="space-y-4 mb-8">
@@ -435,7 +434,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
           <div className="text-right flex flex-col items-end">
             <div className="flex items-center gap-1.5 mb-0.5">
               <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                Level {userLevel}
+                {language === 'id' ? 'Liga' : 'League'} {userLevel}
               </span>
               <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest leading-none">
                 {language === 'id' ? "Total Aset" : "Total Assets"}

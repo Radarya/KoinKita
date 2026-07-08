@@ -47,7 +47,7 @@ const playTone = (freq: number, type: OscillatorType, duration: number, vol: num
     osc.start();
     osc.stop(audioCtx.currentTime + duration);
   } catch (e) {
-    console.error("Audio error:", e);
+    console.warn("Audio error:", e);
   }
 };
 

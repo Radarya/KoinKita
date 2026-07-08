@@ -29,7 +29,7 @@ export default function InboxModal({ onClose, user, userData, triggerToast }: In
       setMessages(msgs);
       setLoading(false);
     }, (error) => {
-      console.error('Inbox snapshot error:', error);
+      console.warn('Inbox snapshot error:', error);
       setLoading(false);
     });
     
@@ -54,7 +54,7 @@ export default function InboxModal({ onClose, user, userData, triggerToast }: In
       
       await deleteDoc(doc(db, 'inbox', msg.id));
     } catch (e) {
-      console.error(e);
+      console.warn(e);
       triggerToast('Error claiming', 'error');
     }
   };
@@ -71,7 +71,7 @@ export default function InboxModal({ onClose, user, userData, triggerToast }: In
       await deleteDoc(doc(db, 'inbox', msg.id));
       triggerToast(language === 'id' ? 'Teman ditambahkan!' : 'Friend added!', 'success');
     } catch (e) {
-      console.error(e);
+      console.warn(e);
       triggerToast('Error accepting friend', 'error');
     }
   };
@@ -81,7 +81,7 @@ export default function InboxModal({ onClose, user, userData, triggerToast }: In
     try {
       await deleteDoc(doc(db, 'inbox', msgId));
     } catch (e) {
-      console.error(e);
+      console.warn(e);
     }
   };
 

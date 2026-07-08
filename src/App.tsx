@@ -28,8 +28,7 @@ import {
   TrendingUp,
   ChevronDown,
   CircleDollarSign,
-  Music,
-  Sliders,
+  Users,
   CheckCircle2,
   Gift,
   ArrowUp,
@@ -217,7 +216,7 @@ export default function App() {
                displayName = userSnap.data().fullName;
              }
            } catch (e) {
-             console.error("Error fetching user profile for welcome toast", e);
+             console.warn("Error fetching user profile for welcome toast", e);
            }
            
            if (currentScreen !== 'loading') {
@@ -370,30 +369,30 @@ const authTranslations = {
     // Terms modal
     tosTitle: "Aturan Main (TOS)",
     tosIntro: "Selamat datang di KoinKita! Aturan Main ini mengatur penggunaan layanan, fitur, dan platform edukasi KoinKita. Dengan mendaftar dan bermain, Anda menyetujui seluruh ketentuan di bawah ini.",
-    tosSec1Title: "Pendaftaran & Akun",
-    tosSec1Desc: "Pengguna disarankan memberikan informasi yang akurat agar sistem dapat mengalkulasi tingkat kesulitan dan simulasi yang tepat. Keamanan dan kerahasiaan akun Google yang ditautkan ke KoinKita sepenuhnya menjadi tanggung jawab pengguna.",
-    tosSec2Title: "Koin & Item Virtual",
-    tosSec2Desc: "Koin, skor, tingkat (level), dan seluruh aset virtual di dalam ekosistem KoinKita murni bertujuan simulasi. Mata uang dan aset virtual ini tidak memiliki nilai finansial di dunia nyata, dan dilarang untuk diperjualbelikan, ditransfer, atau ditukar dengan mata uang fiat (uang asli).",
+    tosSec1Title: "Registrasi & Akun",
+    tosSec1Desc: "Pengguna wajib memberikan informasi yang akurat (seperti umur) agar sistem dapat menghitung tingkat kesulitan dan simulasi yang pas. Keamanan dan kerahasiaan akun (email dan sandi) sepenuhnya menjadi tanggung jawab pengguna.",
+    tosSec2Title: "Koin, Klub, & Liga Mingguan",
+    tosSec2Desc: "Koin, poin kas klub, XP Liga, dan semua aset virtual di dalam KoinKita murni untuk tujuan simulasi edukasi. Aset ini tidak memiliki nilai finansial di dunia nyata dan tidak dapat diuangkan. Untuk menjaga permainan tetap kompetitif, promosi/degradasi Liga dan misi pengumpulan poin kas klub (crowdfunding) dapat diperbarui atau di-reset secara berkala setiap minggunya.",
     tosSec3Title: "Integritas & Fair Play",
-    tosSec3Desc: "Setiap pemain diwajibkan menjunjung tinggi sportivitas. Segala bentuk eksploitasi bug, penggunaan bot, modifikasi script secara ilegal, atau upaya manipulasi data papan peringkat (leaderboard) akan berujung pada sanksi berupa pemblokiran akun dan penghapusan skor tanpa pemberitahuan.",
+    tosSec3Desc: "Setiap pemain wajib menjaga sportivitas. Segala bentuk eksploitasi celah (bug), penggunaan bot, modifikasi skrip ilegal (termasuk memanipulasi LocalStorage/Inspect Element), atau upaya memanipulasi data papan peringkat akan dikenakan sanksi berupa penghapusan skor atau pemblokiran akun tanpa pemberitahuan.",
     tosSec4Title: "DISCLAIMER PENASIHAT KEUANGAN",
     tosSec4Desc: "Semua simulasi perhitungan inflasi, investasi, penghematan, dan alokasi anggaran dalam KoinKita dibuat sesederhana mungkin untuk keperluan edugame (edukasi gim). KoinKita tidak bertindak sebagai Penasihat Keuangan (Financial Advisor) profesional. Keputusan pengelolaan finansial secara nyata sepenuhnya menjadi tanggung jawab pribadi Anda.",
     tosSec5Title: "Hak Pengembang (Developer Rights)",
-    tosSec5Desc: "Pengembang dapat sewaktu-waktu memperbarui mekanik permainan, menyesuaikan skor, atau membatasi perolehan koin/aset untuk menjaga ekosistem game tanpa kewajiban memberi kompensasi atas skor sebelumnya.",
+    tosSec5Desc: "Pengembang dapat sewaktu-waktu memperbarui mekanik permainan, menyesuaikan skor, mengatur ulang sistem level, atau membatasi perolehan koin/aset untuk menjaga ekosistem game tanpa kewajiban memberi kompensasi atas skor sebelumnya.",
     tosUnderstand: "Saya Mengerti",
     // Privacy modal
     privacyTitle: "Kebijakan Privasi",
-    privacyIntro: "Bagian ini fokus pada transparansi mengenai data apa yang kami ambil, untuk apa digunakan, dan di mana disimpannya.",
+    privacyIntro: "Bagian ini fokus pada transparansi mengenai data apa yang kami kumpulkan, untuk apa data tersebut digunakan, dan di mana disimpannya.",
     privacySec1Title: "Data yang Kami Kumpulkan",
-    privacySec1Desc: "Kami mengumpulkan informasi berupa Nama Lengkap, Alamat Email/Nomor Telepon, Umur, dan Kata Sandi saat kamu mendaftar.",
+    privacySec1Desc: "Kami mengumpulkan informasi berupa Nama Lengkap, Username, Alamat Email, Tanggal Lahir, dan Kata Sandi saat kamu mendaftar.",
     privacySec2Title: "Tujuan Pengumpulan Data",
-    privacySec2Name: "Nama: Untuk personalisasi tampilan (menyapa kamu di dashboard).",
-    privacySec2Email: "Email/Nomor Telepon: Untuk keamanan akun (login) dan proses verifikasi.",
-    privacySec2Age: "Umur: Untuk menentukan jenis atau tingkat kesulitan game yang cocok untukmu.",
+    privacySec2Name: "Nama & Username: Untuk personalisasi tampilan (menyapa kamu di dashboard) dan membedakan profilmu di daftar teman maupun klub.",
+    privacySec2Email: "Email: Untuk keamanan akun (login) dan proses verifikasi kredensial.",
+    privacySec2Age: "Tanggal Lahir: Untuk menghitung umur guna menentukan tingkat kesulitan game yang cocok untukmu.",
     privacySec3Title: "Keamanan Data Firebase",
-    privacySec3Desc: "Kami sangat menjaga keamanan datamu. Semua data disimpan secara aman menggunakan infrastruktur Google Firebase dengan enkripsi standar industri. Kami tidak akan pernah menjual atau membagikan data pribadimu ke pihak ketiga tanpa izin.",
+    privacySec3Desc: "Kami sangat menjaga keamanan datamu. Semua data disimpan secara aman menggunakan infrastruktur Google Firebase dengan standar keamanan enkripsi industri. Kami tidak akan pernah menjual atau membagikan data pribadimu ke pihak ketiga tanpa izin eksplisit.",
     privacySec4Title: "Persetujuan Pengguna",
-    privacySec4Desc: "Dengan membuat akun dan memainkan game ini, kamu dinyatakan setuju bahwa data yang kamu masukkan akan diproses sesuai dengan kebijakan ini.",
+    privacySec4Desc: "Dengan membuat akun dan memainkan game ini, kamu dinyatakan setuju bahwa data yang kamu masukkan akan diproses sesuai dengan kebijakan privasi ini.",
     agreeButton: "Saya Setuju",
     domainHelperTitle: "Domain Belum Diizinkan (Unauthorized Domain)",
     domainHelperDesc: "Firebase mendeteksi bahwa domain tempat game ini berjalan belum didaftarkan di daftar 'Authorized Domains' di Firebase Project Anda.",
@@ -419,10 +418,10 @@ const authTranslations = {
     repeatPasswordLabel: "Repeat Password",
     heroNameLabel: "Full Name",
     heroNamePlaceholder: "e.g., John Doe",
-    usernameLabel: "Username",
+    usernameLabel: "Username (Handle)",
     usernamePlaceholder: "e.g., john_doe",
     birthdayLabel: "Date of Birth",
-    birthdayTooltip: "We need your age to automatically adjust the game's difficulty level.",
+    birthdayTooltip: "We need your age to automatically adjust the game's difficulty.",
     submitLogin: "Start Adventure",
     submitRegister: "Create Account Now!",
     orPlayWith: "OR PLAY WITH",
@@ -433,35 +432,35 @@ const authTranslations = {
     playTitle: "KoinKita",
     emailRequired: "Registration email is required.",
     passwordRequired: "Password is required.",
-    successLogin: "Login Successful! Preparing to start adventure...",
+    successLogin: "Login Successful! Preparing your adventure...",
     successRegister: "Registration Successful! Welcome friend!",
     // Terms modal
     tosTitle: "Rules of Play (TOS)",
     tosIntro: "Welcome to KoinKita! These Rules of Play govern your use of the KoinKita services, features, and educational platform. By registering and playing, you agree to all the terms below.",
     tosSec1Title: "Registration & Account",
-    tosSec1Desc: "Users are advised to provide accurate information so that the system can calculate appropriate difficulty levels and simulations. The security and confidentiality of Google accounts linked to KoinKita are entirely the responsibility of the user.",
-    tosSec2Title: "Coins & Virtual Items",
-    tosSec2Desc: "Coins, scores, levels, and all virtual assets within the KoinKita ecosystem are purely for simulation purposes. These virtual currencies and assets have no real-world financial value, and may not be sold, transferred, or exchanged for fiat currency (real money).",
+    tosSec1Desc: "Users are advised to provide accurate information (such as age) so that the system can calculate appropriate difficulty levels and simulations. The security and confidentiality of accounts (email and password) are entirely the responsibility of the user.",
+    tosSec2Title: "Coins, Clubs, & Weekly Leagues",
+    tosSec2Desc: "Coins, club treasury points, League XP, and all virtual assets within the KoinKita ecosystem are purely for educational simulation purposes. They have no real-world financial value and cannot be cashed out. To maintain competitive gameplay, League promotions/demotions and club crowdfunding missions may be periodically updated or reset every week.",
     tosSec3Title: "Integrity & Fair Play",
-    tosSec3Desc: "Every player is required to maintain sportsmanship. Any form of bug exploitation, bot usage, illegal script modification, or attempts to manipulate leaderboard data will result in sanctions, including account suspension and score deletion without prior notice.",
+    tosSec3Desc: "Every player is required to maintain sportsmanship. Any form of bug exploitation, bot usage, illegal script modification (including manipulating LocalStorage or Inspect Element), or attempts to manipulate leaderboard data will result in sanctions, such as score deletion or account suspension without prior notice.",
     tosSec4Title: "FINANCIAL ADVISOR DISCLAIMER",
     tosSec4Desc: "All inflation, investment, savings, and budget allocation simulations in KoinKita are kept as simple as possible for educational game purposes. KoinKita does not act as a professional Financial Advisor. Real-world financial decisions are entirely your personal responsibility.",
     tosSec5Title: "Developer Rights",
-    tosSec5Desc: "Developers may update game mechanics, adjust scores, or limit coin/asset acquisition at any time to maintain the game's ecosystem, without any obligation to compensate for prior scores.",
+    tosSec5Desc: "Developers may update game mechanics, adjust scores, rework the leveling system, or limit coin/asset acquisition at any time to maintain the game's ecosystem, without any obligation to compensate for prior scores.",
     tosUnderstand: "I Understand",
     // Privacy modal
     privacyTitle: "Privacy Policy",
     privacyIntro: "This section focuses on transparency regarding what data we collect, what it is used for, and where it is stored.",
     privacySec1Title: "Data Collected",
-    privacySec1Desc: "We collect information such as Full Name, Email Address, Age, and Secret Password when you register.",
+    privacySec1Desc: "We collect information such as your Full Name, Username, Email Address, Date of Birth, and Secret Password when you register.",
     privacySec2Title: "Purpose of Data Collection",
-    privacySec2Name: "Name: For display personalization (greeting you on the dashboard).",
-    privacySec2Email: "Email: For account security (login) and verification processes.",
-    privacySec2Age: "Age: To determine the appropriate game difficulty or type for you.",
+    privacySec2Name: "Name & Username: For display personalization (greeting you on the dashboard) and to identify your profile among friends and club members.",
+    privacySec2Email: "Email: For account security (login) and credential verification processes.",
+    privacySec2Age: "Date of Birth: To calculate your age in order to determine the appropriate game difficulty or content suitable for you.",
     privacySec3Title: "Firebase Data Security",
-    privacySec3Desc: "We take the security of your data seriously. All data is securely stored using Google Firebase infrastructure with industry-standard encryption. We will never sell or share your personal data with third parties without permission.",
+    privacySec3Desc: "We take the security of your data seriously. All data is securely stored using Google Firebase infrastructure with industry-standard encryption. We will never sell or share your personal data with third parties without your explicit permission.",
     privacySec4Title: "User Consent",
-    privacySec4Desc: "By creating an account and playing this game, you consent to the processing of your input data in accordance with this policy.",
+    privacySec4Desc: "By creating an account and playing this game, you consent that your input data will be processed in accordance with this privacy policy.",
     agreeButton: "I Agree",
     domainHelperTitle: "Unauthorized Domain",
     domainHelperDesc: "Firebase has detected that the domain this game is running on is not added to the 'Authorized Domains' list in your Firebase Project configuration.",
@@ -541,12 +540,12 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
   };
 
   const handleDisplayError = (error: any) => {
-    // Check if error is a known/expected user input error to avoid triggering console.error overlays
+    // Check if error is a known/expected user input error to avoid triggering console.warn overlays
     const code = error?.code || '';
     const message = error?.message || '';
 
     if (!code || code === 'auth/network-request-failed') {
-      console.error("Auth System Error:", error);
+      console.warn("Auth System Error:", error);
     } else {
       console.warn("Auth User Event:", code);
     }
@@ -675,7 +674,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
           createdAt: new Date()
         });
       } catch (firestoreErr: any) {
-        console.error("Firestore Rules Error or logic error: ", firestoreErr);
+        console.warn("Firestore Rules Error or logic error: ", firestoreErr);
         throw new Error(`firestore-rule-error: ${firestoreErr.message || firestoreErr.code || 'Unknown error'}`);
       }
 
@@ -791,7 +790,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
         setCopied(false);
       }, 2000);
     } catch (copyErr) {
-      console.error("Failed to copy domain name to clipboard:", copyErr);
+      console.warn("Failed to copy domain name to clipboard:", copyErr);
     }
   };
 
@@ -1268,17 +1267,17 @@ const landingContent = {
     heroBadge: "EDUGAME FINANSIAL",
     heroTitle: "KoinKita",
     heroSlogan: "Belajar Ngatur Duit Gak Pernah Seseru Ini! Dari Detektif Keuangan sampai Masak Anggaran, Siap Bangun Pohon Asetmu?",
-    heroCta: "Mulai Petualangan Cuan \u2794",
+    heroCta: "Mulai Petualangan Cuan ➔",
     loginBtn: "Masuk / Login",
-    techTitle: "Fitur Unggulan & Sistem Keamanan",
-    tech1Title: "Keamanan Anti-Cheat Firebase",
-    tech1Desc: "Enkripsi yang mencegah manipulasi Inspect Element (F12) dan perubahan token secara sepihak.",
-    tech2Title: "Audio Imersif Kontekstual",
-    tech2Desc: "Transisi pudar suara otomatis 500ms yang menyesuaikan fase lintas mini-game.",
-    tech3Title: "Dua Bahasa Instan",
-    tech3Desc: "Mesin bilingual tersentralisasi yang responsif tanpa perlu memuat ulang halaman.",
-    tech4Title: "Kontrol Sistem Fleksibel",
-    tech4Desc: "Jeda waktu nyata dalam permainan dan pengatur audio utama 3-mode.",
+    techTitle: "Fitur Sosial & Kompetitif Unggulan",
+    tech1Title: "Liga Finansial Mingguan",
+    tech1Desc: "Bersaing dengan 30 pemain lain. Kumpulkan XP dan raih promosi ke liga yang lebih tinggi setiap minggunya!",
+    tech2Title: "Klub Finansial & Crowdfunding",
+    tech2Desc: "Bentuk klub, kumpulkan anggota, dan patungan koin (crowdfunding) untuk menaikkan level dan kapasitas klubmu.",
+    tech3Title: "Misi Harian & Misi Klub",
+    tech3Desc: "Selesaikan misi personal untuk mendapat koin, dan misi klub untuk menyumbang poin kontribusi setiap harinya.",
+    tech4Title: "Ekosistem Pertemanan & Hadiah",
+    tech4Desc: "Tambahkan teman, cek profil dan statistik mereka, serta kirim nyawa setiap hari untuk saling membantu.",
     trapTitle: "Tantangan Finansial Nyata",
     trap1: "Jebakan Pinjol & Gen Z",
     trap2: "Investasi Bodong/Ponzi",
@@ -1288,63 +1287,63 @@ const landingContent = {
     game1Desc: "Uji kejelian mendeteksi skema ponzi dan investasi bodong.",
     game2Title: "Koki Anggaran",
     game2Desc: "Bukan manipulasi keuangan! Di sini kamu jadi koki yang meracik porsi tabungan dan belanjaan agar anggaran bulananmu tidak 'gosong'.",
-    game3Title: "Tebak Kata",
-    game3Desc: "Wordle dinamis penguji wawasan istilah finansial dengan kotak adaptif.",
+    game3Title: "Fin-Wordle",
+    game3Desc: "Tebak kata dinamis penguji wawasan istilah finansial dengan kotak adaptif.",
     game4Title: "Pohon Aset",
     game4Desc: "Simulasi investasi jangka panjang, rawat aset hingga berbuah dividen.",
-    faqTitle: "Pertanyaan Populer",
+    faqTitle: "Pertanyaan Populer (FAQ)",
     faq1q: "Apakah game ini gratis?",
-    faq1a: "Ya! KoinKita 100% gratis dimainkan dengan tujuan utama membantu literasi finansial masyarakat Indonesia.",
-    faq2q: "Bagaimana cara kerja Pohon Aset?",
-    faq2a: "Kamu bermain dengan simulasi alokasi dana ke instrumen rendah risiko (Aman) atau tinggi risiko (Cepat), ditambah event pasar acak yang mensimulasikan dunia nyata.",
-    faq3q: "Apakah data login saya aman dengan Firebase?",
-    faq3a: "Sangat aman. Kami tidak menyimpan password Anda secara langsung, dan proses login sangat terenkripsi dengan standar keamanan Google Firebase.",
-    faq4q: "Apakah game ini cocok untuk pemula yang kurang tahu soal finansial?",
-    faq4a: "Sangat cocok! Konsep yang rumit disederhanakan ke bentuk mini-games yang menyenangkan, mulai dari anggaran dasar hingga jenis investasi.",
-    faq5q: "Bagaimana cara menaikkan level profil saya?",
-    faq5a: "Cukup mainkan mini-game seperti 'Koki Anggaran' atau 'Detektif Cuan' untuk mendapat Koin. Semakin banyak koin, levelmu akan otomatis naik!",
+    faq1a: "Ya! KoinKita 100% gratis dimainkan dengan tujuan utama meningkatkan literasi finansial masyarakat.",
+    faq2q: "Bagaimana cara kerja Liga Finansial Mingguan?",
+    faq2a: "Kamu akan ditempatkan dalam grup berisi 30 pemain. Kumpulkan XP sebanyak mungkin dengan bermain. Top 5 akan promosi ke liga berikutnya, sementara 5 terbawah akan degradasi di akhir minggu.",
+    faq3q: "Apa keuntungan bergabung dengan Klub Finansial?",
+    faq3a: "Klub memungkinkan kamu berkumpul dengan pemain lain. Kamu bisa menyelesaikan Misi Klub khusus dan berdonasi koin untuk menaikkan level serta kapasitas klub bersama-sama.",
+    faq4q: "Apakah misi klub atau misi harian akan direset?",
+    faq4a: "Misi harian akan direset setiap hari (24 jam), dan untuk menjaga permainan tetap kompetitif progres kontribusi pemain di klub bisa direkam secara berkala. Misi ini sangat membantumu untuk terus aktif.",
+    faq5q: "Bagaimana cara menaikkan Liga profil saya?",
+    faq5a: "Cukup mainkan mini-game untuk mendapat Koin dan XP. Ligamu akan otomatis naik seiring bertambahnya akumulasi XP milikmu, membuka liga baru dari Pemula hingga Master Kekayaan!",
     ranksTitle: "Tingkatan Literasi Finansialmu",
-    ranksDesc: "Kumpulkan koin dengan bermain cerdas untuk berevolusi dari Pemula menjadi Sultan Cuan!",
-    rank0Title: "Pemula 🌱",
-    rank0Desc: "Langkah awal. Mulailah mengerti pentingnya koinmu.",
-    rank0Coins: "0 - 99 Koin",
-    rank0Perk: "Akses ke semua mode permainan dasar.",
-    rank1Title: "Sadar Finansial 📘",
-    rank1Desc: "Sudah mulai sadar akan membedakan kebutuhan dan keinginan.",
-    rank1Coins: "100 - 600 Koin",
-    rank1Perk: "Bonus koin saat pertama kali menyelesaikan kuis.",
-    rank2Title: "Bijak Belanja 🛒",
-    rank2Desc: "Jago mengatur anggaran bulanan tanpa jebol.",
-    rank2Coins: "601 - 2000 Koin",
-    rank2Perk: "Strategi anggaran lebih efisien di Detektif Cuan.",
-    rank3Title: "Investor Cerdas 📈",
-    rank3Desc: "Mulai melirik investasi dan paham efek inflasi.",
-    rank3Coins: "2001 - 4000 Koin",
-    rank3Perk: "Mulai memahami instrumen return tinggi di Pohon Aset.",
-    rank4Title: "Ahli Anggaran 👑",
-    rank4Desc: "Ahli di segala instrumen. Stabil di keadaan tidak terduga.",
-    rank4Coins: "4001 - 6000 Koin",
-    rank4Perk: "Lebih tangguh menahan krisis ekonomi mendadak.",
-    rank5Title: "Sultan Cuan 💎",
-    rank5Desc: "Kebebasan finansial telah tercapai. Koin bekerja untukmu!",
-    rank5Coins: "6001+ Koin",
-    rank5Perk: "Title eksklusif tertinggi di Global Leaderboard!",
+    ranksDesc: "Kumpulkan XP dengan bermain cerdas untuk berevolusi dari Liga Pemula hingga Liga Master Kekayaan!",
+    rank0Title: "Pemula 🥉",
+    rank0Desc: "Langkah awal petualangan. Mulailah memahami nilai dasar koinmu.",
+    rank0Coins: "0 - 999 XP",
+    rank0Perk: "Akses ke semua fitur dasar dan Liga Pemula.",
+    rank1Title: "Sadar Finansial 🥈",
+    rank1Desc: "Mulai cerdas membedakan kebutuhan dan keinginan.",
+    rank1Coins: "1.000 - 4.999 XP",
+    rank1Perk: "Promosi ke Liga Sadar Finansial, buka misi harian baru.",
+    rank2Title: "Bijak Belanja 🥇",
+    rank2Desc: "Jago menyusun prioritas anggaran belanja agar tidak pernah defisit.",
+    rank2Coins: "5.000 - 14.999 XP",
+    rank2Perk: "Promosi ke Liga Bijak Belanja, buka donasi kas klub.",
+    rank3Title: "Investor Cerdas 🏅",
+    rank3Desc: "Memahami instrumen investasi untuk melindungi aset dari inflasi.",
+    rank3Coins: "15.000 - 29.999 XP",
+    rank3Perk: "Promosi ke Liga Investor Cerdas, buka instrumen tinggi di Pohon Aset.",
+    rank4Title: "Ahli Anggaran 💎",
+    rank4Desc: "Hebat mengelola portofolio aset, tangguh menghadapi guncangan pasar.",
+    rank4Coins: "30.000 - 49.999 XP",
+    rank4Perk: "Bersaing di Liga Diamond (Ahli Anggaran) tingkat tinggi.",
+    rank5Title: "Master Kekayaan 👑",
+    rank5Desc: "Mencapai kebebasan finansial sejati di mana aset bekerja untukmu!",
+    rank5Coins: "50.000+ XP",
+    rank5Perk: "Menempati tahta kehormatan di Liga Master dan Leaderboard Global.",
   },
   en: {
     heroBadge: "FINANCIAL EDUGAME",
     heroTitle: "KoinKita",
     heroSlogan: "Financial Literacy Has Never Been This Fun! From Financial Detective to Budget Chef, Ready to Grow Your Asset Tree?",
-    heroCta: "Start Wealth Adventure \u2794",
+    heroCta: "Start Wealth Adventure ➔",
     loginBtn: "Sign In / Login",
-    techTitle: "Core Features & Security Systems",
-    tech1Title: "Firebase Anti-Cheat Security",
-    tech1Desc: "Encryption that secures against Inspect Element (F12) manipulation and token hacking.",
-    tech2Title: "Immersive Contextual Audio",
-    tech2Desc: "500ms automatic sound fade-out transitions across dynamic mini-games.",
-    tech3Title: "Instant Bilingual Engine",
-    tech3Desc: "Responsive centralized bilingual engine seamlessly switching ID/EN.",
-    tech4Title: "Flexible System Controls",
-    tech4Desc: "In-game real-time pause and 3-mode master audio controller.",
+    techTitle: "Social & Competitive Features",
+    tech1Title: "Weekly Financial Leagues",
+    tech1Desc: "Compete with 30 other players. Gather XP to earn a promotion to a higher league every week!",
+    tech2Title: "Financial Clubs & Crowdfunding",
+    tech2Desc: "Form a club, gather members, and pool coins (crowdfunding) to level up your club and expand its capacity.",
+    tech3Title: "Daily & Club Quests",
+    tech3Desc: "Complete personal quests for coins, and tackle club quests to contribute points to your club's treasury daily.",
+    tech4Title: "Friends & Gifting Ecosystem",
+    tech4Desc: "Add friends, view their profiles, compare stats, and send them lives to help each other out.",
     trapTitle: "Real Financial Challenges",
     trap1: "Loan Shark Traps",
     trap2: "Fraudulent Ponzi Schemes",
@@ -1360,41 +1359,41 @@ const landingContent = {
     game4Desc: "Long-term investment simulation, nurture assets to reap dividends.",
     faqTitle: "Frequently Asked Questions",
     faq1q: "Is this game free?",
-    faq1a: "Yes! KoinKita is 100% free to play with the main goal of helping public financial literacy.",
-    faq2q: "How does the Asset Tree work?",
-    faq2a: "You play by allocating funds to low-risk (Safe) or high-risk (Fast) instruments, plus random market events that simulate the real world.",
-    faq3q: "Is my login data safe with Firebase?",
-    faq3a: "Extremely safe. We don't store your password directly, the login process is highly encrypted with Google Firebase Cloud security standards.",
-    faq4q: "Is this game suitable for total beginners in finance?",
-    faq4a: "Absolutely! Complex concepts are simplified into fun mini-games, starting from basic budgeting to recognizing investment types.",
-    faq5q: "How can I level up my profile?",
-    faq5a: "Just play our mini-games like 'Budget Chef' or 'Cash Detective' to earn Coins. The more coins you collect, your level automatically increases!",
-    ranksTitle: "Your Financial Literacy Ranks",
-    ranksDesc: "Collect coins by playing smart to evolve from a Beginner to a Wealth Master!",
-    rank0Title: "Beginner 🌱",
-    rank0Desc: "The very first step. Start understanding the value of your coins.",
-    rank0Coins: "0 - 99 Coins",
-    rank0Perk: "Access to all basic game modes.",
-    rank1Title: "Financially Aware 📘",
-    rank1Desc: "Starting to grasp the difference between needs and wants.",
-    rank1Coins: "100 - 600 Coins",
-    rank1Perk: "Bonus coins when first completing quizzes.",
-    rank2Title: "Wise Spender 🛒",
-    rank2Desc: "Mastering the monthly budget without going broke.",
-    rank2Coins: "601 - 2000 Coins",
-    rank2Perk: "More efficient budgeting strategies in Cash Detective.",
-    rank3Title: "Smart Investor 📈",
-    rank3Desc: "Looking into investments and understanding the effects of inflation.",
-    rank3Coins: "2001 - 4000 Coins",
-    rank3Perk: "Understand high-return instruments in Asset Tree.",
-    rank4Title: "Budget Expert 👑",
-    rank4Desc: "Expert in all financial instruments. Stable even in unexpected circumstances.",
-    rank4Coins: "4001 - 6000 Coins",
-    rank4Perk: "High resilience to sudden economic crises.",
-    rank5Title: "Wealth Master 💎",
-    rank5Desc: "Financial freedom has been achieved. Your coins work for you!",
-    rank5Coins: "6001+ Coins",
-    rank5Perk: "The highest exclusive title on the Global Leaderboard!"
+    faq1a: "Yes! KoinKita is 100% free to play, aimed at improving public financial literacy.",
+    faq2q: "How does the Weekly Financial League work?",
+    faq2a: "You'll be placed in a group with 30 players. Collect as much XP as possible by playing. The top 5 get promoted, while the bottom 5 get demoted at the end of the week.",
+    faq3q: "What are the benefits of joining a Financial Club?",
+    faq3a: "Clubs let you team up with other players. You can complete exclusive Club Quests and donate coins to level up and expand the club's capacity together.",
+    faq4q: "Do club quests or daily quests reset?",
+    faq4a: "Daily quests reset every day (24 hours). Club contribution progress helps keep the game competitive and is periodically logged to keep you active and engaged.",
+    faq5q: "How do I upgrade my profile League?",
+    faq5a: "Simply play mini-games to earn Coins and XP. Your League will automatically advance as your cumulative XP grows, unlocking new leagues from Beginner up to Wealth Master!",
+    ranksTitle: "Your Financial Literacy Tiers",
+    ranksDesc: "Earn XP by playing smart to advance from the Beginner League up to the Wealth Master League!",
+    rank0Title: "Beginner 🥉",
+    rank0Desc: "The first step. Start understanding the baseline value of your coins.",
+    rank0Coins: "0 - 999 XP",
+    rank0Perk: "Access to all base game features and the Beginner League.",
+    rank1Title: "Financially Aware 🥈",
+    rank1Desc: "Discerning the crucial differences between core needs and modern wants.",
+    rank1Coins: "1,000 - 4,999 XP",
+    rank1Perk: "Promotion to Financially Aware League, unlock new daily quests.",
+    rank2Title: "Wise Spender 🥇",
+    rank2Desc: "Mastering spending prioritization so your budget is never in deficit.",
+    rank2Coins: "5,000 - 14,999 XP",
+    rank2Perk: "Promotion to Wise Spender League, unlock club treasury contributions.",
+    rank3Title: "Smart Investor 🏅",
+    rank3Desc: "Harnessing financial assets to buffer wealth against global inflation.",
+    rank3Coins: "15,000 - 29,999 XP",
+    rank3Perk: "Promotion to Smart Investor League, unlock high-yield asset tree instruments.",
+    rank4Title: "Budget Expert 💎",
+    rank4Desc: "Highly proficient in portfolio resilience through economic shifts.",
+    rank4Coins: "30,000 - 49,999 XP",
+    rank4Perk: "Compete at the highest level of the elite Budget Expert (Diamond) League.",
+    rank5Title: "Wealth Master 👑",
+    rank5Desc: "Complete financial freedom achieved. Your capital generates passive yield!",
+    rank5Coins: "50,000+ XP",
+    rank5Perk: "Reign on the absolute throne of the Wealth Master League and Global Leaderboard.",
   }
 };
 
@@ -1681,10 +1680,10 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
               className="md:col-span-2 bg-white rounded-3xl p-8 shadow-md shadow-emerald-50 border border-slate-100 flex flex-col items-start text-left group hover:shadow-xl hover:shadow-emerald-100/50 hover:border-emerald-200 transition-all relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                <ShieldCheck className="w-48 h-48 text-emerald-800" />
+                <Trophy className="w-48 h-48 text-emerald-800" />
               </div>
               <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform border border-emerald-100 relative z-10">
-                <ShieldCheck className="w-7 h-7 text-emerald-600" />
+                <Trophy className="w-7 h-7 text-emerald-600" />
               </div>
               <h3 className="font-poppins font-black text-slate-800 text-2xl mb-3 relative z-10">{t.tech1Title}</h3>
               <p className="text-base text-slate-600 leading-relaxed max-w-lg relative z-10">{t.tech1Desc}</p>
@@ -1699,7 +1698,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
               className="md:col-span-1 bg-white rounded-3xl p-8 shadow-md shadow-emerald-50 border border-slate-100 flex flex-col items-start text-left group hover:shadow-xl hover:shadow-emerald-100/50 hover:border-emerald-200 transition-all"
             >
               <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform border border-indigo-100">
-                <Music className="w-7 h-7 text-indigo-600" />
+                <Users className="w-7 h-7 text-indigo-600" />
               </div>
               <h3 className="font-poppins font-bold text-slate-800 text-xl mb-3">{t.tech2Title}</h3>
               <p className="text-sm text-slate-600 leading-relaxed">{t.tech2Desc}</p>
@@ -1714,7 +1713,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
               className="md:col-span-1 bg-white rounded-3xl p-8 shadow-md shadow-emerald-50 border border-slate-100 flex flex-col items-start text-left group hover:shadow-xl hover:shadow-emerald-100/50 hover:border-emerald-200 transition-all"
             >
               <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform border border-amber-100">
-                <Globe className="w-7 h-7 text-amber-600" />
+                <CheckCircle2 className="w-7 h-7 text-amber-600" />
               </div>
               <h3 className="font-poppins font-bold text-slate-800 text-xl mb-3">{t.tech3Title}</h3>
               <p className="text-sm text-slate-600 leading-relaxed">{t.tech3Desc}</p>
@@ -1729,10 +1728,10 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
               className="md:col-span-2 bg-white rounded-3xl p-8 shadow-md shadow-emerald-50 border border-slate-100 flex flex-col items-start text-left group hover:shadow-xl hover:shadow-emerald-100/50 hover:border-emerald-200 transition-all relative overflow-hidden"
             >
               <div className="absolute bottom-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                <Sliders className="w-40 h-40 text-fuchsia-800" />
+                <Gift className="w-40 h-40 text-fuchsia-800" />
               </div>
               <div className="w-14 h-14 rounded-2xl bg-fuchsia-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform border border-fuchsia-100 relative z-10">
-                <Sliders className="w-7 h-7 text-fuchsia-600" />
+                <Gift className="w-7 h-7 text-fuchsia-600" />
               </div>
               <h3 className="font-poppins font-black text-slate-800 text-2xl mb-3 relative z-10">{t.tech4Title}</h3>
               <p className="text-base text-slate-600 leading-relaxed max-w-lg relative z-10">{t.tech4Desc}</p>
@@ -1750,12 +1749,12 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {[
-              { id: 0, title: t.rank0Title, desc: t.rank0Desc, coins: t.rank0Coins, perk: t.rank0Perk, color: "from-slate-100 to-slate-200", icon: "bg-slate-300/50 text-slate-700 border-slate-300" },
-              { id: 1, title: t.rank1Title, desc: t.rank1Desc, coins: t.rank1Coins, perk: t.rank1Perk, color: "from-blue-100 to-blue-200", icon: "bg-blue-300/50 text-blue-700 border-blue-300" },
-              { id: 2, title: t.rank2Title, desc: t.rank2Desc, coins: t.rank2Coins, perk: t.rank2Perk, color: "from-emerald-100 to-emerald-200", icon: "bg-emerald-300/50 text-emerald-800 border-emerald-300" },
-              { id: 3, title: t.rank3Title, desc: t.rank3Desc, coins: t.rank3Coins, perk: t.rank3Perk, color: "from-teal-100 to-teal-200", icon: "bg-teal-300/50 text-teal-800 border-teal-300" },
-              { id: 4, title: t.rank4Title, desc: t.rank4Desc, coins: t.rank4Coins, perk: t.rank4Perk, color: "from-indigo-100 to-indigo-200", icon: "bg-indigo-300/50 text-indigo-800 border-indigo-300" },
-              { id: 5, title: t.rank5Title, desc: t.rank5Desc, coins: t.rank5Coins, perk: t.rank5Perk, color: "from-amber-100 to-amber-200", icon: "bg-amber-300/50 text-amber-800 border-amber-300" }
+              { id: 0, title: t.rank0Title, desc: t.rank0Desc, perk: t.rank0Perk, color: "from-slate-100 to-slate-200", icon: "bg-slate-300/50 text-slate-700 border-slate-300" },
+              { id: 1, title: t.rank1Title, desc: t.rank1Desc, perk: t.rank1Perk, color: "from-blue-100 to-blue-200", icon: "bg-blue-300/50 text-blue-700 border-blue-300" },
+              { id: 2, title: t.rank2Title, desc: t.rank2Desc, perk: t.rank2Perk, color: "from-emerald-100 to-emerald-200", icon: "bg-emerald-300/50 text-emerald-800 border-emerald-300" },
+              { id: 3, title: t.rank3Title, desc: t.rank3Desc, perk: t.rank3Perk, color: "from-teal-100 to-teal-200", icon: "bg-teal-300/50 text-teal-800 border-teal-300" },
+              { id: 4, title: t.rank4Title, desc: t.rank4Desc, perk: t.rank4Perk, color: "from-indigo-100 to-indigo-200", icon: "bg-indigo-300/50 text-indigo-800 border-indigo-300" },
+              { id: 5, title: t.rank5Title, desc: t.rank5Desc, perk: t.rank5Perk, color: "from-amber-100 to-amber-200", icon: "bg-amber-300/50 text-amber-800 border-amber-300" }
             ].map((rank, index) => (
               <motion.div
                 key={rank.id}
@@ -1763,18 +1762,15 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
-                className={`bg-gradient-to-b ${rank.color} rounded-3xl p-6 shadow-sm border border-white/40 hover:shadow-lg hover:-translate-y-2 transition-all flex flex-col items-center text-center`}
+                className="bg-gradient-to-b from-white/90 to-white/40 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-white hover:shadow-lg hover:-translate-y-2 transition-all flex flex-col items-center text-center"
               >
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black font-poppins shadow-sm border ${rank.icon}`}>
                   {index}
                 </div>
-                <h3 className="font-poppins font-black text-slate-800 text-sm xl:text-base leading-snug mb-2">
+                <h3 className="font-poppins font-black text-slate-800 text-sm xl:text-base leading-snug mb-3">
                   {rank.title}
                 </h3>
-                <div className="bg-white/60 text-[10px] xl:text-[11px] font-bold text-slate-600 px-3 py-1 rounded-full mb-3 tracking-wider uppercase shadow-sm">
-                  {rank.coins}
-                </div>
-                <p className="text-xs xl:text-sm text-slate-700 leading-relaxed font-medium mb-3 flex-grow">
+                <p className="text-xs xl:text-sm text-slate-700 leading-relaxed font-medium mb-4 flex-grow">
                   {rank.desc}
                 </p>
                 <div className="w-full bg-white/40 rounded-xl p-3 border border-white/50 text-left relative mt-auto shadow-sm">

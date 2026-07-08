@@ -15,12 +15,12 @@ export function TopicSelection({ onSelect, onBack, userLevel }: TopicSelectionPr
 
   const getLevelName = (lvl: number, lang: 'id' | 'en') => {
     switch (lvl) {
-      case 5: return lang === 'id' ? 'Sultan Cuan 💎' : 'Wealth Master 💎';
-      case 4: return lang === 'id' ? 'Ahli Anggaran 👑' : 'Budget Expert 👑';
-      case 3: return lang === 'id' ? 'Investor Cerdas 📈' : 'Smart Investor 📈';
-      case 2: return lang === 'id' ? 'Bijak Belanja 🛒' : 'Wise Spender 🛒';
-      case 1: return lang === 'id' ? 'Sadar Finansial 📘' : 'Financially Aware 📘';
-      default: return lang === 'id' ? 'Pemula Keuangan 🌱' : 'Finance Beginner 🌱';
+      case 5: return lang === 'id' ? 'Master Kekayaan 👑' : 'Wealth Master 👑';
+      case 4: return lang === 'id' ? 'Ahli Anggaran 💎' : 'Budget Expert 💎';
+      case 3: return lang === 'id' ? 'Investor Cerdas 🏅' : 'Smart Investor 🏅';
+      case 2: return lang === 'id' ? 'Bijak Belanja 🥇' : 'Wise Spender 🥇';
+      case 1: return lang === 'id' ? 'Sadar Finansial 🥈' : 'Financially Aware 🥈';
+      default: return lang === 'id' ? 'Pemula 🥉' : 'Beginner 🥉';
     }
   };
 
@@ -122,7 +122,7 @@ export function TopicSelection({ onSelect, onBack, userLevel }: TopicSelectionPr
                     </span>
                     {isLocked && (
                       <span className="text-[10px] bg-slate-300 text-slate-600 px-2 py-0.5 rounded-full font-bold">
-                        Lv {topic.unlockLevel}
+                        {language === 'id' ? 'Liga' : 'League'} {topic.unlockLevel}
                       </span>
                     )}
                   </div>
