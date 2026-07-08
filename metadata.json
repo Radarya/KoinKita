@@ -1,0 +1,6 @@
+{
+  "name": "KoinKita v1.0",
+  "description": "Terminal Investasi Mikro Emas dengan refleksi AI philosophical",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

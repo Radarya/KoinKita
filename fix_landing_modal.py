@@ -1,0 +1,76 @@
+import re
+
+with open('src/App.tsx', 'r') as f:
+    content = f.read()
+
+# Remove the banner we just added
+content = re.sub(
+    r'\{hasPendingFriend && \(\s*<div className="bg-emerald-500 text-white py-3 px-4 text-center font-bold sticky top-0 z-50 flex items-center justify-center gap-2 shadow-md">.*?</div>\s*\)\}',
+    '',
+    content,
+    flags=re.DOTALL
+)
+
+modal_html = """
+      <AnimatePresence>
+        {hasPendingFriend && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.9, y: 20 }} 
+              className="relative w-full max-w-sm bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col"
+            >
+              <div className="bg-gradient-to-br from-emerald-400 to-teal-500 p-8 flex flex-col items-center justify-center text-center">
+                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg mb-4 overflow-hidden border-4 border-emerald-100">
+                  <div className="text-5xl">👋</div>
+                </div>
+                <h3 className="text-2xl font-black text-white mb-2 tracking-tight">
+                  {language === 'id' ? 'Undangan Berteman!' : 'Friend Request!'}
+                </h3>
+              </div>
+              <div className="p-6 text-center bg-slate-50">
+                <p className="text-slate-600 font-medium mb-6">
+                  {language === 'id' 
+                    ? 'Seseorang mengundangmu untuk bermain KoinKita bersama. Daftar atau masuk sekarang untuk menerima permintaan berteman!' 
+                    : 'Someone invited you to play KoinKita. Register or log in now to accept the friend request!'}
+                </p>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => { localStorage.removeItem('pendingFriendRequest'); window.location.reload(); }}
+                    className="flex-1 py-3 bg-white border-2 border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl transition-colors"
+                  >
+                    {language === 'id' ? 'Nanti' : 'Later'}
+                  </button>
+                  <button 
+                    onClick={onStart}
+                    className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95 flex justify-center items-center gap-2"
+                  >
+                    {language === 'id' ? 'Masuk / Daftar' : 'Log In / Sign Up'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+"""
+
+content = re.sub(
+    r'(return \(\s*<div.*?className="min-h-screen.*?>)',
+    r'\1\n' + modal_html,
+    content,
+    count=1,
+    flags=re.DOTALL
+)
+
+with open('src/App.tsx', 'w') as f:
+    f.write(content)
+
+print("Landing modal updated")
