@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Users, Plus, Shield, Coins, TrendingUp, Search, ChevronRight, Edit3, Trash2, UserMinus } from 'lucide-react';
 import { collection, query, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, increment, deleteDoc, where } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
+import { uploadToImgBB } from '../lib/imgbb';
 import { useTranslation } from '../lib/LanguageContext';
 import { playClick, playWin } from '../lib/audio';
 import { getCurrentWeekId } from '../lib/leagueUtils';
@@ -215,16 +215,14 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
     if (!selectedFile || !myClub) return;
     setIsUploading(true);
     try {
-      const fileRef = ref(storage, `club_logos/${myClub.id}_${Date.now()}`);
-      await uploadBytes(fileRef, selectedFile);
-      const downloadURL = await getDownloadURL(fileRef);
+      const downloadURL = await uploadToImgBB(selectedFile);
       await updateDoc(doc(db, 'clubs', myClub.id), { profileUrl: downloadURL });
       setShowEditPhoto(false);
       setSelectedFile(null);
       if (triggerToast) triggerToast(language === 'id' ? 'Foto klub diperbarui!' : 'Club photo updated!', 'success');
-    } catch (e) {
+    } catch (e: any) {
       console.warn(e);
-      if (triggerToast) triggerToast(language === 'id' ? 'Gagal mengunggah foto.' : 'Failed to upload photo.', 'error');
+      if (triggerToast) triggerToast(language === 'id' ? 'Gagal mengunggah foto. Pastikan VITE_IMGBB_API_KEY diset.' : 'Failed to upload photo. Ensure VITE_IMGBB_API_KEY is set.', 'error');
     } finally {
       setIsUploading(false);
     }

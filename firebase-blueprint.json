@@ -33,9 +33,27 @@
         "createdAt": { "type": "string" }
       },
       "required": ["id", "userId", "amount", "grams"]
+    },
+    "InboxMessage": {
+      "title": "InboxMessage",
+      "description": "User inbox messages such as friend requests and game invitations",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "fromUserId": { "type": "string" },
+        "fromUserName": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["userId", "type", "fromUserId", "status", "createdAt"]
     }
   },
   "firestore": {
+    "/inbox/{messageId}": {
+      "schema": "InboxMessage",
+      "description": "Global inbox collection for user-to-user messaging and notifications"
+    },
     "/users/{userId}": {
       "schema": "UserProfile",
       "description": "Aggregated user profile details"

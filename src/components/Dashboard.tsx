@@ -121,10 +121,11 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
         createdAt: Date.now()
       });
       if (triggerToast) triggerToast(language === 'id' ? 'Permintaan pertemanan dikirim!' : 'Friend request sent!', 'success');
-      setPendingFriendData(null);
-      localStorage.removeItem('pendingFriendRequest');
     } catch(e) {
       if (triggerToast) triggerToast(language === 'id' ? 'Gagal mengirim permintaan' : 'Failed to send request', 'error');
+    } finally {
+      setPendingFriendData(null);
+      localStorage.removeItem('pendingFriendRequest');
     }
   };
 

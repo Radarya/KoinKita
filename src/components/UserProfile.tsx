@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
 import { ArrowLeft, Camera, Loader2, Save, User as UserIcon, Store, Lock, Check, Coins } from 'lucide-react';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
 import { doc, updateDoc, increment } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { uploadToImgBB } from '../lib/imgbb';
 import { useTranslation } from '../lib/LanguageContext';
 import { DEFAULT_AVATARS } from '../lib/avatars';
 import { playClick, playCorrect, playWrong } from '../lib/audio';
@@ -70,9 +70,7 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
 
     setIsUploading(true);
     try {
-      const storageRef = ref(storage, `profile_pictures/${user.uid}_${Date.now()}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
+      const downloadURL = await uploadToImgBB(file);
       setProfilePic(downloadURL);
       
       await updateDoc(doc(db, 'users', user.uid), {
@@ -80,9 +78,9 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
         updatedAt: new Date().toISOString()
       });
       showMessage(language === 'id' ? 'Foto profil berhasil diperbarui!' : 'Profile photo updated successfully!', 'success');
-    } catch (error) {
+    } catch (error: any) {
       console.warn("Error uploading file:", error);
-      showMessage(language === 'id' ? 'Gagal mengunggah foto.' : 'Failed to upload photo.', 'error');
+      showMessage(language === 'id' ? 'Gagal mengunggah foto. Pastikan VITE_IMGBB_API_KEY diset.' : 'Failed to upload photo. Ensure VITE_IMGBB_API_KEY is set.', 'error');
     } finally {
       setIsUploading(false);
     }

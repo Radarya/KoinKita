@@ -55,33 +55,7 @@ import Dashboard from './components/Dashboard';
 import TermsModal from './components/TermsModal';
 import { useTranslation } from './lib/LanguageContext';
 import { bypassAutoplay, playClick } from './lib/audio';
-
-/*
 // ==========================================
-// FIREBASE MODULAR SDK INITIALIZATION (V10+)
-// ==========================================
-// Note: Actual initialization is physically handled in ./firebase.ts 
-// utilizing the pattern below per requirements:
-
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const googleProvider = new GoogleAuthProvider();
-*/
-
 export default function App() {
   const [hasPendingFriend, setHasPendingFriend] = useState(!!localStorage.getItem('pendingFriendRequest'));
   const handleStartLogin = () => setCurrentScreen('auth');
@@ -587,9 +561,18 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
         : 'This login method is not enabled. Please enable Email/Password or Google Sign-In in Firebase Console.'
       );
     } else {
+      const rawError = error?.message || error?.code || JSON.stringify(error) || 'Unknown error';
+      let friendlyError = rawError;
+      
+      if (rawError.includes('10:') || rawError.includes('DEVELOPER_ERROR')) {
+        friendlyError = 'DEVELOPER_ERROR: SHA-1 certificate fingerprint belum ditambahkan di Firebase Console untuk aplikasi Android ini, atau Web Client ID belum dikonfigurasi dengan benar di string.xml.';
+      } else if (rawError.includes('Gagal mendapatkan credential')) {
+        friendlyError = 'Gagal mendapatkan token dari Google. Pastikan Google Play Services tersedia.';
+      }
+
       setErrorMsg(language === 'id' 
-        ? 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi nanti.' 
-        : 'An unexpected error occurred. Please try again later.'
+        ? `Gagal masuk dengan Google: ${friendlyError}` 
+        : `Google Sign-in failed: ${friendlyError}`
       );
     }
   };

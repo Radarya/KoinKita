@@ -218,12 +218,12 @@ export const playCoin = () => {
 // ==========================================
 
 export const TRACKS: Record<string, string> = {
-  landing: 'https://firebasestorage.googleapis.com/v0/b/koinkita-3f734.firebasestorage.app/o/Audio%2FAkustik.mp3?alt=media&token=31dea811-116c-4fd9-a739-5ee235ae325b',
-  dashboard: 'https://firebasestorage.googleapis.com/v0/b/koinkita-3f734.firebasestorage.app/o/Audio%2FJazz.mp3?alt=media&token=e53fd351-4a44-4927-b41f-56f829c632da',
-  'detektif-cuan': 'https://firebasestorage.googleapis.com/v0/b/koinkita-3f734.firebasestorage.app/o/Audio%2FMystery.mp3?alt=media&token=e3dbdae7-e12c-4a84-9394-1c9ec7aa6faa',
-  'koki-anggaran': 'https://firebasestorage.googleapis.com/v0/b/koinkita-3f734.firebasestorage.app/o/Audio%2FAkustik.mp3?alt=media&token=31dea811-116c-4fd9-a739-5ee235ae325b',
-  'tebak-kata': 'https://firebasestorage.googleapis.com/v0/b/koinkita-3f734.firebasestorage.app/o/Audio%2FRetro.mp3?alt=media&token=d05f8164-f703-479b-90cf-8fc44f135fe4',
-  'pohon-aset': 'https://firebasestorage.googleapis.com/v0/b/koinkita-3f734.firebasestorage.app/o/Audio%2FSynthpop.mp3?alt=media&token=bcd24f65-bf0a-4151-be6c-578299632872'
+  landing: 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Landing.mp3',
+  dashboard: 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Akustik.mp3',
+  'detektif-cuan': 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Mystery.mp3',
+  'koki-anggaran': 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Jazz.mp3',
+  'tebak-kata': 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Retro.mp3',
+  'pohon-aset': 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Synthpop.mp3'
 };
 
 let bgmAudio: HTMLAudioElement | null = null;
@@ -333,7 +333,7 @@ let gamePaused = false;
 let pauseSubscribers = new Set<(isPaused: boolean) => void>();
 export const subscribeToPause = (cb: (isPaused: boolean) => void) => {
   pauseSubscribers.add(cb);
-  return () => pauseSubscribers.delete(cb);
+  return () => { pauseSubscribers.delete(cb); };
 };
 
 export const setGamePaused = (isPaused: boolean) => {
