@@ -218,12 +218,12 @@ export const playCoin = () => {
 // ==========================================
 
 export const TRACKS: Record<string, string> = {
-  landing: 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Landing.mp3',
-  dashboard: 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Akustik.mp3',
-  'detektif-cuan': 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Mystery.mp3',
-  'koki-anggaran': 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Jazz.mp3',
-  'tebak-kata': 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Retro.mp3',
-  'pohon-aset': 'https://raw.githubusercontent.com/USERNAME/REPO/main/audio/Synthpop.mp3'
+  landing: 'https://raw.githubusercontent.com/Radarya/KoinKita/main/public/audio/Akustik.mp3',
+  dashboard: 'https://raw.githubusercontent.com/Radarya/KoinKita/main/public/audio/Akustik.mp3',
+  'detektif-cuan': 'https://raw.githubusercontent.com/Radarya/KoinKita/main/public/audio/Mystery.mp3',
+  'koki-anggaran': 'https://raw.githubusercontent.com/Radarya/KoinKita/main/public/audio/Jazz.mp3',
+  'tebak-kata': 'https://raw.githubusercontent.com/Radarya/KoinKita/main/public/audio/Retro.mp3',
+  'pohon-aset': 'https://raw.githubusercontent.com/Radarya/KoinKita/main/public/audio/Synthpop.mp3'
 };
 
 let bgmAudio: HTMLAudioElement | null = null;
