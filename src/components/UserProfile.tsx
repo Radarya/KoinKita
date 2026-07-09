@@ -80,7 +80,7 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
       showMessage(language === 'id' ? 'Foto profil berhasil diperbarui!' : 'Profile photo updated successfully!', 'success');
     } catch (error: any) {
       console.warn("Error uploading file:", error);
-      showMessage(language === 'id' ? 'Gagal mengunggah foto. Pastikan VITE_IMGBB_API_KEY diset.' : 'Failed to upload photo. Ensure VITE_IMGBB_API_KEY is set.', 'error');
+      showMessage(language === 'id' ? 'Gagal mengunggah foto.' : 'Failed to upload photo.', 'error');
     } finally {
       setIsUploading(false);
     }

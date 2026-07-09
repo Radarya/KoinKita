@@ -222,7 +222,7 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
       if (triggerToast) triggerToast(language === 'id' ? 'Foto klub diperbarui!' : 'Club photo updated!', 'success');
     } catch (e: any) {
       console.warn(e);
-      if (triggerToast) triggerToast(language === 'id' ? 'Gagal mengunggah foto. Pastikan VITE_IMGBB_API_KEY diset.' : 'Failed to upload photo. Ensure VITE_IMGBB_API_KEY is set.', 'error');
+      if (triggerToast) triggerToast(language === 'id' ? 'Gagal mengunggah foto.' : 'Failed to upload photo.', 'error');
     } finally {
       setIsUploading(false);
     }

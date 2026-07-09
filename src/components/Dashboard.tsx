@@ -473,7 +473,15 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
   }
 
   if (showTopicSelection) {
-    return <TopicSelection onSelect={(gameId) => { setShowTopicSelection(false); setActiveGame(gameId); }} onBack={() => setShowTopicSelection(false)} userLevel={userLevel} />;
+    return <TopicSelection onSelect={(gameId) => {
+      const currentLives = userData?.lives !== undefined ? userData.lives : 5;
+      if (currentLives <= 0) {
+        if (triggerToast) triggerToast(language === 'id' ? 'Nyawa habis! Tunggu besok atau minta ke teman.' : 'Out of lives! Wait tomorrow or ask a friend.', 'error');
+        return;
+      }
+      setShowTopicSelection(false); 
+      setActiveGame(gameId); 
+    }} onBack={() => setShowTopicSelection(false)} userLevel={userLevel} />;
   }
 
   
@@ -973,6 +981,11 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
                 <button
                   onClick={() => {
                     playClick();
+                    const currentLives = userData?.lives !== undefined ? userData.lives : 5;
+                    if (currentLives <= 0) {
+                      if (triggerToast) triggerToast(language === 'id' ? 'Nyawa habis! Tunggu besok atau minta ke teman.' : 'Out of lives! Wait tomorrow or ask a friend.', 'error');
+                      return;
+                    }
                     const target = tutorialGameId;
                     setTutorialGameId(null);
                     setActiveGame(target);

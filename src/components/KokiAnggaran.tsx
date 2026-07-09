@@ -39,6 +39,7 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
   
   const [hearts, setHearts] = useState(3);
   const [gameTimer, setGameTimer] = useState(0);
+  const hasMistake = React.useRef(false);
   
   // Emergency Events Logic
   const [savingsCount, setSavingsCount] = useState(0);
@@ -213,6 +214,7 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
       nextOrder();
     } else {
       // Wrong
+      hasMistake.current = true;
       playWrong();
       setScore(prev => Math.max(0, prev - 5));
       triggerShake();
@@ -245,6 +247,7 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
         if (savingsCount > 0) {
           setEmergencyStatus('SAVED');
         } else {
+          hasMistake.current = true;
           setEmergencyStatus('PENALIZED');
           setScore(prev => Math.max(0, prev - 40));
           setHearts(prev => Math.max(1, prev - 1));
@@ -264,16 +267,21 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
     setGameWon(true);
     setIsPlaying(false);
     
-    const finalScore = scoreRef.current;
-    if (user?.uid && finalScore > 0) {
-      setIsSaving(true);
-      try {
-        const docRef = doc(db, 'users', user.uid);
-        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, finalScore));
-      } catch (err) {
-        console.warn("Gagal menyimpan skor kemenangan Koki Anggaran:", err);
-      } finally {
-        setIsSaving(false);
+    if (user?.uid) {
+      if (hasMistake.current) {
+        await import("../lib/rewardUtils").then(m => m.changeUserLives(user.uid, -1));
+      }
+      const finalScore = scoreRef.current;
+      if (finalScore > 0) {
+        setIsSaving(true);
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, finalScore));
+        } catch (err) {
+          console.warn("Gagal menyimpan skor kemenangan Koki Anggaran:", err);
+        } finally {
+          setIsSaving(false);
+        }
       }
     }
   };
@@ -283,16 +291,21 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
     setGameOver(true);
     setIsPlaying(false);
     
-    const finalScore = scoreRef.current;
-    if (user?.uid && finalScore > 0) {
-      setIsSaving(true);
-      try {
-        const docRef = doc(db, 'users', user.uid);
-        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, finalScore));
-      } catch (err) {
-        console.warn("Gagal menyimpan skor Koki Anggaran:", err);
-      } finally {
-        setIsSaving(false);
+    if (user?.uid) {
+      if (hasMistake.current) {
+        await import("../lib/rewardUtils").then(m => m.changeUserLives(user.uid, -1));
+      }
+      const finalScore = scoreRef.current;
+      if (finalScore > 0) {
+        setIsSaving(true);
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, finalScore));
+        } catch (err) {
+          console.warn("Gagal menyimpan skor Koki Anggaran:", err);
+        } finally {
+          setIsSaving(false);
+        }
       }
     }
   };

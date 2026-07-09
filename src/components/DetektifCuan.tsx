@@ -59,6 +59,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
   const [combo, setCombo] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [screenShake, setScreenShake] = useState(false);
+  const hasMistake = React.useRef(false);
   
   const [shuffledScenarios, setShuffledScenarios] = useState<Scenario[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -156,6 +157,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
   };
 
   const handleLifeLoss = () => {
+    hasMistake.current = true;
     setTimeout(() => {
       setHearts(prev => {
         if (prev <= 1) {
@@ -224,15 +226,20 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
     setGameWon(true);
     setIsPlaying(false);
     
-    if (user?.uid && score > 0) {
-      setIsSaving(true);
-      try {
-        const docRef = doc(db, 'users', user.uid);
-        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, score));
-      } catch (err) {
-        console.warn("Gagal update score on victory:", err);
-      } finally {
-        setIsSaving(false);
+    if (user?.uid) {
+      if (hasMistake.current) {
+        await import("../lib/rewardUtils").then(m => m.changeUserLives(user.uid, -1));
+      }
+      if (score > 0) {
+        setIsSaving(true);
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, score));
+        } catch (err) {
+          console.warn("Gagal update score on victory:", err);
+        } finally {
+          setIsSaving(false);
+        }
       }
     }
   };
@@ -242,15 +249,20 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
     setGameOver(true);
     setIsPlaying(false);
     
-    if (user?.uid && score > 0) {
-      setIsSaving(true);
-      try {
-        const docRef = doc(db, 'users', user.uid);
-        await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, score));
-      } catch (err) {
-        console.warn("Gagal update score:", err);
-      } finally {
-        setIsSaving(false);
+    if (user?.uid) {
+      if (hasMistake.current) {
+        await import("../lib/rewardUtils").then(m => m.changeUserLives(user.uid, -1));
+      }
+      if (score > 0) {
+        setIsSaving(true);
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          await import("../lib/rewardUtils").then(m => m.rewardUser(user.uid, userData?.leagueGroupId, score));
+        } catch (err) {
+          console.warn("Gagal update score:", err);
+        } finally {
+          setIsSaving(false);
+        }
       }
     }
   };

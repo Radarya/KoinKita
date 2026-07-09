@@ -38,6 +38,7 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
   
   const currentLevelBank = LEVEL_WORDS[userLevel] || LEVEL_WORDS[0];
   const [targetWordObj, setTargetWordObj] = useState(currentLevelBank[0]);
+  const hasMistake = React.useRef(false);
   
   const localizedWord = targetWordObj.word[language as 'id' | 'en']?.toUpperCase() || "";
   const localizedClue = targetWordObj.clue[language as 'id' | 'en'];
@@ -82,6 +83,9 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
       setIsTransitioning(false);
     } else {
       setShowVictory(true);
+      if (user?.uid && hasMistake.current) {
+        import("../lib/rewardUtils").then(m => m.changeUserLives(user.uid, -1));
+      }
     }
   };
 
@@ -97,6 +101,7 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
     setMessage(null);
     setShowVictory(false);
     setIsTransitioning(false);
+    hasMistake.current = false;
   };
 
   const startGame = () => {
@@ -150,6 +155,7 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
         }, 2000);
       } else if (newGuesses.length >= MAX_GUESSES) {
         // lose round
+        hasMistake.current = true;
         setCurrentGuess("");
         setIsTransitioning(true);
         playLose();

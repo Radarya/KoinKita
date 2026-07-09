@@ -60,6 +60,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [totalAset, setTotalAset] = useState(0);
   const [placedAssets, setPlacedAssets] = useState<AssetItem[]>([]);
+  const hasMistake = React.useRef(false);
   
   const [queue, setQueue] = useState<AssetItem[]>([]);
   const [selectedAsset, setSelectedAsset] = useState<AssetItem | null>(null);
@@ -138,6 +139,9 @@ export default function PohonAset({ user, userData, onBack }: any) {
       const coinsWon = isWin ? 50 : 10;
       
       if (user?.uid) {
+        if (hasMistake.current) {
+          import("../lib/rewardUtils").then(m => m.changeUserLives(user.uid, -1));
+        }
         setIsSaving(true);
         const submitScore = async () => {
           try {
@@ -293,6 +297,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
       setSelectedAsset(null);
     } else {
       // Wrong branch
+      hasMistake.current = true;
       playWrong();
       const penalty = Math.round(totalAset * 0.10); // 10% penalty
       showFloatText(-penalty, language === 'id' ? "SALAH CABANG!" : "WRONG BRANCH!");
@@ -305,6 +310,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
   const startGame = () => {
     setIsPlaying(true);
     setGameOver(false);
+    hasMistake.current = false;
     setTimeLeft(GAME_DURATION);
     setTotalAset(5000000 * Math.pow(1.5, userLevel)); // start capital scales
     setPlacedAssets([]);
@@ -457,7 +463,12 @@ export default function PohonAset({ user, userData, onBack }: any) {
         isOpen={showSettings} 
         onClose={() => setShowSettings(false)} 
         isGameMode={true}
-        onExitGame={() => setGameOver(true)}
+        onExitGame={() => {
+          setGameOver(true);
+          if (user?.uid && hasMistake.current) {
+            import("../lib/rewardUtils").then(m => m.changeUserLives(user.uid, -1));
+          }
+        }}
       />
 
       {/* Target Progress component */}
