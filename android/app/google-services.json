@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "402832198545",
+    "project_id": "koinkita-3f734",
+    "storage_bucket": "koinkita-3f734.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:402832198545:android:336b7840b3fddbd862a830",
+        "android_client_info": {
+          "package_name": "xyz.koinkita.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "402832198545-mfqkk1aet2qs8bv37r7904cadt2t7ap1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqvENf1G6r4uVk6oecqBy7hpOppdwyfDA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "402832198545-mfqkk1aet2qs8bv37r7904cadt2t7ap1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

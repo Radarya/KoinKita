@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { Capacitor } from '@capacitor/core';
+import { signInWithCredential, GoogleAuthProvider } from 'firebase/auth';
 import { 
   Mail, 
   Lock, 
@@ -741,7 +744,19 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
     setSuccessMsg('');
     setIsLoading(true);
     try {
-      const res = await signInWithPopup(auth, googleProvider);
+      let rest;
+      let res;
+      if (Capacitor.isNativePlatform()) {
+        const result = await FirebaseAuthentication.signInWithGoogle();
+        if (result.credential?.idToken) {
+          const credential = GoogleAuthProvider.credential(result.credential.idToken);
+          res = await signInWithCredential(auth, credential);
+        } else {
+          throw new Error("Gagal mendapatkan credential dari Google Sign-In");
+        }
+      } else {
+        res = await signInWithPopup(auth, googleProvider);
+      }
       
       const userDocRef = doc(db, 'users', res.user.uid);
       const userSnap = await getDoc(userDocRef);
