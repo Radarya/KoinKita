@@ -460,7 +460,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 "
             >
               <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 30 }}
@@ -590,7 +590,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
               initial={{ scale: 0.5, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className={`absolute top-20 z-30 w-full max-w-sm rounded-2xl p-4 shadow-xl text-center border-l-8 backdrop-blur-md bg-white/90 ${feedback === 'CORRECT' ? 'border-emerald-500 text-emerald-800' : 'border-red-500 text-red-800'}`}
+              className={`absolute top-20 z-30 w-full max-w-sm rounded-2xl p-4 shadow-xl text-center border-l-8  bg-white/95 ${feedback === 'CORRECT' ? 'border-emerald-500 text-emerald-800' : 'border-red-500 text-red-800'}`}
             >
               <h3 className={`font-poppins font-black text-xl mb-1 ${feedback === 'CORRECT' && combo >= 3 ? 'text-amber-500' : ''}`}>
                 {feedback === 'CORRECT' 

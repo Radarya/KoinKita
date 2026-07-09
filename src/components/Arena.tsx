@@ -189,7 +189,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
 
   const handleShareProfile = async () => {
     playClick();
-    const shareUrl = `${window.location.origin}/add/${currentUserUid}`;
+    const shareUrl = `https://www.koinkita.xyz/add/${currentUserUid}`;
     const text = language === 'id' 
       ? `👋 Hai! Ayo mabar KoinKita bareng aku! 🚀\n\nIni game seru banget buat belajar ngatur uang biar kita makin cerdas finansial.\n\nKlik link ini buat tambah aku jadi teman di game ya: \n${shareUrl}`
       : `👋 Hi! Let's play KoinKita together! 🚀\n\nIt's a fun game to learn financial skills and get smarter with our money.\n\nClick this link to add me as a friend: \n${shareUrl}`;
@@ -204,7 +204,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 ">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -435,7 +435,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
       {/* Selected Friend Modal */}
       <AnimatePresence>
         {selectedFriend && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setSelectedFriend(null)}>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 " onClick={() => setSelectedFriend(null)}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

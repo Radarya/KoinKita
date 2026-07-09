@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Users, Plus, Shield, Coins, TrendingUp, Search, ChevronRight, Edit3, Trash2, UserMinus } from 'lucide-react';
 import { collection, query, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, addDoc, onSnapshot, increment, deleteDoc, where } from 'firebase/firestore';
-import { db } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 import { useTranslation } from '../lib/LanguageContext';
 import { playClick, playWin } from '../lib/audio';
 import { getCurrentWeekId } from '../lib/leagueUtils';
@@ -27,7 +28,8 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
   // New features state
   const [memberDetails, setMemberDetails] = useState<any[]>([]);
   const [showEditPhoto, setShowEditPhoto] = useState(false);
-  const [newPhotoUrl, setNewPhotoUrl] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const clubsRef = collection(db, 'clubs');
@@ -210,14 +212,21 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
   };
 
   const handleUpdatePhoto = async () => {
-    if (!newPhotoUrl.trim() || !myClub) return;
+    if (!selectedFile || !myClub) return;
+    setIsUploading(true);
     try {
-      await updateDoc(doc(db, 'clubs', myClub.id), { profileUrl: newPhotoUrl });
+      const fileRef = ref(storage, `club_logos/${myClub.id}_${Date.now()}`);
+      await uploadBytes(fileRef, selectedFile);
+      const downloadURL = await getDownloadURL(fileRef);
+      await updateDoc(doc(db, 'clubs', myClub.id), { profileUrl: downloadURL });
       setShowEditPhoto(false);
-      setNewPhotoUrl('');
+      setSelectedFile(null);
       if (triggerToast) triggerToast(language === 'id' ? 'Foto klub diperbarui!' : 'Club photo updated!', 'success');
     } catch (e) {
       console.warn(e);
+      if (triggerToast) triggerToast(language === 'id' ? 'Gagal mengunggah foto.' : 'Failed to upload photo.', 'error');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -437,7 +446,7 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
       {/* Create Club Modal */}
       <AnimatePresence>
         {showCreate && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 ">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -476,7 +485,7 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
 
         {/* Edit Photo Modal */}
         {showEditPhoto && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 ">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -484,14 +493,17 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
               className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl"
             >
               <h3 className="text-xl font-black text-slate-800 mb-4">{language === 'id' ? 'Edit Profil Klub' : 'Edit Club Profile'}</h3>
-              <p className="text-sm text-slate-500 mb-4">{language === 'id' ? 'Masukkan URL gambar untuk profil klub.' : 'Enter an image URL for club profile.'}</p>
+              <p className="text-sm text-slate-500 mb-4">{language === 'id' ? 'Pilih gambar untuk profil klub.' : 'Choose an image for club profile.'}</p>
               
               <input 
-                type="url" 
-                value={newPhotoUrl}
-                onChange={(e) => setNewPhotoUrl(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 font-medium mb-6"
+                type="file" 
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setSelectedFile(e.target.files[0]);
+                  }
+                }}
+                className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 mb-6"
               />
               
               <div className="flex flex-col gap-3">
@@ -504,9 +516,14 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
                   </button>
                   <button 
                     onClick={handleUpdatePhoto}
-                    className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20"
+                    disabled={isUploading || !selectedFile}
+                    className={`flex-1 py-3 font-bold rounded-xl shadow-lg transition-colors ${
+                      isUploading || !selectedFile 
+                        ? 'bg-emerald-300 text-white cursor-not-allowed shadow-none' 
+                        : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20'
+                    }`}
                   >
-                    Simpan
+                    {isUploading ? (language === 'id' ? 'Mengunggah...' : 'Uploading...') : 'Simpan'}
                   </button>
                 </div>
                 {myClub?.profileUrl && (

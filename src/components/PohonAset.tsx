@@ -527,7 +527,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
         {/* Event Overlay */}
         <AnimatePresence>
           {currentEvent && (
-            <motion.div initial={{ opacity: 0, scale: 0.8, y: -50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8 }} className="absolute top-10 left-4 right-4 z-50 bg-red-500/90 backdrop-blur text-white p-6 rounded-3xl shadow-2xl border-l-[8px] border-red-700">
+            <motion.div initial={{ opacity: 0, scale: 0.8, y: -50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8 }} className="absolute top-10 left-4 right-4 z-50 bg-red-500/90  text-white p-6 rounded-3xl shadow-2xl border-l-[8px] border-red-700">
                <div className="flex items-center gap-3 mb-2">
                  <AlertTriangle className="w-8 h-8" />
                  <h3 className="font-black font-poppins text-xl">

@@ -113,7 +113,7 @@ export function AchievementsModal({ onClose, userData, userLevel }: Achievements
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div 
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/70 "
         onClick={() => { playClick(); onClose(); }}
       ></div>
       
@@ -124,7 +124,7 @@ export function AchievementsModal({ onClose, userData, userLevel }: Achievements
         className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh]"
       >
         <div className="p-6 border-b border-slate-100 flex flex-col shrink-0 bg-gradient-to-r from-amber-50 to-orange-50 relative overflow-hidden gap-3">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/40 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/40 rounded-full  -mr-10 -mt-10 pointer-events-none"></div>
           <div className="flex items-center justify-between relative z-10 w-full">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center shadow-inner">
@@ -147,7 +147,7 @@ export function AchievementsModal({ onClose, userData, userLevel }: Achievements
             </button>
           </div>
           
-          <div className="relative z-10 bg-white/60 p-3 rounded-xl border border-amber-100/50 backdrop-blur-sm">
+          <div className="relative z-10 bg-white/95 p-3 rounded-xl border border-amber-100/50 ">
              <div className="flex justify-between items-center mb-1.5">
                <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
                  <Trophy className="w-3.5 h-3.5 text-amber-500" />

@@ -313,7 +313,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className={`fixed top-6 right-6 lg:right-10 z-[9999] bg-white/95 backdrop-blur-md text-slate-800 px-6 py-4 rounded-xl shadow-xl shadow-slate-200/50 border-l-4 flex items-center gap-4 min-w-[300px] border border-y-slate-100 border-r-slate-100 ${
+            className={`fixed top-6 right-6 lg:right-10 z-[9999] bg-white/95  text-slate-800 px-6 py-4 rounded-xl shadow-xl shadow-slate-200/50 border-l-4 flex items-center gap-4 min-w-[300px] border border-y-slate-100 border-r-slate-100 ${
               toast.type === 'success' ? 'border-l-emerald-500' :
               toast.type === 'warning' || toast.type === 'error' ? 'border-l-rose-500' :
               'border-l-indigo-500'
@@ -820,7 +820,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
         <div className="absolute top-4 left-4 z-50">
           <button 
             onClick={onBack}
-            className="flex items-center justify-center w-10 h-10 bg-white/90 backdrop-blur-md hover:bg-white text-slate-600 rounded-2xl shadow-md border border-slate-200/50 transition-all font-bold active:scale-95 cursor-pointer"
+            className="flex items-center justify-center w-10 h-10 bg-white/95  hover:bg-white text-slate-600 rounded-2xl shadow-md border border-slate-200/50 transition-all font-bold active:scale-95 cursor-pointer"
             title="Back"
           >
             <ArrowRight className="w-5 h-5 rotate-180" />
@@ -832,7 +832,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
       <div className="absolute top-4 right-4 z-50">
         <button 
            onClick={toggleLanguage}
-           className="flex items-center gap-2 bg-white/90 backdrop-blur-md hover:bg-white text-slate-700 px-4 py-2.5 rounded-2xl shadow-md border border-slate-200/50 transition-all font-bold text-sm tracking-wide active:scale-95 cursor-pointer"
+           className="flex items-center gap-2 bg-white/95  hover:bg-white text-slate-700 px-4 py-2.5 rounded-2xl shadow-md border border-slate-200/50 transition-all font-bold text-sm tracking-wide active:scale-95 cursor-pointer"
            title="Toggle Language"
         >
            <Globe className="w-4 h-4 text-emerald-500" />
@@ -842,9 +842,9 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
 
       {/* Background decorations for modern game feel */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-300/20 blur-[100px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-amber-300/20 blur-[100px]"></div>
-        <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] rounded-full bg-blue-300/20 blur-[80px]"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-300/20 "></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-amber-300/20 "></div>
+        <div className="absolute top-[20%] right-[10%] w-[20%] h-[20%] rounded-full bg-blue-300/20 "></div>
       </div>
 
       <motion.div 
@@ -887,7 +887,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
 
           <div className="px-8 pb-8 pt-2 relative z-10">
             {/* View Toggle */}
-            <div className="flex p-1 bg-slate-100/80 rounded-xl mb-6 shadow-inner relative z-20 backdrop-blur-sm border border-slate-200/50">
+            <div className="flex p-1 bg-slate-100/80 rounded-xl mb-6 shadow-inner relative z-20  border border-slate-200/50">
               <button
                 type="button"
                 onClick={() => !isLoginView && toggleView()}
@@ -1201,7 +1201,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 "
           >
             <motion.div 
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -1482,7 +1482,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/80 "
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }} 
@@ -1535,8 +1535,8 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
       {/* Background Decor */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {/* Glow Orbs */}
-        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-emerald-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-amber-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-emerald-200/30 rounded-full "></div>
+        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-amber-200/30 rounded-full "></div>
         
         {/* Cyber Grid Mesh */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px] opacity-40"></div>
@@ -1573,7 +1573,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
       </div>
       
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm">
+      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center bg-white/95  border-b border-slate-200/50 shadow-sm">
         <div className="flex items-center gap-2 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-md shadow-amber-200/50 group-hover:scale-105 transition-transform">
             <Coins className="w-5 h-5 text-white" />
@@ -1777,7 +1777,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="bg-gradient-to-b from-white/90 to-white/40 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-white hover:shadow-lg hover:-translate-y-2 transition-all flex flex-col items-center text-center"
+                className="bg-gradient-to-b from-white/90 to-white/40  rounded-3xl p-6 shadow-sm border border-white hover:shadow-lg hover:-translate-y-2 transition-all flex flex-col items-center text-center"
               >
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black font-poppins shadow-sm border ${rank.icon}`}>
                   {index}
@@ -1816,7 +1816,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
       </main>
 
       {/* Footer */}
-      <footer className="text-center py-8 text-slate-500 text-sm border-t border-slate-200/50 bg-white/30 backdrop-blur-sm relative z-10">
+      <footer className="text-center py-8 text-slate-500 text-sm border-t border-slate-200/50 bg-white/30  relative z-10">
         &copy; {new Date().getFullYear()} KoinKita. Edugame Finansial Terdepan.
       </footer>
       

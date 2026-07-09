@@ -140,7 +140,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
   const [tutorialGameId, setTutorialGameId] = useState<string | null>(null);
   const [levelUpNotice, setLevelUpNotice] = useState<{ show: boolean, oldLevel: number, newLevel: number }>({ show: false, oldLevel: 0, newLevel: 0 });
   const [toastQueue, setToastQueue] = useState<any[]>([]);
-  const [currentTipIndex, setCurrentTipIndex] = useState(0);
+
 
   useEffect(() => {
     if (toastQueue.length > 0) {
@@ -151,14 +151,6 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
       return () => clearTimeout(timer);
     }
   }, [toastQueue]);
-
-  useEffect(() => {
-    const tipInterval = setInterval(() => {
-      setCurrentTipIndex(prev => (prev + 1) % FINANCIAL_TIPS.length);
-    }, 5000);
-    return () => clearInterval(tipInterval);
-  }, []);
-
   // Autoplay background music
   useEffect(() => {
     import('../lib/audio').then(m => m.setGameViewTrack('dashboard'));
@@ -524,8 +516,8 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
       {/* Background Decor */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {/* Glow Orbs */}
-        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-emerald-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-amber-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-emerald-200/30 rounded-full "></div>
+        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-amber-200/30 rounded-full "></div>
         
         {/* Cyber Grid Mesh */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px] opacity-40"></div>
@@ -538,9 +530,9 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col md:flex-row md:items-center justify-between mb-8 sm:mb-12 bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] border border-slate-200 shadow-sm gap-6 relative overflow-hidden"
+          className="flex flex-col md:flex-row md:items-center justify-between mb-8 sm:mb-12 bg-white/95  p-6 rounded-[2rem] border border-slate-200 shadow-sm gap-6 relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-50/50 rounded-full blur-3xl pointer-events-none -mr-12 -mt-12"></div>
+          <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-50/50 rounded-full  pointer-events-none -mr-12 -mt-12"></div>
           
           {/* User Profile Info on Left */}
           <motion.div 
@@ -667,7 +659,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
               >
                 <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] group-hover:animate-[shimmer_1.5s_infinite]"></div>
                 <div className="flex items-center gap-4 sm:gap-5 relative z-10">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 backdrop-blur-sm border border-white/20">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0  border border-white/20">
                     <Sparkles className="w-7 h-7 sm:w-8 sm:h-8" />
                   </div>
                   <div>
@@ -784,7 +776,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
           const lInfo = getLeagueInfo(leaguePopup.newLeague);
           const isPromoted = leaguePopup.status === 'promoted';
           return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm" onClick={() => setLeaguePopup(null)}>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 " onClick={() => setLeaguePopup(null)}>
               <motion.div 
                 initial={{ scale: 0.8, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -838,7 +830,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }} 
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/80 "
               onClick={() => { setPendingFriendData(null); localStorage.removeItem('pendingFriendRequest'); }}
             />
             <motion.div 
@@ -848,8 +840,8 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
               className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
             >
               <div className="bg-gradient-to-br from-emerald-400 to-teal-500 p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
-                <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full "></div>
+                <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-white opacity-10 rounded-full "></div>
                 
                 <div className="relative z-10 w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg mb-4 overflow-hidden border-4 border-white">
                   {pendingFriendData.profilePictureUrl || pendingFriendData.profilePicUrl ? (
@@ -899,7 +891,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 "
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 30 }}
@@ -1026,7 +1018,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 "
           >
             <motion.div 
               initial={{ scale: 0.8, y: 50, opacity: 0 }}
@@ -1035,8 +1027,8 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
               className="bg-white rounded-[2rem] p-8 max-w-sm w-full text-center border border-amber-200 shadow-2xl relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-tr from-amber-100/10 via-transparent to-emerald-100/10 pointer-events-none"></div>
-              <div className="absolute -top-12 -left-12 w-24 h-24 bg-amber-200/20 rounded-full blur-xl pointer-events-none"></div>
-              <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-emerald-200/20 rounded-full blur-xl pointer-events-none"></div>
+              <div className="absolute -top-12 -left-12 w-24 h-24 bg-amber-200/20 rounded-full  pointer-events-none"></div>
+              <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-emerald-200/20 rounded-full  pointer-events-none"></div>
 
               <div className="relative z-10 flex flex-col items-center">
                 <div className="w-20 h-20 bg-amber-100 border-4 border-amber-300 rounded-full mb-6 flex items-center justify-center shadow-lg relative animate-bounce">
@@ -1085,7 +1077,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
                   initial={{ opacity: 0, scale: 0.8, x: 50 }}
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8, x: 50, transition: { duration: 0.2 } }}
-                  className="bg-white/95 backdrop-blur-md border border-amber-200/60 shadow-xl shadow-amber-500/10 p-3 rounded-2xl flex items-center gap-3 w-72 pointer-events-auto cursor-pointer"
+                  className="bg-white/95  border border-amber-200/60 shadow-xl shadow-amber-500/10 p-3 rounded-2xl flex items-center gap-3 w-72 pointer-events-auto cursor-pointer"
                   onClick={() => { playClick(); setToastQueue(q => q.filter(t => t.id !== ach.id)); setShowAchievements(true); }}
                >
                   <div className="w-10 h-10 bg-gradient-to-tr from-amber-100 to-amber-200 rounded-xl flex items-center justify-center text-xl shadow-inner shrink-0">

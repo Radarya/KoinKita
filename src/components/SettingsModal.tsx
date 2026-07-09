@@ -118,7 +118,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 "
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 15 }}
@@ -299,7 +299,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+                  className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 "
                 >
                   <motion.div
                     initial={{ scale: 0.95, opacity: 0, y: 15 }}
@@ -353,7 +353,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"
+                  className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/80 "
                 >
                   <motion.div
                     initial={{ scale: 0.95, opacity: 0, y: 15 }}

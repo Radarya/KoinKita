@@ -272,7 +272,7 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
                   </div>
                 </div>
                 <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center shadow-sm p-1">
-                  <QRCodeSVG value={`${window.location.origin}/add/${user.uid}`} size={70} />
+                  <QRCodeSVG value={`https://www.koinkita.xyz/add/${user.uid}`} size={70} />
                 </div>
               </div>
               <button 
