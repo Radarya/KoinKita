@@ -356,7 +356,7 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
                   <div className="flex-grow min-w-0">
                     <div className="flex items-center gap-2">
                       <h4 className="font-bold text-slate-800 truncate text-sm">
-                        {member.displayName || member.name || member.fullName || 'Pemain'}
+                        {member.username ? `@${member.username}` : (member.displayName || member.name || member.fullName || 'Pemain')}
                       </h4>
                       {member.id === myClub.ownerId && (
                         <span className="bg-amber-100 text-amber-700 text-[9px] px-1.5 py-0.5 rounded font-black uppercase">Ketua</span>

@@ -194,7 +194,7 @@ export default function TermsModal({ isOpen, onClose, initialTab = 'rules' }: Te
                       </h3>
                       <p className="pl-3.5 border-l-2 border-emerald-100 ml-0.5 text-xs text-slate-500 font-medium">
                         {language === 'id'
-                          ? 'Anda Anda berhak menghapus akun beserta datanya dari server kami kapan saja melalui pengaturan profil di dashboard dan tidak bisa dipulihkan kembali lagi.'
+                          ? 'Anda berhak menghapus akun beserta datanya dari server kami kapan saja melalui pengaturan profil di dashboard dan tidak bisa dipulihkan kembali.'
                           : 'You have the right to delete your account and its data from our servers at any time via the profile settings on the dashboard, and it cannot be recovered again.'}
                       </p>
                     </div>

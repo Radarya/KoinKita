@@ -5,7 +5,7 @@ import { collection, query, orderBy, limit, getDocs, doc, getDoc, updateDoc, arr
 import { db } from '../firebase';
 import { useTranslation } from '../lib/LanguageContext';
 import { playClick } from '../lib/audio';
-import { getLeagueInfo } from '../lib/leagueUtils';
+import { getLeagueInfo, getNextWeekReset, formatTimeRemaining, getDemotionRank } from '../lib/leagueUtils';
 
 import ClubsTab from './ClubsTab';
 
@@ -34,6 +34,18 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
 
   // Clubs State
   const [clubs, setClubs] = useState<any[]>([]);
+
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
+
+  useEffect(() => {
+    const nextReset = getNextWeekReset();
+    const updateTime = () => {
+      setTimeRemaining(formatTimeRemaining(nextReset, language));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 60000); // update every minute
+    return () => clearInterval(interval);
+  }, [language]);
   
   useEffect(() => {
     const fetchLeaders = async () => {
@@ -45,12 +57,24 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
           if (groupSnap.exists()) {
             const data = groupSnap.data();
             const playersObj = data.players || {};
-            const playersArr = Object.entries(playersObj).map(([uid, pData]: [string, any]) => ({
-              id: uid,
-              xp: pData.xp || 0,
-              displayName: pData.displayName || 'Pemain',
-              profilePictureUrl: pData.photoUrl || ''
-            }));
+            const playersArr = Object.entries(playersObj).map(([uid, pData]: [string, any]) => {
+              if (uid === currentUserUid) {
+                return {
+                  id: uid,
+                  xp: pData.xp || 0,
+                  displayName: userData?.username || userData?.displayName || userData?.name || pData.displayName || 'Pemain',
+                  profilePictureUrl: userData?.profilePictureUrl || userData?.profilePicUrl || pData.photoUrl || '',
+                  username: userData?.username || pData.username || ''
+                };
+              }
+              return {
+                id: uid,
+                xp: pData.xp || 0,
+                displayName: pData.displayName || 'Pemain',
+                profilePictureUrl: pData.photoUrl || '',
+                username: pData.username || ''
+              };
+            });
             
             playersArr.sort((a, b) => b.xp - a.xp);
             setGlobalLeaders(playersArr);
@@ -116,7 +140,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
         userId: foundUser.id,
         type: 'friend_request',
         fromUserId: currentUserUid,
-        fromUserName: userData?.displayName || userData?.name || 'Player',
+        fromUserName: userData?.fullName || userData?.name || 'Player',
         status: 'unread',
         createdAt: Date.now()
       });
@@ -145,7 +169,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
         userId: friendId,
         type: 'life_gift',
         fromUserId: currentUserUid,
-        fromUserName: userData?.displayName || userData?.name || 'Player',
+        fromUserName: userData?.fullName || userData?.name || 'Player',
         status: 'unread',
         createdAt: Date.now()
       });
@@ -277,9 +301,9 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
                     <p className={`font-black text-lg sm:text-xl ${leagueInfo.color}`}>{language === 'id' ? leagueInfo.nameId : leagueInfo.nameEn}</p>
                   </div>
                 </div>
-                <div className="text-right hidden sm:block">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{language === 'id' ? 'Pemain' : 'Players'}</p>
-                  <p className="font-black text-slate-800">{globalLeaders.length}/30</p>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{language === 'id' ? 'Sisa Waktu' : 'Ends In'}</p>
+                  <p className="font-black text-slate-800 text-sm sm:text-base">{timeRemaining}</p>
                 </div>
               </div>
 
@@ -293,8 +317,8 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
                   <div className="space-y-2">
                     {globalLeaders.map((player, index) => {
                       const isCurrent = player.id === currentUserUid;
-                      const isPromotionZone = index < 5;
-                      const isDemotionZone = index >= 25;
+                      const isPromotionZone = index < 3;
+                      const isDemotionZone = index >= (getDemotionRank(userData?.league || 0) - 1);
 
                       return (
                         <div 
@@ -323,7 +347,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
                           
                           <div className="flex-grow min-w-0">
                             <h3 className="font-bold text-slate-800 text-sm sm:text-base truncate flex items-center gap-2">
-                              {player.username ? `@${player.username}` : (player.fullName || player.name || player.displayName || 'Pemain')}
+                              {player.username ? `@${player.username}` : (player.displayName || player.name || player.fullName || 'Pemain')}
                               {isCurrent && (
                                 <span className="bg-amber-500 text-white text-[9px] px-1.5 py-0.5 rounded-md uppercase tracking-wider">Anda</span>
                               )}
@@ -358,7 +382,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
                   <div className="min-w-0 flex-grow">
                     <h3 className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-widest">{language === 'id' ? 'ID Pemain Kamu' : 'Your Player ID'}</h3>
                     <div className="flex flex-col">
-                      <span className="text-lg md:text-2xl font-black text-slate-800 font-poppins break-words leading-tight">{userData?.displayName || userData?.name}</span>
+                      <span className="text-lg md:text-2xl font-black text-slate-800 font-poppins break-words whitespace-normal leading-tight">{userData?.fullName || userData?.name}</span>
                       <span className="text-sm md:text-base font-bold text-slate-400">#{userData?.tag || '0000'}</span>
                     </div>
                   </div>
@@ -411,7 +435,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
                         </div>
                         <div className="flex-grow min-w-0">
                           <h3 className="font-bold text-slate-800 text-base truncate">
-                            {friend.displayName || friend.name} <span className="text-slate-400 font-normal">#{friend.tag}</span>
+                            {friend.fullName || friend.name || friend.displayName} <span className="text-slate-400 font-normal">#{friend.tag}</span>
                           </h3>
                         </div>
                       </div>

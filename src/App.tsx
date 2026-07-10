@@ -603,8 +603,8 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
       if (triggerToast) {
         triggerToast(
           language === 'id' 
-            ? "Nama harus 3-12 karakter, tanpa simbol, dan bebas dari kata terlarang!" 
-            : "Name must be 3-12 characters, no symbols, and free from restricted words!", 
+            ? "Nama harus 3-30 karakter, tanpa simbol, dan bebas dari kata terlarang!" 
+            : "Name must be 3-30 characters, no symbols, and free from restricted words!", 
           'warning'
         );
       }
@@ -657,6 +657,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
           email: email.trim(),
           tag: Math.floor(1000 + Math.random() * 9000).toString(),
           totalCoins: 0,
+          profilePictureUrl: createdUser.photoURL || '',
           createdAt: new Date()
         });
       } catch (firestoreErr: any) {
@@ -745,14 +746,16 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
       const userSnap = await getDoc(userDocRef);
       
       if (!userSnap.exists()) {
+        const full = res.user.displayName || "Pemain Baru";
         await setDoc(userDocRef, {
           uid: res.user.uid,
-          name: res.user.displayName || "Pemain Baru",
-          fullName: res.user.displayName || "Pemain Baru",
-          username: (res.user.displayName || "Pemain Baru").toLowerCase().replace(/\s+/g, '_'),
+          name: full,
+          fullName: full,
+          username: full.toLowerCase().replace(/\s+/g, '_'),
           email: res.user.email,
           tag: Math.floor(1000 + Math.random() * 9000).toString(),
           totalCoins: 0,
+          profilePictureUrl: res.user.photoURL || '',
           createdAt: new Date().toISOString(),
           lastLogin: new Date().toISOString(),
         });
@@ -761,6 +764,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
         await setDoc(userDocRef, {
           uid: res.user.uid,
           lastLogin: new Date().toISOString(),
+          ...((data.profilePictureUrl === undefined && data.profilePicUrl === undefined) && { profilePictureUrl: res.user.photoURL || '' }),
           ...( !data.createdAt && { createdAt: res.user.metadata.creationTime || new Date().toISOString() } ),
           ...( !data.tag && { tag: Math.floor(1000 + Math.random() * 9000).toString() } )
         }, { merge: true });

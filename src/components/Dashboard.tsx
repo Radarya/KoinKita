@@ -48,7 +48,7 @@ import { AchievementsModal, ACHIEVEMENTS } from './AchievementsModal';
 import { playClick, playWin, setGameViewTrack } from '../lib/audio';
 import { useTranslation } from '../lib/LanguageContext';
 import { FINANCIAL_TIPS } from '../lib/tips';
-import { getCurrentWeekId, calculateInitialLeague, getLeagueInfo } from '../lib/leagueUtils';
+import { getCurrentWeekId, calculateInitialLeague, getLeagueInfo, getDemotionRank } from '../lib/leagueUtils';
 
 interface DashboardProps {
   user: any;
@@ -116,7 +116,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
         userId: pendingFriendData.id,
         type: 'friend_request',
         fromUserId: user.uid,
-        fromUserName: userData?.displayName || userData?.name || 'Player',
+        fromUserName: userData?.fullName || userData?.name || 'Player',
         status: 'unread',
         createdAt: Date.now()
       });
@@ -186,6 +186,9 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
             
             if (oldGroupSnap.exists()) {
               const oldGroupData = oldGroupSnap.data();
+              const groupLeague = oldGroupData.league || 0;
+              const demotionRank = getDemotionRank(groupLeague);
+
               const playersObj = oldGroupData.players || {};
               // Convert to array and sort by XP
               const playersArr = Object.entries(playersObj).map(([uid, data]: [string, any]) => ({ uid, xp: data.xp || 0 }));
@@ -194,10 +197,10 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
               const myIndex = playersArr.findIndex(p => p.uid === user.uid);
               if (myIndex !== -1) {
                 oldRank = myIndex + 1;
-                if (oldRank <= 5) {
+                if (oldRank <= 3) {
                   newLeague = Math.min(5, newLeague + 1);
                   status = 'promoted';
-                } else if (oldRank >= 25) {
+                } else if (oldRank >= demotionRank) {
                   newLeague = Math.max(0, newLeague - 1);
                   status = 'demoted';
                 }
@@ -227,9 +230,9 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
           const snap = await getDocs(q);
           
           let newGroupId = '';
-          const playerEntry = { xp: 0, displayName: userData.displayName || userData.name || 'Pemain', photoUrl: userData.profilePictureUrl || userData.profilePicUrl || '' };
+          const playerEntry = { xp: 0, displayName: userData.username || userData.name || userData.displayName || 'Pemain', photoUrl: userData.profilePictureUrl || userData.profilePicUrl || '', username: userData.username || '' };
           
-          const groupDoc = snap.docs.find(d => d.data().league === newLeague && d.data().playerCount < 30);
+          const groupDoc = snap.docs.find(d => d.data().league === newLeague && d.data().playerCount < 15);
           if (groupDoc) {
             newGroupId = groupDoc.id;
             await updateDoc(doc(db, 'league_groups', newGroupId), {
@@ -517,11 +520,21 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
     return <FinWordle user={user} userData={userData} onBack={() => setActiveGame(null)} />;
   }
 
-  const displayName = userData?.name || userData?.fullName || user?.displayName || 'Pemain';
+  const displayName = userData?.fullName || userData?.name || user?.displayName || 'Pemain';
   const displayCoins = userData?.totalCoins || userData?.coins || 0;
-  const displayPic = (userData?.profilePictureUrl === null || userData?.profilePictureUrl === '' || userData?.profilePicUrl === null || userData?.profilePicUrl === '') 
-    ? '' 
-    : (userData?.profilePictureUrl || userData?.profilePicUrl || user?.photoURL || '');
+  const explicitlyRemoved = userData?.profilePictureUrl === '' && userData?.profilePicUrl === '';
+  const fallbackRemoved = userData?.profilePicUrl === '' && !userData?.profilePictureUrl;
+  
+  let displayPic = '';
+  if (userData?.profilePictureUrl) {
+    displayPic = userData.profilePictureUrl;
+  } else if (userData?.profilePicUrl) {
+    displayPic = userData.profilePicUrl;
+  } else if (explicitlyRemoved || fallbackRemoved) {
+    displayPic = '';
+  } else {
+    displayPic = user?.photoURL || '';
+  }
   
   const isReturningUser = displayCoins > 0 || (userData?.dailyStats && Object.keys(userData.dailyStats).length > 0) || (userData?.claimedQuests && Object.keys(userData.claimedQuests).length > 0) || userLevel > 0;
   // Fallback checking TypeScript types locally in code: 'any' allows indexing
@@ -592,7 +605,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
               
               <h1 className="text-xl sm:text-2xl font-poppins font-black text-slate-800 tracking-tight leading-tight mt-0.5 break-words flex flex-wrap items-center gap-1.5 max-w-full">
                 <span>{welcomeText},</span>
-                <span className="text-emerald-600 truncate max-w-[120px] sm:max-w-[200px] md:max-w-[280px] block" title={displayName}>{displayName}</span>
+                <span className="text-emerald-600 whitespace-normal break-words leading-tight flex-1 min-w-[200px]">{displayName}</span>
                 <span>👋</span>
               </h1>
             </div>

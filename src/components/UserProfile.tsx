@@ -38,8 +38,20 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
       setName(userData.fullName || userData.name || user?.displayName || '');
       setUsername(userData.username || userData.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || '');
       
-      const explicitlyRemoved = userData.profilePictureUrl === null || userData.profilePictureUrl === '' || userData.profilePicUrl === null || userData.profilePicUrl === '';
-      setProfilePic(explicitlyRemoved ? '' : (userData.profilePictureUrl || userData.profilePicUrl || user?.photoURL || ''));
+      const explicitlyRemoved = userData.profilePictureUrl === '' && userData.profilePicUrl === '';
+      const fallbackRemoved = userData.profilePicUrl === '' && !userData.profilePictureUrl;
+      
+      let pic = '';
+      if (userData.profilePictureUrl) {
+        pic = userData.profilePictureUrl;
+      } else if (userData.profilePicUrl) {
+        pic = userData.profilePicUrl;
+      } else if (explicitlyRemoved || fallbackRemoved) {
+        pic = '';
+      } else {
+        pic = user?.photoURL || '';
+      }
+      setProfilePic(pic);
     }
   }, [userData, user]);
 
@@ -77,6 +89,16 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
         profilePictureUrl: downloadURL,
         updatedAt: new Date().toISOString()
       });
+
+      // Update league_groups if user is in one
+      if (userData?.leagueGroupId) {
+        try {
+          await updateDoc(doc(db, 'league_groups', userData.leagueGroupId), {
+            [`players.${user.uid}.photoUrl`]: downloadURL
+          });
+        } catch(e) {}
+      }
+
       showMessage(language === 'id' ? 'Foto profil berhasil diperbarui!' : 'Profile photo updated successfully!', 'success');
     } catch (error: any) {
       console.warn("Error uploading file:", error);
@@ -95,6 +117,16 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
         profilePicUrl: '', // remove fallback as well
         updatedAt: new Date().toISOString()
       });
+
+      // Update league_groups if user is in one
+      if (userData?.leagueGroupId) {
+        try {
+          await updateDoc(doc(db, 'league_groups', userData.leagueGroupId), {
+            [`players.${user.uid}.photoUrl`]: ''
+          });
+        } catch(e) {}
+      }
+
       showMessage(language === 'id' ? 'Foto profil telah dihapus.' : 'Profile photo removed.', 'success');
     } catch (error) {
       console.warn("Error removing photo:", error);
@@ -110,15 +142,37 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
       showMessage(language === 'id' ? 'Nama dan username tidak boleh kosong!' : 'Name and username cannot be empty!', 'error');
       return;
     }
+    
+    if (name.trim().length < 3) {
+      showMessage(language === 'id' ? 'Nama lengkap minimal 3 karakter!' : 'Full name must be at least 3 characters!', 'error');
+      return;
+    }
+    if (username.trim().length < 3) {
+      showMessage(language === 'id' ? 'Username minimal 3 karakter!' : 'Username must be at least 3 characters!', 'error');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const updates: any = {
-        fullName: name,
-        username: username,
+        fullName: name.trim(),
+        name: name.trim(),
+        username: username.trim(),
         updatedAt: new Date().toISOString()
       };
       
       await updateDoc(doc(db, 'users', user.uid), updates);
+      
+      // Update league_groups if user is in one
+      if (userData?.leagueGroupId) {
+        try {
+          await updateDoc(doc(db, 'league_groups', userData.leagueGroupId), {
+            [`players.${user.uid}.displayName`]: username.trim(),
+            [`players.${user.uid}.username`]: username.trim()
+          });
+        } catch(e) {}
+      }
+
       showMessage(language === 'id' ? 'Profil berhasil disimpan!' : 'Profile saved successfully!', 'success');
     } catch (error) {
       console.warn("Error updating profile:", error);
@@ -138,6 +192,16 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
         profilePictureUrl: avatar.url,
         updatedAt: new Date().toISOString()
       });
+
+      // Update league_groups if user is in one
+      if (userData?.leagueGroupId) {
+        try {
+          await updateDoc(doc(db, 'league_groups', userData.leagueGroupId), {
+            [`players.${user.uid}.photoUrl`]: avatar.url
+          });
+        } catch(e) {}
+      }
+
       showMessage(language === 'id' ? 'Avatar terpasang!' : 'Avatar equipped!', 'success');
     } else {
       if (userCoins >= avatar.price) {
@@ -148,6 +212,15 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
           profilePictureUrl: avatar.url,
           updatedAt: new Date().toISOString()
         });
+
+        // Update league_groups if user is in one
+        if (userData?.leagueGroupId) {
+          try {
+            await updateDoc(doc(db, 'league_groups', userData.leagueGroupId), {
+              [`players.${user.uid}.photoUrl`]: avatar.url
+            });
+          } catch(e) {}
+        }
         setProfilePic(avatar.url);
         showMessage(language === 'id' ? 'Pembelian berhasil! Avatar terpasang.' : 'Purchase successful! Avatar equipped.', 'success');
       } else {
@@ -266,7 +339,7 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
                   <h3 className="text-sm font-bold text-emerald-800">{language === 'id' ? 'QR Teman' : 'Friend QR'}</h3>
                   <p className="text-[10px] text-emerald-600 mb-2">{language === 'id' ? 'Scan untuk tambah teman' : 'Scan to add friend'}</p>
                   <div className="text-xs font-black text-slate-800 bg-white px-2 py-1 rounded inline-block shadow-sm">
-                    {user?.displayName || name}#{userTag}
+                    {name}#{userTag}
                   </div>
                 </div>
                 <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center shadow-sm p-1">
