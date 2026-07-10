@@ -381,6 +381,21 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
                   console.warn("Failed to update unlockedAchievements:", e);
                }
             }
+          } else {
+            // Pemulihan jika dokumen user tidak ada di database namun Auth masih login
+            const newTag = Math.floor(1000 + Math.random() * 9000).toString();
+            const basicData = {
+               uid: user.uid,
+               name: user.displayName || 'Pemain',
+               fullName: user.displayName || 'Pemain',
+               email: user.email || '',
+               tag: newTag,
+               totalCoins: 0,
+               createdAt: new Date().toISOString(),
+               lastLogin: new Date().toISOString()
+            };
+            setDoc(docRef, basicData).catch(console.warn);
+            setUserData(basicData as any);
           }
           setIsDataLoading(false);
         }, (err) => {

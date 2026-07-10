@@ -42,3 +42,17 @@
 .modal-content-scroller::-webkit-scrollbar-thumb:hover {
   background: rgba(212, 175, 55, 0.5);
 }
+
+/* Global Mobile/Touch Optimizations */
+html, body {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none; /* Prevent text highlighting during rapid taps */
+  -webkit-user-select: none;
+  touch-action: manipulation; /* Improves touch responsiveness */
+}
+
+/* Allow text selection in inputs/textareas */
+input, textarea {
+  user-select: auto;
+  -webkit-user-select: auto;
+}

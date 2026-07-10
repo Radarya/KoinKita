@@ -1,6 +1,6 @@
 {
   "name": "KoinKita v1.0",
-  "description": "Terminal Investasi Mikro Emas dengan refleksi AI philosophical",
+  "description": "Aplikasi Edugame Finansial Terdepan untuk belajar investasi dan pengelolaan keuangan",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
