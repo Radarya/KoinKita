@@ -55,6 +55,27 @@ import Dashboard from './components/Dashboard';
 import TermsModal from './components/TermsModal';
 import { useTranslation } from './lib/LanguageContext';
 import { bypassAutoplay, playClick } from './lib/audio';
+import { App as CapacitorApp } from '@capacitor/app';
+useEffect(() => {
+  CapacitorApp.addListener('appUrlOpen', data => {
+    // Misal URL-nya: https://domain-kamu.com/profil
+    console.log('App dibuka dari link:', data.url);
+
+    // Pecah URL untuk mendapatkan path tujuan (misal: /profil)
+    const path = data.url.split('.com').pop(); 
+
+    if (path) {
+      // Logika untuk pindah halaman otomatis (contoh sederhana)
+      // Jika kamu pakai React Router, bisa gunakan navigate(path)
+      // window.location.href = path; 
+    }
+  });
+
+  // Jangan lupa bersihkan listener saat komponen ditutup
+  return () => {
+    CapacitorApp.removeAllListeners();
+  };
+}, []);
 // ==========================================
 export default function App() {
   const [hasPendingFriend, setHasPendingFriend] = useState(!!localStorage.getItem('pendingFriendRequest'));
@@ -731,7 +752,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
       let rest;
       let res;
       if (Capacitor.isNativePlatform()) {
-        const result = await FirebaseAuthentication.signInWithGoogle();
+        const result = await FirebaseAuthentication.signInWithGoogle({ useCredentialManager: false });
         if (result.credential?.idToken) {
           const credential = GoogleAuthProvider.credential(result.credential.idToken);
           res = await signInWithCredential(auth, credential);
