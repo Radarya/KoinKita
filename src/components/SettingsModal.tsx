@@ -20,12 +20,14 @@ interface SettingsModalProps {
   onShowProfile?: () => void;
   isGameMode?: boolean;
   onExitGame?: () => void;
+  /** Called when the user wants to switch to a different Google account */
+  onSwitchGoogle?: () => void;
 }
 
 /**
  * @description Settings modal to adjust BGM state, sound volume, track selection, and system language.
  */
-export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = false, onExitGame }: SettingsModalProps) {
+export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = false, onExitGame, onSwitchGoogle }: SettingsModalProps) {
   const { t, language, toggleLanguage } = useTranslation();
   const [audioMode, setAudioModeState] = useState<number>(1);
   const [volume, setVolume] = useState<number>(0.5);
@@ -195,6 +197,22 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                     <User className="w-4 h-4" />
                     <span>{language === 'id' ? ' Lihat & Edit Profil' : ' View & Edit Profile'}</span>
                   </button>
+                  {/* Switch Google Account - only shown for Google-linked accounts */}
+                  {onSwitchGoogle && auth.currentUser && !auth.currentUser.isAnonymous && auth.currentUser.providerData.some(p => p.providerId === 'google.com') && (
+                    <button
+                      onClick={() => {
+                        playClick();
+                        onClose();
+                        onSwitchGoogle();
+                      }}
+                      className="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl flex items-center justify-center gap-2 border border-slate-200 cursor-pointer transition-all hover:scale-[1.01] text-sm mt-1"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.709 0 3.277.604 4.5 1.625l2.437-2.437C17.312 1.696 14.933 1 12.24 1 6.58 1 2 5.58 2 11.24s4.58 10.24 10.24 10.24c5.795 0 10.24-4.11 10.24-10.24 0-.685-.08-1.355-.24-1.955H12.24z"/>
+                      </svg>
+                      <span>{language === 'id' ? 'Ganti Akun Google' : 'Switch Google Account'}</span>
+                    </button>
+                  )}
                 </div>
               )}
 

@@ -56,6 +56,10 @@ interface DashboardProps {
   user: any;
   onShowTerms: () => void;
   triggerToast?: (msg: string, type: 'success' | 'warning' | 'error' | 'info') => void;
+  /** Called when a guest user "logs out" — keeps Firebase session alive, just navigates back to login choice */
+  onGuestLogout?: () => void;
+  /** Called to trigger a fresh Google sign-in (switch account). Dashboard signs out first, then App.tsx handles sign-in. */
+  onSwitchGoogle?: () => void;
 }
 
 /**
@@ -72,7 +76,7 @@ export function calculateLevelFromCoins(coins: number): number {
   return 0;
 }
 
-export default function Dashboard({ user, onShowTerms, triggerToast }: DashboardProps) {
+export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogout, onSwitchGoogle }: DashboardProps) {
   const { t, language } = useTranslation();
   const [userData, setUserData] = useState<any>(null);
   const [activeGame, setActiveGame] = useState<string | null>(null);
@@ -381,12 +385,36 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
 
   const handleLogout = async () => {
     try {
-      if (triggerToast) {
-        triggerToast(language === 'id' ? 'Berhasil keluar. Sampai jumpa!' : 'Successfully logged out. See you!', 'info');
+      if (user?.isAnonymous) {
+        // Guest: do NOT sign out — keep Firebase anonymous session alive so progress is retained.
+        // Just navigate back to login choice screen.
+        if (triggerToast) {
+          triggerToast(
+            language === 'id' ? 'Keluar sementara. Akun tamu kamu tersimpan!' : 'Exited. Your guest account is saved!',
+            'info'
+          );
+        }
+        onGuestLogout?.();
+      } else {
+        // Google / Email: perform a real sign out
+        if (triggerToast) {
+          triggerToast(language === 'id' ? 'Berhasil keluar. Sampai jumpa!' : 'Successfully logged out. See you!', 'info');
+        }
+        await signOut(auth);
       }
-      await signOut(auth);
     } catch (error) {
       console.warn("Logout error:", error);
+    }
+  };
+
+  const handleSwitchGoogleAccount = async () => {
+    try {
+      // Sign out completely first so Firebase clears the current session
+      await signOut(auth);
+      // Then App.tsx handleLinkGoogle will be triggered via onSwitchGoogle prop
+      onSwitchGoogle?.();
+    } catch (err) {
+      console.warn("Switch Google account sign-out failed:", err);
     }
   };
 
@@ -819,6 +847,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
             setShowProfile(true);
           });
         }}
+        onSwitchGoogle={onSwitchGoogle ? handleSwitchGoogleAccount : undefined}
       />
       <AnimatePresence>
         {showLeaderboard && <Arena onBack={() => setShowLeaderboard(false)} currentUserUid={user.uid} userData={userData} mode="arena" initialTab="leaderboard" />}

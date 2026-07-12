@@ -306,27 +306,23 @@ export default function App() {
            });
         }
       } else {
-        // If no user is logged in
+        // If no user is logged in (e.g. after a real Google/Email sign out)
         setShowOnboarding(false);
-        if (Capacitor.isNativePlatform() && !hasAttemptedAnon.current) {
-          // Native App: bypass landing page, sign in anonymously immediately!
+        const isFirstLaunch = localStorage.getItem('hasSeenOnboarding') !== 'true';
+
+        if (Capacitor.isNativePlatform() && isFirstLaunch && !hasAttemptedAnon.current) {
+          // Native App first launch: auto sign-in anonymously so user lands on dashboard directly
           hasAttemptedAnon.current = true;
           try {
             await signInAnonymously(auth);
           } catch (anonErr) {
             console.error("Auto anonymous sign-in failed:", anonErr);
-            triggerToast(
-              language === 'id' 
-                ? 'Gagal masuk otomatis sebagai Tamu. Silakan masuk menggunakan Google.' 
-                : 'Failed to auto-sign in as Guest. Please sign in using Google.', 
-              'error'
-            );
             startTransition(() => {
               setCurrentScreen('landing');
             });
           }
         } else {
-          // Web/Browser or failed anonymous sign-in fallback: Go to Landing page
+          // After a real logout OR web: go to landing page so user actively picks login method
           if (currentScreen === 'app' || currentScreen === 'loading') {
             startTransition(() => {
               setCurrentScreen('landing');
@@ -577,7 +573,17 @@ export default function App() {
         />
       ) : currentScreen === 'app' && currentUser ? (
         <>
-          <Dashboard user={currentUser} onShowTerms={() => {}} triggerToast={triggerToast} />
+          <Dashboard 
+            user={currentUser} 
+            onShowTerms={() => {}} 
+            triggerToast={triggerToast} 
+            onGuestLogout={() => {
+              // Guest "logout": don't sign out — just show login choice overlay
+              // The Firebase anonymous session stays alive, preserving all progress
+              setShowOnboarding(true);
+            }}
+            onSwitchGoogle={handleLinkGoogle}
+          />
           {showOnboarding && (
             <OnboardingModal 
               onLinkGoogle={handleLinkGoogle} 
@@ -2210,8 +2216,8 @@ function LandingPage({
             
             <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0 relative z-10 w-full md:w-auto justify-center">
               <a 
-                href="/app-debug.apk"
-                download
+                href="https://github.com/Radarya/KoinKita/releases/latest/download/koinkita-release.apk"
+                download="koinkita-release.apk"
                 onClick={() => playClick()}
                 className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-emerald-700 font-extrabold text-lg rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 border-b-4 border-slate-200 hover:border-slate-100 cursor-pointer"
               >
