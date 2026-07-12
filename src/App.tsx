@@ -899,6 +899,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     bypassAutoplay();
+    isLinkingRef.current = true;
     setErrorMsg('');
     setSuccessMsg('');
 
@@ -1006,9 +1007,11 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     bypassAutoplay();
+    isLinkingRef.current = true;
     setErrorMsg('');
     setSuccessMsg('');
     setIsLoading(true);
+
     
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
@@ -1037,15 +1040,19 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
     } catch (err) {
       handleDisplayError(err);
     } finally {
+      isLinkingRef.current = false;
       setIsLoading(false);
     }
   };
 
+
   const handleGoogleLogin = async () => {
     bypassAutoplay();
+    isLinkingRef.current = true;
     setErrorMsg('');
     setSuccessMsg('');
     setIsLoading(true);
+
     try {
       let rest;
       let res;
@@ -2016,7 +2023,7 @@ function LandingPage({
             <button
               onClick={onLinkGoogle}
               disabled={isLoading}
-              className="flex-1 py-4 px-6 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm rounded-2xl cursor-pointer shadow-md shadow-emerald-200/50 transition-all active:scale-[0.98] border-b-4 border-emerald-700 hover:border-emerald-600 flex items-center justify-center gap-2 hover:scale-[1.01]"
+              className="flex-1 py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-2xl cursor-pointer shadow-md shadow-emerald-200/50 transition-all active:scale-[0.98] border-b-4 border-emerald-800 hover:border-emerald-700 flex items-center justify-center gap-2 hover:scale-[1.01]"
             >
               {isLoading ? (
                 <>
@@ -2324,7 +2331,9 @@ function LandingPage({
                         onMouseEnter={() => setFeedbackHoverRating(star)}
                         onMouseLeave={() => setFeedbackHoverRating(0)}
                         className="p-1 transition-all duration-150 hover:scale-125 cursor-pointer animate-none"
+                        aria-label={`Rating ${star} Bintang`}
                       >
+                        <span className="sr-only">Rating {star} Bintang</span>
                         <Star 
                           className={`w-8 h-8 ${
                             isLit 
@@ -2391,7 +2400,7 @@ function LandingPage({
               <button
                 type="submit"
                 disabled={feedbackSubmitting}
-                className="w-full py-4 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white font-extrabold text-sm rounded-xl cursor-pointer shadow-md transition-all active:scale-[0.98] border-b-4 border-amber-700 hover:border-amber-600 flex items-center justify-center gap-2"
+                className="w-full py-4 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-amber-950 font-extrabold text-sm rounded-xl cursor-pointer shadow-md transition-all active:scale-[0.98] border-b-4 border-amber-700 hover:border-amber-600 flex items-center justify-center gap-2"
               >
                 {feedbackSubmitting ? (
                   <>
