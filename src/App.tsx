@@ -238,6 +238,8 @@ export default function App() {
         setCurrentUser(null);
         await signOut(auth);
         if (currentScreen === 'app' || currentScreen === 'loading') {
+          // Guest "logout" should return to landing without showing onboarding again
+          setShowOnboarding(false);
           startTransition(() => {
             setCurrentScreen('landing');
           });
@@ -297,7 +299,13 @@ export default function App() {
           setShowOnboarding(true);
         }
 
-        if (currentScreen === 'loading' || currentScreen === 'auth' || currentScreen === 'landing') {
+        // Auto-navigate to app, but NOT for anonymous users sitting on the landing page.
+        // Anonymous users on landing got there intentionally (guest logout) and should
+        // stay until they actively pick a login method or continue as guest.
+        const shouldAutoNav = currentScreen === 'loading' || currentScreen === 'auth'
+          || (currentScreen === 'landing' && !user.isAnonymous);
+
+        if (shouldAutoNav) {
            if (currentScreen !== 'loading' && !user.isAnonymous) {
              triggerToast(language === 'id' ? `Selamat datang kembali, ${displayName}!` : `Welcome back, ${displayName}!`, 'info');
            }
@@ -512,6 +520,9 @@ export default function App() {
         }, { merge: true });
         localStorage.setItem('hasSeenOnboarding', 'true');
         setShowOnboarding(false);
+        startTransition(() => {
+          setCurrentScreen('app');
+        });
         triggerToast(language === 'id' ? 'Masuk sebagai Tamu' : 'Entered as Guest', 'success');
       }
     } catch (e) {
@@ -579,8 +590,11 @@ export default function App() {
             triggerToast={triggerToast} 
             onGuestLogout={() => {
               // Guest "logout": don't sign out — just show login choice overlay
-              // The Firebase anonymous session stays alive, preserving all progress
-              setShowOnboarding(true);
+              // Preserve anonymous session and avoid onboarding loop
+              setShowOnboarding(false);
+              startTransition(() => {
+                setCurrentScreen('landing');
+              });
             }}
             onSwitchGoogle={handleLinkGoogle}
           />
