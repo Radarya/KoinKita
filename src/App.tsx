@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, startTransition, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
-import { signInWithCredential, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithCredential, GoogleAuthProvider, signInAnonymously, linkWithCredential, linkWithPopup } from 'firebase/auth';
 import { 
   Mail, 
   Lock, 
@@ -35,9 +35,12 @@ import {
   CheckCircle2,
   Gift,
   ArrowUp,
+  Download,
   BookOpen,
   Trophy,
-  WifiOff
+  WifiOff,
+  Star,
+  MessageSquare
 } from 'lucide-react';
 import { auth, googleProvider, db } from './firebase'; 
 import { 
@@ -50,11 +53,12 @@ import {
   signOut,
   User as FirebaseUser
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, addDoc, updateDoc } from 'firebase/firestore';
 import Dashboard from './components/Dashboard';
 import TermsModal from './components/TermsModal';
+import OnboardingModal from './components/OnboardingModal';
 import { useTranslation } from './lib/LanguageContext';
-import { bypassAutoplay, playClick } from './lib/audio';
+import { bypassAutoplay, playClick, setAppActive } from './lib/audio';
 import { App as CapacitorApp } from '@capacitor/app';
 
 // ==========================================
@@ -62,22 +66,14 @@ export default function App() {
   const [hasPendingFriend, setHasPendingFriend] = useState(!!localStorage.getItem('pendingFriendRequest'));
   const handleStartLogin = () => setCurrentScreen('auth');
 
-  // Check for friend request route
-  useEffect(() => {
-    const path = window.location.pathname;
-    if (path.startsWith('/add/')) {
-      const tag = path.split('/add/')[1];
-      if (tag) {
-        localStorage.setItem('pendingFriendRequest', tag);
-        setHasPendingFriend(true);
-        window.history.replaceState({}, '', '/');
-      }
-    }
-  }, []);
+
 
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [currentScreen, setCurrentScreen] = useState<'loading' | 'landing' | 'auth' | 'app'>('loading');
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { language } = useTranslation();
+  const hasAttemptedAnon = useRef(false);
+  const [isLinking, setIsLinking] = useState(false);
 
   // Premium Toast Notification State
   type ToastType = 'success' | 'warning' | 'error' | 'info';
@@ -90,17 +86,85 @@ export default function App() {
   };
 
   
-  // Check for referral link
-  useEffect(() => {
-    const path = window.location.pathname;
+  // Helper to process /add/ path segments and write to localStorage
+  const processAddPath = useCallback((path: string) => {
     if (path.startsWith('/add/')) {
-      const tag = path.split('/')[2];
+      const tag = path.split('/add/')[1];
       if (tag) {
+        localStorage.setItem('pendingFriendRequest', tag);
         localStorage.setItem('referralTag', tag);
-        // Clear URL without refreshing
-        window.history.replaceState({}, document.title, '/');
+        setHasPendingFriend(true);
+        // Dispatch custom event for components (like Dashboard) if already mounted
+        window.dispatchEvent(new Event('pendingFriendRequestUpdated'));
+        return true;
       }
     }
+    return false;
+  }, []);
+
+  // Web deep link check (runs on mount)
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (processAddPath(path)) {
+      window.history.replaceState({}, document.title, '/');
+    }
+  }, [processAddPath]);
+
+  // Capacitor Native deep link check (listens to app open event)
+  useEffect(() => {
+    let listener: any = null;
+
+    try {
+      if (Capacitor.isNativePlatform() && CapacitorApp && typeof CapacitorApp.addListener === 'function') {
+        listener = CapacitorApp.addListener('appUrlOpen', (event: { url: string }) => {
+          try {
+            const urlObj = new URL(event.url);
+            const path = urlObj.pathname;
+            if (processAddPath(path)) {
+              triggerToast(
+                language === 'id' 
+                  ? 'Tautan pertemanan berhasil terdeteksi!' 
+                  : 'Friend link successfully detected!', 
+                'success'
+              );
+            }
+          } catch (urlErr) {
+            console.error("Error parsing deep link URL:", urlErr);
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("Capacitor App plugin not available or error adding listener:", err);
+    }
+
+    return () => {
+      if (listener && typeof listener.remove === 'function') {
+        listener.remove();
+      }
+    };
+  }, [processAddPath, language]);
+
+  // Listen to Capacitor App State Changes (foreground/background) to manage audio/music
+  useEffect(() => {
+    let listener: any = null;
+
+    try {
+      if (Capacitor.isNativePlatform() && CapacitorApp && typeof CapacitorApp.addListener === 'function') {
+        listener = CapacitorApp.addListener('appStateChange', (state) => {
+          if (state && typeof state.isActive === 'boolean') {
+            setAppActive(state.isActive);
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("Capacitor App plugin not available or error adding appStateChange listener:", err);
+    }
+
+    return () => {
+      if (listener && typeof listener.remove === 'function') {
+        listener.remove();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -166,7 +230,7 @@ export default function App() {
   }, [language]);
 
   useEffect(() => {
-    // 1. AUTO-LOGIN MECHANIC (SESSION PERSISTENCE)
+    // 1. AUTO-LOGIN MECHANIC (SESSION PERSISTENCE & GUEST AUTO-LOGIN)
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       // Check for unverified email accounts (allow unverified google accounts as they don't strictly need one)
       // Only auto-kick if they are not in the auth modal, so we don't interrupt the registration flow
@@ -174,7 +238,9 @@ export default function App() {
         setCurrentUser(null);
         await signOut(auth);
         if (currentScreen === 'app' || currentScreen === 'loading') {
-          setCurrentScreen('landing');
+          startTransition(() => {
+            setCurrentScreen('landing');
+          });
         }
         return;
       }
@@ -186,27 +252,86 @@ export default function App() {
              return; // Halt navigation, allow handleRegister to finish and call signOut
         }
         
+        let displayName = user.displayName || (user.isAnonymous ? (language === 'id' ? 'Tamu' : 'Guest') : 'Pemain');
+        let onboardingNotCompleted = false;
+
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userSnap = await getDoc(userDocRef);
+          if (userSnap.exists()) {
+            const data = userSnap.data();
+            if (data.fullName) displayName = data.fullName;
+            if (!data.hasCompletedOnboarding) {
+              onboardingNotCompleted = true;
+            }
+          } else {
+            // Auto-create document for new anonymous guest
+            onboardingNotCompleted = true;
+            const randomTag = Math.floor(1000 + Math.random() * 9000).toString();
+            await setDoc(userDocRef, {
+              uid: user.uid,
+              name: displayName,
+              fullName: displayName,
+              email: user.email || 'guest@koinkita.xyz',
+              tag: randomTag,
+              totalCoins: 0,
+              coins: 0,
+              lives: 5,
+              level: 0,
+              friends: [],
+              claimedQuests: {},
+              dailyStats: {},
+              lastSentLife: {},
+              profilePicUrl: '',
+              createdAt: new Date().toISOString(),
+              isAnonymous: user.isAnonymous,
+              hasCompletedOnboarding: false
+            });
+          }
+        } catch (e) {
+          console.warn("Error fetching/setting user profile inside auth state change", e);
+        }
+
+        const hasSeen = localStorage.getItem('hasSeenOnboarding') === 'true';
+        if (onboardingNotCompleted && !hasSeen) {
+          setShowOnboarding(true);
+        }
+
         if (currentScreen === 'loading' || currentScreen === 'auth' || currentScreen === 'landing') {
-           let displayName = user.displayName || 'Pemain';
-           try {
-             const userDocRef = doc(db, 'users', user.uid);
-             const userSnap = await getDoc(userDocRef);
-             if (userSnap.exists() && userSnap.data().fullName) {
-               displayName = userSnap.data().fullName;
-             }
-           } catch (e) {
-             console.warn("Error fetching user profile for welcome toast", e);
-           }
-           
-           if (currentScreen !== 'loading') {
+           if (currentScreen !== 'loading' && !user.isAnonymous) {
              triggerToast(language === 'id' ? `Selamat datang kembali, ${displayName}!` : `Welcome back, ${displayName}!`, 'info');
            }
-           setCurrentScreen('app');
+           startTransition(() => {
+             setCurrentScreen('app');
+           });
         }
       } else {
-        // If they were in the app and got logged out, go to landing.
-        if (currentScreen === 'app' || currentScreen === 'loading') {
-          setCurrentScreen('landing');
+        // If no user is logged in
+        setShowOnboarding(false);
+        if (Capacitor.isNativePlatform() && !hasAttemptedAnon.current) {
+          // Native App: bypass landing page, sign in anonymously immediately!
+          hasAttemptedAnon.current = true;
+          try {
+            await signInAnonymously(auth);
+          } catch (anonErr) {
+            console.error("Auto anonymous sign-in failed:", anonErr);
+            triggerToast(
+              language === 'id' 
+                ? 'Gagal masuk otomatis sebagai Tamu. Silakan masuk menggunakan Google.' 
+                : 'Failed to auto-sign in as Guest. Please sign in using Google.', 
+              'error'
+            );
+            startTransition(() => {
+              setCurrentScreen('landing');
+            });
+          }
+        } else {
+          // Web/Browser or failed anonymous sign-in fallback: Go to Landing page
+          if (currentScreen === 'app' || currentScreen === 'loading') {
+            startTransition(() => {
+              setCurrentScreen('landing');
+            });
+          }
         }
       }
     });
@@ -248,10 +373,11 @@ export default function App() {
               repeat: Infinity, 
               ease: "easeInOut" 
             }}
+            style={{ willChange: "transform" }}
             className="w-20 h-20 bg-gradient-to-tr from-amber-300 to-yellow-400 rounded-full shadow-lg shadow-amber-400/30 border-4 border-white flex items-center justify-center mb-6 relative"
           >
              <div className="absolute inset-2 border-2 border-amber-500/30 rounded-full border-dashed animate-spin" style={{ animationDuration: '3s' }}></div>
-             <CircleDollarSign className="w-10 h-10 text-amber-600 shrink-0" />
+             <CircleDollarSign className="w-10 h-10 text-amber-600 shrink-0 animate-spin" style={{ animationDuration: '3s' }} />
           </motion.div>
           
           <h1 className="text-3xl font-black text-emerald-600 tracking-tight mb-2">
@@ -264,6 +390,140 @@ export default function App() {
       </div>
     );
   }
+
+  const handleLinkGoogle = async () => {
+    bypassAutoplay();
+    setIsLinking(true);
+    try {
+      if (!auth.currentUser) {
+        let credential;
+        let res;
+        if (Capacitor.isNativePlatform()) {
+          const result = await FirebaseAuthentication.signInWithGoogle({ useCredentialManager: false });
+          if (result.credential?.idToken) {
+            credential = GoogleAuthProvider.credential(result.credential.idToken);
+            res = await signInWithCredential(auth, credential);
+          } else {
+            throw new Error("Gagal mendapatkan credential dari Google Sign-In");
+          }
+        } else {
+          res = await signInWithPopup(auth, googleProvider);
+        }
+
+        const userDocRef = doc(db, 'users', res.user.uid);
+        const userSnap = await getDoc(userDocRef);
+        const currentData = userSnap.exists() ? userSnap.data() : {};
+
+        const full = res.user.displayName || "Pemain Google";
+        await setDoc(userDocRef, {
+          ...currentData,
+          uid: res.user.uid,
+          name: full,
+          fullName: full,
+          email: res.user.email || 'guest@koinkita.xyz',
+          profilePictureUrl: res.user.photoURL || '',
+          isAnonymous: false,
+          hasCompletedOnboarding: true
+        }, { merge: true });
+
+        localStorage.setItem('hasSeenOnboarding', 'true');
+        setShowOnboarding(false);
+        triggerToast(language === 'id' ? 'Berhasil masuk dengan Google!' : 'Successfully signed in with Google!', 'success');
+        return;
+      }
+
+      let credential;
+      let res;
+      if (Capacitor.isNativePlatform()) {
+        const result = await FirebaseAuthentication.signInWithGoogle({ useCredentialManager: false });
+        if (result.credential?.idToken) {
+          credential = GoogleAuthProvider.credential(result.credential.idToken);
+          res = await linkWithCredential(auth.currentUser, credential);
+        } else {
+          throw new Error("Gagal mendapatkan credential dari Google Sign-In");
+        }
+      } else {
+        res = await linkWithPopup(auth.currentUser, googleProvider);
+      }
+
+      // Update Firestore user document
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      const userSnap = await getDoc(userDocRef);
+      const currentData = userSnap.exists() ? userSnap.data() : {};
+      
+      const full = res.user.displayName || "Pemain Google";
+      await setDoc(userDocRef, {
+        ...currentData,
+        uid: res.user.uid,
+        name: full,
+        fullName: full,
+        email: res.user.email || 'guest@koinkita.xyz',
+        profilePictureUrl: res.user.photoURL || '',
+        isAnonymous: false,
+        hasCompletedOnboarding: true
+      }, { merge: true });
+
+      localStorage.setItem('hasSeenOnboarding', 'true');
+      triggerToast(language === 'id' ? 'Akun berhasil ditautkan ke Google!' : 'Account successfully linked to Google!', 'success');
+      setShowOnboarding(false);
+    } catch (e: any) {
+      console.warn("Failed to link/sign in Google account:", e);
+      if (e.code === 'auth/credential-already-in-use') {
+        // Fallback: sign in directly since it's already registered
+        triggerToast(
+          language === 'id' 
+            ? 'Akun Google ini sudah terdaftar. Masuk ke akun tersebut...' 
+            : 'This Google account is already registered. Logging in to it...', 
+          'info'
+        );
+        try {
+          if (Capacitor.isNativePlatform()) {
+            const result = await FirebaseAuthentication.signInWithGoogle({ useCredentialManager: false });
+            if (result.credential?.idToken) {
+              const credential = GoogleAuthProvider.credential(result.credential.idToken);
+              await signInWithCredential(auth, credential);
+            }
+          } else {
+            await signInWithPopup(auth, googleProvider);
+          }
+          localStorage.setItem('hasSeenOnboarding', 'true');
+          setShowOnboarding(false);
+        } catch (signInErr) {
+          console.error("Sign-in fallback failed:", signInErr);
+          triggerToast(language === 'id' ? 'Gagal masuk ke akun Google.' : 'Failed to log in to Google account.', 'error');
+        }
+      } else {
+        triggerToast(language === 'id' ? 'Gagal menautkan akun.' : 'Failed to link account.', 'error');
+      }
+    } finally {
+      setIsLinking(false);
+    }
+  };
+
+  const handleContinueGuest = async () => {
+    playClick();
+    setIsLinking(true);
+    try {
+      let currentUid = auth.currentUser?.uid;
+      if (!auth.currentUser) {
+        const res = await signInAnonymously(auth);
+        currentUid = res.user.uid;
+      }
+      if (currentUid) {
+        const userDocRef = doc(db, 'users', currentUid);
+        await setDoc(userDocRef, {
+          hasCompletedOnboarding: true
+        }, { merge: true });
+        localStorage.setItem('hasSeenOnboarding', 'true');
+        setShowOnboarding(false);
+        triggerToast(language === 'id' ? 'Masuk sebagai Tamu' : 'Entered as Guest', 'success');
+      }
+    } catch (e) {
+      console.warn("Failed to update onboarding status in Firestore:", e);
+    } finally {
+      setIsLinking(false);
+    }
+  };
 
   return (
     <>
@@ -304,12 +564,37 @@ export default function App() {
       </AnimatePresence>
       
       {currentScreen === 'landing' ? (
-        <LandingPage onStart={() => setCurrentScreen(currentUser ? 'app' : 'auth')} hasPendingFriend={!!localStorage.getItem('pendingFriendRequest')} />
+        <LandingPage 
+          onLinkGoogle={handleLinkGoogle} 
+          onContinueGuest={handleContinueGuest} 
+          onGoToAuth={() => {
+            startTransition(() => {
+              setCurrentScreen('auth');
+            });
+          }}
+          isLoading={isLinking}
+          hasPendingFriend={!!localStorage.getItem('pendingFriendRequest')} 
+        />
       ) : currentScreen === 'app' && currentUser ? (
-        <Dashboard user={currentUser} onShowTerms={() => {}} triggerToast={triggerToast} />
+        <>
+          <Dashboard user={currentUser} onShowTerms={() => {}} triggerToast={triggerToast} />
+          {showOnboarding && (
+            <OnboardingModal 
+              onLinkGoogle={handleLinkGoogle} 
+              onContinueGuest={handleContinueGuest} 
+              onGoToAuth={() => {
+                startTransition(() => {
+                  setShowOnboarding(false);
+                  setCurrentScreen('auth');
+                });
+              }}
+              isLoading={isLinking} 
+            />
+          )}
+        </>
       ) : (
         <GameAuth 
-          onBack={() => setCurrentScreen('landing')} 
+          onBack={() => startTransition(() => setCurrentScreen('landing'))} 
           triggerToast={triggerToast} 
         />
       )}
@@ -783,6 +1068,8 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
     }
   };
 
+
+
   /**
    * @description Copies the current browser host origin domain name to clipboard for easy configuration in the Firebase Console setup.
    */
@@ -852,6 +1139,7 @@ function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?
              <motion.div 
                animate={{ y: [0, -6, 0] }}
                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+               style={{ willChange: "transform" }}
                className="mx-auto w-16 h-16 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-xl border border-emerald-400 relative z-10"
              >
                 <Coins className="w-9 h-9 text-amber-400 fill-amber-400 stroke-amber-500 stroke-[1.5px]" />
@@ -1431,7 +1719,19 @@ function FAQItem({ question, answer, icon: Icon }: { question: string, answer: s
   );
 }
 
-function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPendingFriend?: boolean }) {
+function LandingPage({ 
+  onLinkGoogle, 
+  onContinueGuest, 
+  onGoToAuth, 
+  isLoading, 
+  hasPendingFriend 
+}: { 
+  onLinkGoogle: () => void, 
+  onContinueGuest: () => void, 
+  onGoToAuth: () => void, 
+  isLoading: boolean, 
+  hasPendingFriend?: boolean 
+}) {
   const { language, toggleLanguage } = useTranslation();
   const t = landingContent[language as keyof typeof landingContent];
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -1456,9 +1756,60 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const [feedbackName, setFeedbackName] = useState('');
+  const [feedbackEmail, setFeedbackEmail] = useState('');
+  const [feedbackRating, setFeedbackRating] = useState(5);
+  const [feedbackHoverRating, setFeedbackHoverRating] = useState(0);
+  const [feedbackComment, setFeedbackComment] = useState('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedbackComment.trim()) return;
+    setFeedbackSubmitting(true);
+    playClick();
+
+    try {
+      // 1. Save to Firestore feedbacks collection
+      await addDoc(collection(db, 'feedbacks'), {
+        name: feedbackName || 'Anonim',
+        email: feedbackEmail || 'anonim@koinkita.xyz',
+        rating: feedbackRating,
+        comment: feedbackComment,
+        createdAt: Date.now()
+      });
+
+      // 2. Submit via FormSubmit AJAX to user's email
+      await fetch("https://formsubmit.co/ajax/aydinaryasatyaradithya@gmail.com", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          Nama: feedbackName || 'Anonim',
+          Email: feedbackEmail || 'Anonim',
+          Rating: `${feedbackRating} Bintang`,
+          Saran: feedbackComment
+        })
+      });
+
+      setFeedbackSubmitted(true);
+      setFeedbackName('');
+      setFeedbackEmail('');
+      setFeedbackRating(5);
+      setFeedbackComment('');
+    } catch (err) {
+      console.warn("Feedback submission error:", err);
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
+
   const handleStart = () => {
     playClick();
-    onStart();
+    onGoToAuth();
   };
 
   return (
@@ -1501,7 +1852,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
                     {language === 'id' ? 'Nanti' : 'Later'}
                   </button>
                   <button 
-                    onClick={onStart}
+                    onClick={onGoToAuth}
                     className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95 flex justify-center items-center gap-2"
                   >
                     {language === 'id' ? 'Masuk / Daftar' : 'Log In / Sign Up'}
@@ -1534,6 +1885,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
         <motion.div
           animate={{ y: [0, -15, 0], opacity: [0.1, 0.15, 0.1] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          style={{ willChange: "transform, opacity" }}
           className="absolute top-[15%] left-[8%]"
         >
           <CircleDollarSign className="w-16 h-16 text-emerald-600" />
@@ -1541,6 +1893,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
         <motion.div
           animate={{ y: [0, 20, 0], opacity: [0.08, 0.12, 0.08] }}
           transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          style={{ willChange: "transform, opacity" }}
           className="absolute top-[30%] right-[15%]"
         >
           <TrendingUp className="w-24 h-24 text-blue-600" />
@@ -1548,6 +1901,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
         <motion.div
           animate={{ y: [0, -20, 0], opacity: [0.1, 0.15, 0.1] }}
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          style={{ willChange: "transform, opacity" }}
           className="absolute top-[60%] left-[10%]"
         >
           <Coins className="w-20 h-20 text-amber-500" />
@@ -1555,6 +1909,7 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
         <motion.div
           animate={{ y: [0, 25, 0], opacity: [0.05, 0.1, 0.05] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+          style={{ willChange: "transform, opacity" }}
           className="absolute top-[75%] right-[8%]"
         >
           <Leaf className="w-28 h-28 text-emerald-500" />
@@ -1619,15 +1974,57 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
           >
             {t.heroSlogan}
           </motion.p>
-          <motion.button
-            initial={{ opacity: 0, scale: 0.9 }}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            onClick={handleStart}
-            className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 font-bold text-white transition-all duration-300 bg-emerald-500 rounded-2xl hover:bg-emerald-400 hover:scale-105 shadow-lg shadow-emerald-200/50 active:scale-95 cursor-pointer border-b-4 border-emerald-600 hover:border-emerald-500 mx-auto"
+            className="flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto justify-center pt-4"
           >
-            <span className="text-xl">{t.heroCta}</span>
-          </motion.button>
+            {/* Google Sign In */}
+            <button
+              onClick={onLinkGoogle}
+              disabled={isLoading}
+              className="flex-1 py-4 px-6 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm rounded-2xl cursor-pointer shadow-md shadow-emerald-200/50 transition-all active:scale-[0.98] border-b-4 border-emerald-700 hover:border-emerald-600 flex items-center justify-center gap-2 hover:scale-[1.01]"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>{language === 'id' ? 'Menghubungkan...' : 'Connecting...'}</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.709 0 3.277.604 4.5 1.625l2.437-2.437C17.312 1.696 14.933 1 12.24 1 6.58 1 2 5.58 2 11.24s4.58 10.24 10.24 10.24c5.795 0 10.24-4.11 10.24-10.24 0-.685-.08-1.355-.24-1.955H12.24z"/>
+                  </svg>
+                  <span>Google Sign In</span>
+                </>
+              )}
+            </button>
+
+            {/* Email Sign In */}
+            <button
+              onClick={onGoToAuth}
+              disabled={isLoading}
+              className="flex-1 py-4 px-6 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-sm rounded-2xl cursor-pointer shadow-md transition-all active:scale-[0.98] border-b-4 border-slate-950 flex items-center justify-center gap-2 hover:scale-[1.01]"
+            >
+              <span>Email Sign In</span>
+            </button>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="pt-3 w-full text-center"
+          >
+            <button
+              onClick={onContinueGuest}
+              disabled={isLoading}
+              className="py-2.5 px-6 text-emerald-600 hover:text-emerald-700 font-extrabold text-sm hover:underline cursor-pointer transition-all active:scale-95"
+            >
+              {language === 'id' ? 'Lanjutkan sebagai Tamu' : 'Continue as Guest'}
+            </button>
+          </motion.div>
         </section>
 
         {/* Section 2: 4 Mini-Games Expanded Showcase */}
@@ -1790,6 +2187,41 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
           </div>
         </section>
 
+        {/* Section 4.5: Download Mobile App */}
+        <section className="relative z-10 w-full max-w-4xl mx-auto">
+          <div className="bg-gradient-to-tr from-emerald-500 to-teal-600 rounded-[2.5rem] p-8 sm:p-12 shadow-xl shadow-emerald-200/50 text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full pointer-events-none -mr-16 -mt-16"></div>
+            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-teal-400/20 rounded-full pointer-events-none"></div>
+            
+            <div className="flex-1 text-center md:text-left relative z-10">
+              <span className="inline-block px-3.5 py-1 rounded-full bg-white/20 text-xs font-black uppercase tracking-widest mb-4">
+                {language === 'id' ? 'Tersedia untuk Android' : 'Available for Android'}
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-poppins font-black mb-4 tracking-tight leading-tight">
+                {language === 'id' ? 'Bawa Petualangan Finansialmu di Saku!' : 'Carry Your Financial Adventure Anywhere!'}
+              </h2>
+              <p className="text-white/80 font-medium text-sm sm:text-base leading-relaxed max-w-md">
+                {language === 'id' 
+                  ? 'Unduh aplikasi mobile KoinKita sekarang untuk menikmati gameplay yang lebih responsif, dukungan deep link teman, dan animasi yang lebih mulus.' 
+                  : 'Download the KoinKita mobile app now for a more responsive gameplay, friend deep link support, and smoother animations.'}
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0 relative z-10 w-full md:w-auto justify-center">
+              <a 
+                href="/app-debug.apk"
+                download
+                onClick={() => playClick()}
+                className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-emerald-700 font-extrabold text-lg rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 border-b-4 border-slate-200 hover:border-slate-100 cursor-pointer"
+              >
+                <Download className="w-6 h-6 text-emerald-600 animate-pulse" />
+                <span>{language === 'id' ? 'Unduh APK Android' : 'Download Android APK'}</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Section 5: FAQ Accordion */}
         <section className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
@@ -1801,6 +2233,145 @@ function LandingPage({ onStart, hasPendingFriend }: { onStart: () => void, hasPe
           <FAQItem question={t.faq3q} answer={t.faq3a} icon={ShieldCheck} />
           <FAQItem question={t.faq4q} answer={t.faq4a} icon={BookOpen} />
           <FAQItem question={t.faq5q} answer={t.faq5a} icon={Trophy} />
+        </section>
+
+        {/* Section 6: Suggestion & Feedback Box */}
+        <section className="max-w-2xl mx-auto bg-white rounded-[2rem] p-8 border border-slate-200 shadow-md shadow-slate-100/50 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50/50 rounded-full pointer-events-none -mr-8 -mt-8"></div>
+          
+          <div className="flex items-center gap-3 mb-6 relative z-10">
+            <div className="p-2.5 bg-amber-100 rounded-xl">
+              <MessageSquare className="w-6 h-6 text-amber-600" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-poppins font-black text-slate-800">
+              {language === 'id' ? 'Kritik & Saran' : 'Feedback & Suggestions'}
+            </h2>
+          </div>
+          
+          <p className="text-sm sm:text-base text-slate-600 mb-6 font-medium leading-relaxed">
+            {language === 'id' 
+              ? 'Bantu kami meningkatkan kualitas KoinKita! Pendapatmu sangat berarti untuk perkembangan petualangan finansial ini.' 
+              : 'Help us improve KoinKita! Your feedback is highly valuable for the growth of this financial adventure.'}
+          </p>
+
+          {feedbackSubmitted ? (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center text-emerald-800 font-bold"
+            >
+              <div className="text-4xl mb-2">🎉</div>
+              <p className="text-base mb-1">
+                {language === 'id' ? 'Terima kasih banyak atas saranmu!' : 'Thank you so much for your feedback!'}
+              </p>
+              <p className="text-xs text-emerald-600 font-medium">
+                {language === 'id' ? 'Saranmu telah dikirimkan ke tim KoinKita.' : 'Your suggestion has been sent to the KoinKita team.'}
+              </p>
+              <button 
+                onClick={() => setFeedbackSubmitted(false)}
+                className="mt-4 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+              >
+                {language === 'id' ? 'Kirim Masukan Lagi' : 'Send Another Feedback'}
+              </button>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleFeedbackSubmit} className="space-y-5">
+              {/* Star Rating System */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-slate-700">
+                  {language === 'id' ? 'Rating Permainan' : 'Game Rating'}
+                </label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const isLit = feedbackHoverRating ? star <= feedbackHoverRating : star <= feedbackRating;
+                    return (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => { playClick(); setFeedbackRating(star); }}
+                        onMouseEnter={() => setFeedbackHoverRating(star)}
+                        onMouseLeave={() => setFeedbackHoverRating(0)}
+                        className="p-1 transition-all duration-150 hover:scale-125 cursor-pointer animate-none"
+                      >
+                        <Star 
+                          className={`w-8 h-8 ${
+                            isLit 
+                              ? 'text-amber-500 fill-amber-500' 
+                              : 'text-slate-200'
+                          }`} 
+                        />
+                      </button>
+                    );
+                  })}
+                  <span className="text-xs font-bold text-slate-400 ml-2">
+                    {feedbackRating === 5 && (language === 'id' ? 'Sempurna! 🤩' : 'Perfect! 🤩')}
+                    {feedbackRating === 4 && (language === 'id' ? 'Sangat Bagus! 😊' : 'Very Good! 😊')}
+                    {feedbackRating === 3 && (language === 'id' ? 'Cukup Ok 😐' : 'Decent 😐')}
+                    {feedbackRating === 2 && (language === 'id' ? 'Butuh Perbaikan 😕' : 'Needs Work 😕')}
+                    {feedbackRating === 1 && (language === 'id' ? 'Sangat Kurang 😞' : 'Poor 😞')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Name & Email (Row) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                    {language === 'id' ? 'Nama Pengirim (Opsional)' : 'Your Name (Optional)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={feedbackName}
+                    onChange={(e) => setFeedbackName(e.target.value)}
+                    placeholder={language === 'id' ? 'Cth: Budi' : 'e.g., John'}
+                    className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-amber-400 focus:bg-white transition-all font-medium"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                    {language === 'id' ? 'Email (Opsional)' : 'Email (Optional)'}
+                  </label>
+                  <input
+                    type="email"
+                    value={feedbackEmail}
+                    onChange={(e) => setFeedbackEmail(e.target.value)}
+                    placeholder="budi@email.com"
+                    className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-amber-400 focus:bg-white transition-all font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* Message Box */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  {language === 'id' ? 'Pesan Kritik & Saran' : 'Your Message / Feedback'}
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  value={feedbackComment}
+                  onChange={(e) => setFeedbackComment(e.target.value)}
+                  placeholder={language === 'id' ? 'Ketik kritik, saran, atau laporan bug di sini...' : 'Type criticisms, suggestions, or bug reports here...'}
+                  className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-amber-400 focus:bg-white transition-all font-medium resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={feedbackSubmitting}
+                className="w-full py-4 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white font-extrabold text-sm rounded-xl cursor-pointer shadow-md transition-all active:scale-[0.98] border-b-4 border-amber-700 hover:border-amber-600 flex items-center justify-center gap-2"
+              >
+                {feedbackSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>{language === 'id' ? 'Mengirim...' : 'Sending...'}</span>
+                  </>
+                ) : (
+                  <span>{language === 'id' ? 'KIRIM MASUKAN 🚀' : 'SUBMIT FEEDBACK 🚀'}</span>
+                )}
+              </button>
+            </form>
+          )}
         </section>
       </main>
 

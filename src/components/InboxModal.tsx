@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Heart, Mail, Check, Inbox as InboxIcon } from 'lucide-react';
-import { collection, query, where, onSnapshot, updateDoc, doc, deleteDoc, arrayUnion } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, updateDoc, doc, deleteDoc, arrayUnion, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTranslation } from '../lib/LanguageContext';
 import { playClick } from '../lib/audio';
@@ -67,6 +67,29 @@ export default function InboxModal({ onClose, user, userData, triggerToast }: In
       
       await updateDoc(userRef, { friends: arrayUnion(msg.fromUserId) });
       await updateDoc(friendRef, { friends: arrayUnion(user.uid) });
+      
+      // If this request came from a referral link, award the bonus!
+      if (msg.isReferral) {
+        const friendSnap = await getDoc(friendRef);
+        if (friendSnap.exists()) {
+          const friendData = friendSnap.data();
+          const currentCoins = userData?.totalCoins || userData?.coins || 0;
+          const friendCoins = friendData?.totalCoins || friendData?.coins || 0;
+          
+          // If either user has <= 50 coins, award the +100 bonus to both!
+          if (currentCoins <= 50 || friendCoins <= 50) {
+            await updateDoc(userRef, {
+              totalCoins: currentCoins + 100,
+              coins: currentCoins + 100
+            });
+            await updateDoc(friendRef, {
+              totalCoins: friendCoins + 100,
+              coins: friendCoins + 100
+            });
+            triggerToast(language === 'id' ? 'Bonus afiliasi! Masing-masing mendapat +100 Koin!' : 'Affiliate bonus! Each gets +100 Coins!', 'success');
+          }
+        }
+      }
       
       await deleteDoc(doc(db, 'inbox', msg.id));
       triggerToast(language === 'id' ? 'Teman ditambahkan!' : 'Friend added!', 'success');

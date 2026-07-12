@@ -158,44 +158,44 @@ export default function TermsModal({ isOpen, onClose, initialTab = 'rules' }: Te
                       <Shield className="w-5 h-5 text-emerald-600 shrink-0" />
                       <span>
                         {language === 'id' 
-                          ? "Keamanan data pribadi Anda adalah prioritas utama. KoinKita tidak mengumpulkan atau menyebar data sensitif Anda."
-                          : "Your personal data security is our ultimate priority. KoinKita does not collect or distribute your sensitive data."}
+                          ? "Keamanan data pribadi Anda adalah prioritas utama. KoinKita tidak mengumpulkan, menjual, atau membagikan data pribadi Anda."
+                          : "Your personal data security is our ultimate priority. KoinKita does not collect, sell, or distribute your private information."}
                       </span>
                     </div>
 
                     <div>
                       <h3 className="font-poppins font-black text-slate-800 text-sm mb-2 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        {language === 'id' ? '1. Komitmen Keamanan Data' : '1. Data Security Commitment'}
+                        {language === 'id' ? '1. Otentikasi Aman & Isolasi Data' : '1. Secure Authentication & Data Isolation'}
                       </h3>
                       <p className="pl-3.5 border-l-2 border-emerald-100 ml-0.5 text-xs text-slate-500 font-medium">
                         {language === 'id'
-                          ? 'Perlindungan privasi Anda diutamakan. Kami tidak mengumpulkan data pribadi di luar yang diperlukan untuk fungsionalitas Firebase Auth (seperti alamat email dan nama profil). Semua data dienkripsi dengan standar industri.'
-                          : 'Your privacy protection comes first. We do not collect personal data beyond what is needed for Firebase Auth functionality (like email address and profile name). All data is encrypted with industry standards.'}
+                          ? 'Perlindungan privasi Anda diutamakan. Kami tidak mengumpulkan kredensial pribadi di luar metadata dasar yang diperlukan untuk fungsionalitas Firebase Authentication (seperti alamat email dan nama profil). Semua data dienkripsi dengan standar industri.'
+                          : 'We prioritize your privacy. No personal credentials are collected outside of basic metadata required for Firebase Authentication (such as email addresses, user display names, and public profile pictures). All database connections use secure, industry-standard encrypted protocols.'}
                       </p>
                     </div>
 
                     <div>
                       <h3 className="font-poppins font-black text-slate-800 text-sm mb-2 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        {language === 'id' ? '2. Penyimpanan dan Log Aktivitas' : '2. Storage and Activity Logs'}
+                        {language === 'id' ? '2. Penyimpanan Progres Terenkripsi' : '2. Encrypted Progress Storage'}
                       </h3>
                       <p className="pl-3.5 border-l-2 border-emerald-100 ml-0.5 text-xs text-slate-500 font-medium">
                         {language === 'id'
-                          ? 'Kami log progres game Anda, koin, skor leaderboard, dan pengaturan bahasa/BGM, semua dikaitkan dengan ID profil unik Anda melalui Cloud Firestore. Tidak ada pelacakan pihak ketiga untuk iklan.'
-                          : 'We log your game progress, coins, leaderboard scores, and language/BGM settings, all tied to your unique profile ID via Cloud Firestore. There is no third-party tracking for ads.'}
+                          ? 'Kami menyimpan progres game, koin, skor papan peringkat, dan preferensi Anda secara aman di Google Firestore yang dikaitkan dengan UID unik Anda. Tidak ada pelacakan pihak ketiga untuk iklan.'
+                          : 'Your gameplay stats, coins, daily quest logs, and settings are securely stored in Google Firestore and associated only with a unique user UID. There are absolutely no third-party advertisements, analytics scripts, or tracking software.'}
                       </p>
                     </div>
 
                     <div>
                       <h3 className="font-poppins font-black text-slate-800 text-sm mb-2 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        {language === 'id' ? '3. Hak Pengguna Sepenuhnya' : '3. Full User Rights'}
+                        {language === 'id' ? '3. Hak Kepemilikan & Penghapusan Data' : '3. Data Ownership & Deletion Rights'}
                       </h3>
                       <p className="pl-3.5 border-l-2 border-emerald-100 ml-0.5 text-xs text-slate-500 font-medium">
                         {language === 'id'
-                          ? 'Anda berhak menghapus akun beserta datanya dari server kami kapan saja melalui pengaturan profil di dashboard dan tidak bisa dipulihkan kembali.'
-                          : 'You have the right to delete your account and its data from our servers at any time via the profile settings on the dashboard, and it cannot be recovered again.'}
+                          ? 'Anda memiliki hak penuh atas data Anda. Anda dapat menghapus akun dan semua riwayat progres game secara permanen kapan saja melalui pengaturan profil di dashboard, dan data tidak dapat dipulihkan kembali.'
+                          : 'You retain full ownership of your data. You may permanently delete your profile, progress, and all associated game histories at any time from the account settings in the dashboard. Once initiated, this deletion is absolute and cannot be undone.'}
                       </p>
                     </div>
                   </motion.div>

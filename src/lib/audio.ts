@@ -376,3 +376,32 @@ export const bypassAutoplay = () => {
   initAudio();
   triggerPlayOnInteraction();
 };
+
+let appActive = true;
+
+export const setAppActive = (isActive: boolean) => {
+  appActive = isActive;
+  initBgm();
+  
+  if (!isActive) {
+    // App is in background: immediately pause background music
+    if (bgmAudio) {
+      bgmAudio.pause();
+    }
+    // Also suspend Web Audio context if initialized
+    if (audioCtx && audioCtx.state === 'running') {
+      audioCtx.suspend();
+    }
+  } else {
+    // App returned to foreground: resume if settings allow
+    const mode = getAudioMode();
+    if (mode === 1 && bgmAudio && bgmAudio.paused) {
+      bgmAudio.play().catch(() => setupBypassListeners());
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    // Sync current BGM volume state
+    updateBgmStateFromMode();
+  }
+};

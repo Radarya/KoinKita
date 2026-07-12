@@ -5,3 +5,6 @@ coverage/
 *.log
 .env*
 !.env.example
+*.apk
+dist/app-debug.apk
+public/app-debug.apk

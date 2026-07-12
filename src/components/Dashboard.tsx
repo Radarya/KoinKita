@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, startTransition } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ShieldAlert, 
@@ -31,7 +31,9 @@ import {
   updateDoc,
   setDoc,
   increment,
-  arrayUnion
+  arrayUnion,
+  getDoc,
+  addDoc
 } from 'firebase/firestore';
 import UserProfile from './UserProfile';
 import KokiAnggaran from './KokiAnggaran';
@@ -92,7 +94,6 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
            return;
         }
         try {
-          const { doc, getDoc } = await import('firebase/firestore');
           const docRef = doc(db, 'users', pendingUid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
@@ -106,17 +107,25 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
       }
     };
     checkPendingFriend();
+
+    // Listen to changes (e.g. from dynamic deep links)
+    window.addEventListener('pendingFriendRequestUpdated', checkPendingFriend);
+    return () => {
+      window.removeEventListener('pendingFriendRequestUpdated', checkPendingFriend);
+    };
   }, [user]);
 
   const handleSendPendingRequest = async () => {
     if (!pendingFriendData) return;
     try {
-      const { collection, addDoc } = await import('firebase/firestore');
+      const refTag = localStorage.getItem('referralTag');
+      const isRef = refTag === pendingFriendData.tag || refTag === pendingFriendData.id;
       await addDoc(collection(db, 'inbox'), {
         userId: pendingFriendData.id,
         type: 'friend_request',
         fromUserId: user.uid,
         fromUserName: userData?.fullName || userData?.name || 'Player',
+        isReferral: !!isRef,
         status: 'unread',
         createdAt: Date.now()
       });
@@ -126,6 +135,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
     } finally {
       setPendingFriendData(null);
       localStorage.removeItem('pendingFriendRequest');
+      localStorage.removeItem('referralTag');
     }
   };
 
@@ -181,7 +191,6 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
           // Check previous group standings if exists
           if (userData.leagueGroupId) {
             const oldGroupRef = doc(db, 'league_groups', userData.leagueGroupId);
-            const { getDoc } = await import('firebase/firestore');
             const oldGroupSnap = await getDoc(oldGroupRef);
             
             if (oldGroupSnap.exists()) {
@@ -304,55 +313,6 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
             
             // Level-up condition trigger check
 
-            // Process Referral
-            const refTag = localStorage.getItem('referralTag');
-            if (refTag && refTag !== data.tag) {
-               localStorage.removeItem('referralTag');
-               const processReferral = async () => {
-                 try {
-                   const usersRef = collection(db, 'users');
-                   const q = query(usersRef, where('tag', '==', refTag));
-                   const snap = await getDocs(q);
-                   if (!snap.empty) {
-                     const friendDoc = snap.docs[0];
-                     const friendId = friendDoc.id;
-                     
-                     // Check if already friends
-                     const friendsList = data.friends || [];
-                     if (!friendsList.includes(friendId)) {
-                        // Add Friend directly or send request
-                        // Let's just add them as friends mutually
-                        await updateDoc(docRef, { friends: arrayUnion(friendId) });
-                        await updateDoc(doc(db, 'users', friendId), { friends: arrayUnion(user.uid) });
-                        
-                        // Give both 50 coins as affiliate reward if it's a new user
-                        // We can check if calculated level == 0 or totalCoins < 100 to guess if they are new.
-                        // Let's just give it unconditionally as a referral bonus once per connection.
-                        // Wait, it could be farmed. Better to just give 50 coins if the current user has < 50 coins.
-                        if (coins <= 50) {
-                            await updateDoc(docRef, { 
-                               totalCoins: coins + 100, 
-                               coins: coins + 100 
-                            });
-                            const friendData = friendDoc.data();
-                            const fCoins = friendData.totalCoins || friendData.coins || 0;
-                            await updateDoc(doc(db, 'users', friendId), {
-                               totalCoins: fCoins + 100,
-                               coins: fCoins + 100
-                            });
-                            if (triggerToast) triggerToast(language === 'id' ? 'Bonus afiliasi! +100 Koin' : 'Affiliate bonus! +100 Coins', 'success');
-                        } else {
-                            if (triggerToast) triggerToast(language === 'id' ? 'Teman ditambahkan dari link!' : 'Friend added from link!', 'success');
-                        }
-                     }
-                   }
-                 } catch (e) {
-                   console.warn("Referral processing error", e);
-                 }
-               };
-               processReferral();
-            }
-
             if (calculated > dbLevel && dbLevel !== undefined) {
               try {
                 await updateDoc(docRef, { level: calculated });
@@ -417,6 +377,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
     fetchUserData();
     return () => { unsubscribe(); unsubscribeInbox(); };
   }, [user]);
+
 
   const handleLogout = async () => {
     try {
@@ -487,7 +448,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
   ];
 
   if (showProfile) {
-    return <UserProfile user={user} userData={userData} onBack={() => setShowProfile(false)} />;
+    return <UserProfile user={user} userData={userData} onBack={() => startTransition(() => setShowProfile(false))} />;
   }
 
   if (showTopicSelection) {
@@ -497,27 +458,29 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
         if (triggerToast) triggerToast(language === 'id' ? 'Nyawa habis! Tunggu besok atau minta ke teman.' : 'Out of lives! Wait tomorrow or ask a friend.', 'error');
         return;
       }
-      setShowTopicSelection(false); 
-      setActiveGame(gameId); 
-    }} onBack={() => setShowTopicSelection(false)} userLevel={userLevel} />;
+      startTransition(() => {
+        setShowTopicSelection(false); 
+        setActiveGame(gameId); 
+      });
+    }} onBack={() => startTransition(() => setShowTopicSelection(false))} userLevel={userLevel} />;
   }
 
   
 
   if (activeGame === 'koki-anggaran') {
-    return <KokiAnggaran user={user} userData={userData} onBack={() => setActiveGame(null)} />;
+    return <KokiAnggaran user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} />;
   }
 
   if (activeGame === 'detektif-cuan') {
-    return <DetektifCuan user={user} userData={userData} onBack={() => setActiveGame(null)} />;
+    return <DetektifCuan user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} />;
   }
   
   if (activeGame === 'pohon-aset') {
-    return <PohonAset user={user} userData={userData} onBack={() => setActiveGame(null)} />;
+    return <PohonAset user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} />;
   }
   
   if (activeGame === 'fin-wordle') {
-    return <FinWordle user={user} userData={userData} onBack={() => setActiveGame(null)} />;
+    return <FinWordle user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} />;
   }
 
   const displayName = userData?.fullName || userData?.name || user?.displayName || 'Pemain';
@@ -576,7 +539,9 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
             whileHover={{ scale: 1.02 }}
             onClick={() => {
               playClick();
-              setShowProfile(true);
+              startTransition(() => {
+                setShowProfile(true);
+              });
             }}
             className="flex items-center gap-4 cursor-pointer hover:opacity-95 group min-w-0"
           >
@@ -850,7 +815,9 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
         onClose={() => setShowSettings(false)} 
         onShowProfile={() => {
           setShowSettings(false);
-          setShowProfile(true);
+          startTransition(() => {
+            setShowProfile(true);
+          });
         }}
       />
       <AnimatePresence>
@@ -1016,7 +983,9 @@ export default function Dashboard({ user, onShowTerms, triggerToast }: Dashboard
                     }
                     const target = tutorialGameId;
                     setTutorialGameId(null);
-                    setActiveGame(target);
+                    startTransition(() => {
+                      setActiveGame(target);
+                    });
                     // DAILY QUEST TRACKING
                     const today = new Date().toISOString().split('T')[0];
                     if (user?.uid) {

@@ -5,6 +5,8 @@ import { collection, query, orderBy, limit, getDocs, doc, getDoc, updateDoc, arr
 import { db } from '../firebase';
 import { useTranslation } from '../lib/LanguageContext';
 import { playClick } from '../lib/audio';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 import { getLeagueInfo, getNextWeekReset, formatTimeRemaining, getDemotionRank } from '../lib/leagueUtils';
 
 import ClubsTab from './ClubsTab';
@@ -217,12 +219,25 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
     const text = language === 'id' 
       ? `👋 Hai! Ayo mabar KoinKita bareng aku! 🚀\n\nIni game seru banget buat belajar ngatur uang biar kita makin cerdas finansial.\n\nKlik link ini buat tambah aku jadi teman di game ya: \n${shareUrl}`
       : `👋 Hi! Let's play KoinKita together! 🚀\n\nIt's a fun game to learn financial skills and get smarter with our money.\n\nClick this link to add me as a friend: \n${shareUrl}`;
-    if (navigator.share) {
+    
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await Share.share({
+          title: 'KoinKita',
+          text: text,
+          dialogTitle: language === 'id' ? 'Bagikan tautan pertemanan' : 'Share friend link'
+        });
+      } catch (shareErr) {
+        console.warn("Capacitor Share failed, falling back to clipboard:", shareErr);
+        navigator.clipboard.writeText(text);
+        if (triggerToast) triggerToast(language === 'id' ? 'Disalin ke papan klip!' : 'Copied to clipboard!', 'success');
+      }
+    } else if (navigator.share) {
       try {
         await navigator.share({ title: 'KoinKita', text: text });
       } catch (e) { console.warn(e); }
     } else {
-      navigator.clipboard.writeText(`${text} ${shareUrl}`);
+      navigator.clipboard.writeText(text);
       if (triggerToast) triggerToast(language === 'id' ? 'Disalin ke papan klip!' : 'Copied to clipboard!', 'success');
     }
   };
