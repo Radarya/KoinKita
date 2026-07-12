@@ -248,9 +248,13 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
           let newGroupId = '';
           const playerEntry = { xp: 0, displayName: userData.username || userData.name || userData.displayName || 'Pemain', photoUrl: userData.profilePictureUrl || userData.profilePicUrl || '', username: userData.username || '' };
           
-          const groupDoc = snap.docs.find(d => d.data().league === newLeague && d.data().playerCount < 15);
-          if (groupDoc) {
-            newGroupId = groupDoc.id;
+          const availableGroups = snap.docs
+            .map(d => ({ id: d.id, data: d.data() }))
+            .filter(g => g.data.league === newLeague && g.data.playerCount < 15)
+            .sort((a, b) => b.data.playerCount - a.data.playerCount);
+
+          if (availableGroups.length > 0) {
+            newGroupId = availableGroups[0].id;
             await updateDoc(doc(db, 'league_groups', newGroupId), {
               playerCount: increment(1),
               [`players.${user.uid}`]: playerEntry
