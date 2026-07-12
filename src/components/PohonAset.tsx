@@ -61,6 +61,9 @@ export default function PohonAset({ user, userData, onBack }: any) {
   const [totalAset, setTotalAset] = useState(0);
   const [placedAssets, setPlacedAssets] = useState<AssetItem[]>([]);
   const hasMistake = React.useRef(false);
+  const triggerWeatherRef = React.useRef(false);
+  const triggerEventRef = React.useRef(false);
+
   
   const [queue, setQueue] = useState<AssetItem[]>([]);
   const [selectedAsset, setSelectedAsset] = useState<AssetItem | null>(null);
@@ -158,7 +161,23 @@ export default function PohonAset({ user, userData, onBack }: any) {
     }
   }, [timeLeft, isPlaying, gameOver, totalAset, targetAset, user]);
 
+  // Execute timer side effects outside of the pure setState updater
+  useEffect(() => {
+    if (triggerWeatherRef.current) {
+       triggerWeatherRef.current = false;
+       const r = Math.random();
+       if (r < 0.3) setWeather('RESESI');
+       else if (r < 0.6) setWeather('BOOM');
+       else setWeather('NORMAL');
+    }
+    if (triggerEventRef.current) {
+       triggerEventRef.current = false;
+       triggerRandomEvent();
+    }
+  });
+
   // Main game loop: Yield generation & Event Timer
+
   useEffect(() => {
     if (!isPlaying || gameOver || isPaused) return;
 
@@ -166,16 +185,13 @@ export default function PohonAset({ user, userData, onBack }: any) {
       setTimeLeft(prev => {
         if (prev <= 0) return 0;
         
-        // Weather Change
+        // Weather Change trigger
         if (prev % 15 === 0 && prev !== GAME_DURATION) {
-           const r = Math.random();
-           if (r < 0.3) setWeather('RESESI');
-           else if (r < 0.6) setWeather('BOOM');
-           else setWeather('NORMAL');
+           triggerWeatherRef.current = true;
         }
         // Event trigger
         if (prev % 20 === 0 && prev !== GAME_DURATION && prev > 0) {
-          triggerRandomEvent();
+           triggerEventRef.current = true;
         }
         return prev - 1;
       });
