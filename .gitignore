@@ -8,3 +8,7 @@ coverage/
 *.apk
 dist/app-debug.apk
 public/app-debug.apk
+
+# AI Agent Configs
+AGENTS.md
+.agents/
