@@ -2249,8 +2249,8 @@ function LandingPage({
             
             <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0 relative z-10 w-full md:w-auto justify-center">
               <a 
-                href="https://github.com/Radarya/KoinKita/releases/latest/download/koinkita-release.apk"
-                download="koinkita-release.apk"
+                href="https://github.com/Radarya/KoinKita/releases/latest/download/koinkita-v1-fixed.apk"
+                download="koinkita-v1-fixed.apk"
                 onClick={() => playClick()}
                 className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-emerald-700 font-extrabold text-lg rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 border-b-4 border-slate-200 hover:border-slate-100 cursor-pointer"
               >
