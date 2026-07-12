@@ -4,12 +4,14 @@ import App from './App.tsx';
 import './index.css';
 import { LanguageProvider } from './lib/LanguageContext.tsx';
 import { ErrorBoundary } from './ErrorBoundary.tsx';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
       <LanguageProvider>
         <App />
+        <SpeedInsights />
       </LanguageProvider>
     </ErrorBoundary>
   </StrictMode>,
