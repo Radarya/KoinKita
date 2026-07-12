@@ -1,5 +1,8 @@
 import React, { useState, useEffect, startTransition } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { Capacitor } from '@capacitor/core';
+
 import { 
   ShieldAlert, 
   ChefHat, 
@@ -438,14 +441,25 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
 
   const handleSwitchGoogleAccount = async () => {
     try {
-      // Sign out completely first so Firebase clears the current session
+      // 1. Sign out from Firebase Auth
       await signOut(auth);
-      // Then App.tsx handleLinkGoogle will be triggered via onSwitchGoogle prop
+      // 2. Also sign out from Google Play Services (native) to clear the cached
+      //    Google account token. Without this, signInWithGoogle() silently returns
+      //    the same account without showing the account picker.
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await FirebaseAuthentication.signOut();
+        } catch (nativeSignOutErr) {
+          console.warn("Native Google sign-out warning:", nativeSignOutErr);
+        }
+      }
+      // 3. Trigger fresh sign-in via App.tsx handleLinkGoogle
       onSwitchGoogle?.();
     } catch (err) {
       console.warn("Switch Google account sign-out failed:", err);
     }
   };
+
 
   
   const userLevel = userData?.league !== undefined ? userData?.league : 0;

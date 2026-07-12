@@ -73,7 +73,9 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { language } = useTranslation();
   const hasAttemptedAnon = useRef(false);
+  const isLinkingRef = useRef(false); // Guard: prevents onAuthStateChanged from re-showing onboarding during active link/sign-in
   const [isLinking, setIsLinking] = useState(false);
+
 
   // Premium Toast Notification State
   type ToastType = 'success' | 'warning' | 'error' | 'info';
@@ -295,9 +297,11 @@ export default function App() {
         }
 
         const hasSeen = localStorage.getItem('hasSeenOnboarding') === 'true';
-        if (onboardingNotCompleted && !hasSeen) {
+        // Skip re-showing onboarding if a link/sign-in operation is currently in flight
+        if (onboardingNotCompleted && !hasSeen && !isLinkingRef.current) {
           setShowOnboarding(true);
         }
+
 
         // Auto-navigate to app, but NOT for anonymous users sitting on the landing page.
         // Anonymous users on landing got there intentionally (guest logout) and should
@@ -397,7 +401,9 @@ export default function App() {
 
   const handleLinkGoogle = async () => {
     bypassAutoplay();
+    isLinkingRef.current = true; // Block onboarding loop guard
     setIsLinking(true);
+
     try {
       if (!auth.currentUser) {
         let credential;
@@ -425,10 +431,12 @@ export default function App() {
           name: full,
           fullName: full,
           email: res.user.email || 'guest@koinkita.xyz',
-          profilePictureUrl: res.user.photoURL || '',
+          // Only set Google photo if user hasn't set a custom profile picture
+          ...(!currentData.profilePictureUrl && !currentData.profilePicUrl && { profilePictureUrl: res.user.photoURL || '' }),
           isAnonymous: false,
           hasCompletedOnboarding: true
         }, { merge: true });
+
 
         localStorage.setItem('hasSeenOnboarding', 'true');
         setShowOnboarding(false);
@@ -462,10 +470,12 @@ export default function App() {
         name: full,
         fullName: full,
         email: res.user.email || 'guest@koinkita.xyz',
-        profilePictureUrl: res.user.photoURL || '',
+        // Preserve custom photo — only use Google photo as fallback if none exists
+        ...(!currentData.profilePictureUrl && !currentData.profilePicUrl && { profilePictureUrl: res.user.photoURL || '' }),
         isAnonymous: false,
         hasCompletedOnboarding: true
       }, { merge: true });
+
 
       localStorage.setItem('hasSeenOnboarding', 'true');
       triggerToast(language === 'id' ? 'Akun berhasil ditautkan ke Google!' : 'Account successfully linked to Google!', 'success');
@@ -500,9 +510,11 @@ export default function App() {
         triggerToast(language === 'id' ? 'Gagal menautkan akun.' : 'Failed to link account.', 'error');
       }
     } finally {
+      isLinkingRef.current = false;
       setIsLinking(false);
     }
   };
+
 
   const handleContinueGuest = async () => {
     playClick();
