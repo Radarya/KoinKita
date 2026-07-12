@@ -14,11 +14,27 @@
       },
       "oauth_client": [
         {
+          "client_id": "402832198545-3b5t7osqouchp6uc7qj2o26amoesukf2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "xyz.koinkita.app",
+            "certificate_hash": "a91c4f29052ee2f8837622c7ca583da3a1f39c91"
+          }
+        },
+        {
           "client_id": "402832198545-5d366all5ge3gegrab7egpmi2gtu60ff.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "xyz.koinkita.app",
             "certificate_hash": "28ba8cc211272902352e4f483d49594b2be998ae"
+          }
+        },
+        {
+          "client_id": "402832198545-qf3h97kq5ntiapnflfp27085a0uglr73.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "xyz.koinkita.app",
+            "certificate_hash": "da894407a151ea7974897c247d30e08a93e70f15"
           }
         },
         {

@@ -51,6 +51,10 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
   // Difficulty System
   const [timeLimit, setTimeLimit] = useState(5); // Start with 5 seconds per order
   const [timeLeft, setTimeLeft] = useState(5);
+  // Ref flag: signals that the timer reached zero, so handleTimeout() should fire.
+  // Using a ref (not state) avoids React Strict Mode double-invocation of the setState updater.
+  const timeoutFiredRef = React.useRef(false);
+
   
   // Real level
   const displayCoins = userData?.totalCoins || userData?.coins || 0;
@@ -159,20 +163,28 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
   // Timer Effect (per order)
   useEffect(() => {
     if (!isPlaying || gameOver || gameWon || showEmergencyModal || isPaused) return;
-    
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0.1) {
-          // Time out! Lose a heart, move to next order
-          handleTimeout();
+          // Signal timeout — pure updater, no side-effects
+          timeoutFiredRef.current = true;
           return timeLimit;
         }
         return prev - 0.1;
       });
     }, 100);
-    
+
     return () => clearInterval(timer);
   }, [isPlaying, gameOver, gameWon, showEmergencyModal, timeLimit, isPaused]);
+
+  // Respond to timeout flag — runs AFTER render, guaranteed once per timeout
+  useEffect(() => {
+    if (timeoutFiredRef.current) {
+      timeoutFiredRef.current = false;
+      handleTimeout();
+    }
+  });
 
   const handleTimeout = () => {
     triggerShake();

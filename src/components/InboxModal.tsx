@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Heart, Mail, Check, Inbox as InboxIcon } from 'lucide-react';
-import { collection, query, where, onSnapshot, updateDoc, doc, deleteDoc, arrayUnion, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, updateDoc, doc, deleteDoc, arrayUnion, getDoc, increment } from 'firebase/firestore';
+
 import { db } from '../firebase';
 import { useTranslation } from '../lib/LanguageContext';
 import { playClick } from '../lib/audio';
@@ -39,19 +40,21 @@ export default function InboxModal({ onClose, user, userData, triggerToast }: In
   const handleClaimLife = async (msg: any) => {
     playClick();
     try {
-      const currentLives = userData?.lives !== undefined ? userData.lives : 5;
       const userRef = doc(db, 'users', user.uid);
-      
-      if (currentLives >= 5) {
-        // Option B: Dividen Solidaritas (Konversi ke Koin)
-        const currentCoins = userData?.totalCoins || 0;
-        await updateDoc(userRef, { totalCoins: currentCoins + 15, coins: currentCoins + 15 });
+      // Read fresh value from Firestore to decide whether to add life or convert to coins
+      const freshSnap = await getDoc(userRef);
+      const freshLives = freshSnap.exists() ? (freshSnap.data().lives ?? 5) : 5;
+
+      if (freshLives >= 5) {
+        // Lives are full — convert to +15 coins (atomic)
+        await updateDoc(userRef, { totalCoins: increment(15), coins: increment(15) });
         triggerToast(language === 'id' ? 'Nyawa penuh! Dikonversi jadi +15 Koin!' : 'Lives full! Converted to +15 Coins!', 'success');
       } else {
-        await updateDoc(userRef, { lives: currentLives + 1 });
+        // Add 1 life atomically
+        await updateDoc(userRef, { lives: increment(1) });
         triggerToast(language === 'id' ? 'Berhasil mengklaim 1 Nyawa!' : 'Successfully claimed 1 Life!', 'success');
       }
-      
+
       await deleteDoc(doc(db, 'inbox', msg.id));
     } catch (e) {
       console.warn(e);
@@ -64,33 +67,25 @@ export default function InboxModal({ onClose, user, userData, triggerToast }: In
     try {
       const userRef = doc(db, 'users', user.uid);
       const friendRef = doc(db, 'users', msg.fromUserId);
-      
+
       await updateDoc(userRef, { friends: arrayUnion(msg.fromUserId) });
       await updateDoc(friendRef, { friends: arrayUnion(user.uid) });
-      
+
       // If this request came from a referral link, award the bonus!
       if (msg.isReferral) {
-        const friendSnap = await getDoc(friendRef);
-        if (friendSnap.exists()) {
-          const friendData = friendSnap.data();
-          const currentCoins = userData?.totalCoins || userData?.coins || 0;
-          const friendCoins = friendData?.totalCoins || friendData?.coins || 0;
-          
-          // If either user has <= 50 coins, award the +100 bonus to both!
-          if (currentCoins <= 50 || friendCoins <= 50) {
-            await updateDoc(userRef, {
-              totalCoins: currentCoins + 100,
-              coins: currentCoins + 100
-            });
-            await updateDoc(friendRef, {
-              totalCoins: friendCoins + 100,
-              coins: friendCoins + 100
-            });
-            triggerToast(language === 'id' ? 'Bonus afiliasi! Masing-masing mendapat +100 Koin!' : 'Affiliate bonus! Each gets +100 Coins!', 'success');
-          }
+        // Read fresh values to check eligibility
+        const [mySnap, friendSnap] = await Promise.all([getDoc(userRef), getDoc(friendRef)]);
+        const myCoins = mySnap.exists() ? (mySnap.data().totalCoins || mySnap.data().coins || 0) : 0;
+        const friendCoins = friendSnap.exists() ? (friendSnap.data().totalCoins || friendSnap.data().coins || 0) : 0;
+
+        if (myCoins <= 50 || friendCoins <= 50) {
+          // Use atomic increment — safe from race conditions
+          await updateDoc(userRef, { totalCoins: increment(100), coins: increment(100) });
+          await updateDoc(friendRef, { totalCoins: increment(100), coins: increment(100) });
+          triggerToast(language === 'id' ? 'Bonus afiliasi! Masing-masing mendapat +100 Koin!' : 'Affiliate bonus! Each gets +100 Coins!', 'success');
         }
       }
-      
+
       await deleteDoc(doc(db, 'inbox', msg.id));
       triggerToast(language === 'id' ? 'Teman ditambahkan!' : 'Friend added!', 'success');
     } catch (e) {

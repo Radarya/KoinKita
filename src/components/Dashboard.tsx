@@ -314,7 +314,36 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                data.tag = newTag;
             }
             setUserData(data);
-            
+
+            // ── Daily Lives Regeneration ──────────────────────────────────────
+            // Regenerate lives to 5 once per calendar day (matching the UI promise
+            // "Tunggu besok" / "Wait tomorrow").
+            const todayStr = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+            const lastReset = data.lastLivesReset || '';
+            const currentLivesVal = data.lives !== undefined ? data.lives : 5;
+            if (lastReset !== todayStr && currentLivesVal < 5) {
+              try {
+                await updateDoc(docRef, {
+                  lives: 5,
+                  lastLivesReset: todayStr
+                });
+                if (triggerToast) {
+                  triggerToast(
+                    language === 'id'
+                      ? '❤️ Nyawa telah dipulihkan! Semangat bermain hari ini!'
+                      : '❤️ Lives restored! Have fun playing today!',
+                    'success'
+                  );
+                }
+              } catch (e) {
+                console.warn('Failed to reset daily lives:', e);
+              }
+            } else if (lastReset !== todayStr && currentLivesVal >= 5) {
+              // Just update the reset date marker without changing lives
+              updateDoc(docRef, { lastLivesReset: todayStr }).catch(console.warn);
+            }
+            // ─────────────────────────────────────────────────────────────────
+
             // Level-up condition trigger check
 
             if (calculated > dbLevel && dbLevel !== undefined) {

@@ -70,6 +70,9 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
   const baseTime = Math.max(4, 7 - playerLevel * 0.5); // Starts tighter at higher levels eg 4.5 sec at lvl 5
   const TIME_LIMIT = Math.max(2.5, baseTime - (correctCount * 0.5));
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
+  // Ref flag to signal timeout without side-effects inside the setState updater
+  const timeoutFiredRef = React.useRef(false);
+
   
   const [isAnswered, setIsAnswered] = useState(false);
   const [feedback, setFeedback] = useState<'CORRECT' | 'WRONG' | null>(null);
@@ -125,7 +128,8 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 0.1) {
-          handleTimeout();
+          // Signal timeout — pure updater, no side-effects
+          timeoutFiredRef.current = true;
           return 0;
         }
         return prev - 0.1;
@@ -134,6 +138,14 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
 
     return () => clearInterval(timer);
   }, [isPlaying, gameOver, gameWon, isAnswered, isPaused]);
+
+  // Consume timeout flag — fires once after render, not inside updater
+  useEffect(() => {
+    if (timeoutFiredRef.current) {
+      timeoutFiredRef.current = false;
+      handleTimeout();
+    }
+  });
 
   const triggerShake = () => {
     setScreenShake(true);
