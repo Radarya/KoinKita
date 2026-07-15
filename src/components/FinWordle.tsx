@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2, Coins, HelpCircle, Lightbulb } from 'lucide-react';
 import { doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { playClick, playCorrect, playWrong, playWin, playLose, setGameViewTrack, subscribeToPause } from '../lib/audio';
+import { vibrateLight, vibrateMedium, vibrateHeavy, vibrateSuccess, vibrateError } from '../lib/haptics';
 import { useTranslation } from '../lib/LanguageContext';
 
 import { LEVEL_WORDS } from './FinWordleData';
@@ -134,6 +135,7 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
       if (currentGuess.length !== WORD_LENGTH) {
         setShakeRow(true);
         playWrong();
+        vibrateError();
         showMessage(language === 'id' ? "Tidak cukup huruf!" : "Not enough letters!");
         setTimeout(() => setShakeRow(false), 500);
         return;
@@ -148,7 +150,8 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
         setCurrentGuess("");
         setIsTransitioning(true);
         playCorrect();
-        handleEarnCoins(50);
+        vibrateSuccess();
+        setTimeout(() => handleEarnCoins(50), 500);
         setMessage(language === 'id' ? "Luar biasa! +50 Koin" : "Magnificent! +50 Coins");
         setTimeout(() => {
           getNextWord();
@@ -159,19 +162,23 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
         setCurrentGuess("");
         setIsTransitioning(true);
         playLose();
+        vibrateHeavy();
         setMessage((language === 'id' ? "Jawaban: " : "Answer: ") + localizedWord);
         setTimeout(() => {
           getNextWord();
         }, 2500);
       } else {
         playClick(); // normal submission
+        vibrateMedium();
         setCurrentGuess("");
       }
     } else if (key === 'Backspace') {
       playClick();
+      vibrateLight();
       setCurrentGuess(prev => prev.slice(0, -1));
     } else if (currentGuess.length < WORD_LENGTH && /^[A-Z]$/.test(key)) {
       playClick();
+      vibrateLight();
       setCurrentGuess(prev => prev + key);
     }
   }, [currentGuess, gameOver, isPlaying, isTransitioning, guesses, localizedWord, WORD_LENGTH, handleEarnCoins, language]);

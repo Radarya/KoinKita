@@ -4,6 +4,7 @@ import { Heart, Clock, Utensils, CheckCircle2, ArrowLeft, Loader2, Coins, Settin
 import { doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { playCorrect, playWrong, playLose, playWin, playClick, setGameViewTrack, subscribeToPause } from '../lib/audio';
+import { vibrateLight, vibrateMedium, vibrateHeavy, vibrateSuccess, vibrateError } from '../lib/haptics';
 import { useTranslation } from '../lib/LanguageContext';
 
 import { SettingsModal } from './SettingsModal';
@@ -215,6 +216,8 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
     if (selectedType === currentOrder.type) {
       // Correct
       playCorrect();
+      if (isFrenzy) vibrateHeavy();
+      else vibrateMedium();
       if (selectedType === 'TABUNGAN') {
         setSavingsCount(prev => prev + 1);
       }
@@ -228,6 +231,7 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
       // Wrong
       hasMistake.current = true;
       playWrong();
+      vibrateError();
       setScore(prev => Math.max(0, prev - 5));
       triggerShake();
       showParticle("-5 Oops!", 'warn');
@@ -276,6 +280,7 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
 
   const handleVictory = async () => {
     playWin();
+    vibrateSuccess();
     setGameWon(true);
     setIsPlaying(false);
     
@@ -300,6 +305,7 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
 
   const endGame = async () => {
     playLose();
+    vibrateHeavy();
     setGameOver(true);
     setIsPlaying(false);
     
@@ -512,6 +518,7 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
           <button 
             onClick={() => {
               playClick();
+              vibrateLight();
               setShowTutorial(true);
             }}
             className="w-full py-4 bg-gradient-to-b from-emerald-400 to-emerald-600 text-white font-black text-lg rounded-xl shadow-[0_8px_16px_-6px_rgba(16,185,129,0.5)] active:scale-[0.98] transition-all border-b-[3px] border-emerald-700 hover:border-emerald-700/50 active:border-b-0 active:translate-y-[3px]"
@@ -614,7 +621,7 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
           {isFrenzy && <span className="text-red-600 animate-pulse text-xs uppercase tracking-widest bg-red-200 px-2 py-1 rounded">FRENZY!</span>}
           <span>{language === 'id' ? "Skor:" : "Score:"} <span className="text-amber-500 text-xl">{score}</span></span>
           <button 
-            onClick={() => { playClick(); setShowSettings(true); }}
+            onClick={() => { playClick(); vibrateLight(); setShowSettings(true); }}
             className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors flex-shrink-0 ml-2"
           >
             <Settings className="w-5 h-5" />

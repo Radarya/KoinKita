@@ -5,9 +5,9 @@ import { useTranslation } from '../lib/LanguageContext';
 import { auth, db } from '../firebase';
 import { deleteUser } from 'firebase/auth';
 import { doc, deleteDoc } from 'firebase/firestore';
+import { updateBgmStateFromMode, setBgmVolume, getBgmVolume } from '../lib/audio';
+import { vibrateLight } from '../lib/haptics';
 import { 
-  getBgmVolume, 
-  setBgmVolume, 
   playClick,
   getAudioMode,
   setAudioMode,
@@ -91,6 +91,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
    */
   const handleToggleAudioMode = () => {
     playClick();
+    vibrateLight();
     const nextMode = audioMode >= 3 ? 1 : audioMode + 1;
     setAudioMode(nextMode);
     setAudioModeState(nextMode);
@@ -240,10 +241,10 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                     </div>
                     <div>
                       <h4 className="font-bold text-sm">
-                        {audioMode === 1 ? (language === 'id' ? 'Musik & Sound' : 'Music & Sound') : audioMode === 2 ? (language === 'id' ? 'Sound Saja' : 'SFX Only') : (language === 'id' ? 'Senyap' : 'Muted')}
+                        {audioMode === 1 ? (language === 'id' ? 'Musik & Getar' : 'Music & Haptics') : audioMode === 2 ? (language === 'id' ? 'Sound & Getar' : 'SFX & Haptics') : (language === 'id' ? 'Hening' : 'Muted')}
                       </h4>
                       <p className={`text-xs mt-0.5 max-w-[160px] leading-tight ${audioMode === 3 ? 'text-slate-400' : 'text-slate-500'}`}>
-                        {audioMode === 1 ? (language === 'id' ? 'Musik + Efek dimainkan' : 'BGM & SFX active') : audioMode === 2 ? (language === 'id' ? 'Hanya efek yang dimainkan' : 'Only SFX active') : (language === 'id' ? 'Audio dinonaktifkan' : 'All audio muted')}
+                        {audioMode === 1 ? (language === 'id' ? 'Musik, efek & getaran aktif' : 'BGM, SFX & Haptics active') : audioMode === 2 ? (language === 'id' ? 'Hanya efek & getaran aktif' : 'Only SFX & Haptics active') : (language === 'id' ? 'Audio & getaran mati' : 'Audio & haptics muted')}
                       </p>
                     </div>
                   </div>
@@ -282,6 +283,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                       id="btn-delete-account-init"
                       onClick={() => {
                         playClick();
+                        vibrateLight();
                         setShowDeleteConfirm(true);
                       }}
                       className="w-full py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl flex items-center justify-center gap-2 border border-red-200 cursor-pointer transition-all hover:scale-[1.01] text-xs"
@@ -297,6 +299,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                      <button
                        onClick={() => {
                          playClick();
+                         vibrateLight();
                          onExitGame();
                          onClose();
                        }}
@@ -436,6 +439,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
               <button
                 onClick={() => {
                   playClick();
+                  vibrateLight();
                   onClose();
                 }}
                 className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-md cursor-pointer transition-colors text-sm w-full sm:w-auto text-center"

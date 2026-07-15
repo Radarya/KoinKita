@@ -4,6 +4,7 @@ import { Leaf, ArrowLeft, Loader2, Coins, TrendingUp, TrendingDown, ShieldCheck,
 import { doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { playCoin, playWrong, playWin, playLose, playClick, subscribeToPause, setGameViewTrack } from '../lib/audio';
+import { vibrateLight, vibrateMedium, vibrateHeavy, vibrateSuccess, vibrateError } from '../lib/haptics';
 import { useTranslation } from '../lib/LanguageContext';
 
 import { SettingsModal } from './SettingsModal';
@@ -134,7 +135,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
   useEffect(() => {
     if (isPlaying && timeLeft <= 0 && !gameOver) {
       const isWin = totalAset >= targetAset;
-      if (isWin) playWin(); else playLose();
+      if (isWin) { playWin(); vibrateSuccess(); } else { playLose(); vibrateHeavy(); }
       
       setGameOver(true);
       setIsPlaying(false);
@@ -315,6 +316,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
       // Wrong branch
       hasMistake.current = true;
       playWrong();
+      vibrateError();
       const penalty = Math.round(totalAset * 0.10); // 10% penalty
       showFloatText(-penalty, language === 'id' ? "SALAH CABANG!" : "WRONG BRANCH!");
       setTotalAset(prev => Math.max(1000000, prev - penalty));
@@ -325,6 +327,8 @@ export default function PohonAset({ user, userData, onBack }: any) {
 
   const startGame = () => {
     setIsPlaying(true);
+    playClick();
+    vibrateLight();
     setGameOver(false);
     hasMistake.current = false;
     setTimeLeft(GAME_DURATION);
@@ -436,6 +440,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
   const handleBuyBooster = () => {
     if (totalAset >= buyBoosterCost) {
       playCoin();
+      vibrateMedium();
       setTotalAset(a => Math.max(0, a - buyBoosterCost));
       setBoosterTime(5);
       showFloatText(-buyBoosterCost, language === 'id' ? "PUPUK AKTIF!" : "BOOSTER ACTIVE!");
@@ -467,7 +472,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
             </div>
           </div>
           <button 
-            onClick={() => { playClick(); setShowSettings(true); }}
+            onClick={() => { playClick(); vibrateLight(); setShowSettings(true); }}
             className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors flex-shrink-0"
           >
             <Settings className="w-5 h-5" />
@@ -635,6 +640,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
                   onClick={(e) => {
                     e.stopPropagation();
                     playClick();
+                    vibrateLight();
                     setPests(curr => curr.filter(pest => pest.id !== p.id));
                     showFloatText(50000, "BASMI!");
                     setTotalAset(a => a + 50000);

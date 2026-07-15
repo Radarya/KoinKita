@@ -4,6 +4,7 @@ import { Heart, ShieldCheck, AlertTriangle, ArrowLeft, Loader2, Coins, Clock, Sm
 import { doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { playCorrect, playWrong, playLose, playWin, playClick, setGameViewTrack, subscribeToPause } from '../lib/audio';
+import { vibrateLight, vibrateMedium, vibrateHeavy, vibrateSuccess, vibrateError } from '../lib/haptics';
 import { useTranslation } from '../lib/LanguageContext';
 
 import { SettingsModal } from './SettingsModal';
@@ -190,6 +191,8 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
     setIsAnswered(true);
     if (choice === currentScenario.type) {
       playCorrect();
+      if (combo + 1 >= 3) vibrateHeavy();
+      else vibrateMedium();
       setFeedback('CORRECT');
       setCombo(prev => prev + 1);
       setCorrectCount(prev => prev + 1);
@@ -206,6 +209,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
       }, 2500);
     } else {
       playWrong();
+      vibrateError();
       setFeedback('WRONG');
       setCombo(0);
       triggerShake();
@@ -235,6 +239,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
 
   const handleVictory = async () => {
     playWin();
+    vibrateSuccess();
     setGameWon(true);
     setIsPlaying(false);
     
@@ -258,6 +263,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
 
   const endGame = async () => {
     playLose();
+    vibrateHeavy();
     setGameOver(true);
     setIsPlaying(false);
     
@@ -469,6 +475,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
           <button 
             onClick={() => {
               playClick();
+              vibrateLight();
               setShowTutorial(true);
             }}
             className="w-full py-4 bg-gradient-to-b from-blue-400 to-blue-600 text-white font-black text-lg rounded-xl shadow-[0_8px_16px_-6px_rgba(59,130,246,0.5)] active:scale-[0.98] transition-all border-b-[3px] border-blue-700 hover:border-blue-700/50 active:border-b-0 active:translate-y-[3px]"

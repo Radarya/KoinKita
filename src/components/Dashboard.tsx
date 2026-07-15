@@ -1,4 +1,4 @@
-import React, { useState, useEffect, startTransition } from 'react';
+import React, { useState, useEffect, startTransition, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
@@ -23,8 +23,7 @@ import {
   Medal,
   Heart,
   Bell,
-  Gift,
-  Share2
+  Gift
 } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { signOut } from 'firebase/auth';
@@ -38,13 +37,16 @@ import {
   getDoc,
   addDoc
 } from 'firebase/firestore';
-import UserProfile from './UserProfile';
-import KokiAnggaran from './KokiAnggaran';
-import DetektifCuan from './DetektifCuan';
-import PohonAset from './PohonAset';
-import FinWordle from './FinWordle';
+
+// Lazy load heavy game components - each loads only when user opens that game
+const UserProfile   = lazy(() => import('./UserProfile'));
+const KokiAnggaran = lazy(() => import('./KokiAnggaran'));
+const DetektifCuan = lazy(() => import('./DetektifCuan'));
+const PohonAset    = lazy(() => import('./PohonAset'));
+const FinWordle    = lazy(() => import('./FinWordle'));
+const Arena        = lazy(() => import('./Arena'));
+
 import TermsModal from './TermsModal';
-import Arena from './Arena';
 import { SettingsModal } from './SettingsModal';
 import InboxModal from './InboxModal';
 import { DailyQuestsModal } from './DailyQuestsModal';
@@ -52,8 +54,14 @@ import { TopicSelection } from './TopicSelection';
 import { AchievementsModal, ACHIEVEMENTS } from './AchievementsModal';
 import { playClick, playWin, setGameViewTrack } from '../lib/audio';
 import { useTranslation } from '../lib/LanguageContext';
-import { FINANCIAL_TIPS } from '../lib/tips';
 import { getCurrentWeekId, calculateInitialLeague, getLeagueInfo, getDemotionRank } from '../lib/leagueUtils';
+
+// Fallback spinner untuk lazy-loaded components
+const GameLoadingFallback = () => (
+  <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
+  </div>
+);
 
 interface DashboardProps {
   user: any;
@@ -523,7 +531,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
   ];
 
   if (showProfile) {
-    return <UserProfile user={user} userData={userData} onBack={() => startTransition(() => setShowProfile(false))} />;
+    return <Suspense fallback={<GameLoadingFallback />}><UserProfile user={user} userData={userData} onBack={() => startTransition(() => setShowProfile(false))} /></Suspense>;
   }
 
   if (showTopicSelection) {
@@ -543,19 +551,19 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
   
 
   if (activeGame === 'koki-anggaran') {
-    return <KokiAnggaran user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} />;
+    return <Suspense fallback={<GameLoadingFallback />}><KokiAnggaran user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} /></Suspense>;
   }
 
   if (activeGame === 'detektif-cuan') {
-    return <DetektifCuan user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} />;
+    return <Suspense fallback={<GameLoadingFallback />}><DetektifCuan user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} /></Suspense>;
   }
   
   if (activeGame === 'pohon-aset') {
-    return <PohonAset user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} />;
+    return <Suspense fallback={<GameLoadingFallback />}><PohonAset user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} /></Suspense>;
   }
   
   if (activeGame === 'fin-wordle') {
-    return <FinWordle user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} />;
+    return <Suspense fallback={<GameLoadingFallback />}><FinWordle user={user} userData={userData} onBack={() => startTransition(() => setActiveGame(null))} /></Suspense>;
   }
 
   const displayName = userData?.fullName || userData?.name || user?.displayName || 'Pemain';
@@ -897,8 +905,8 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
         onSwitchGoogle={onSwitchGoogle ? handleSwitchGoogleAccount : undefined}
       />
       <AnimatePresence>
-        {showLeaderboard && <Arena onBack={() => setShowLeaderboard(false)} currentUserUid={user.uid} userData={userData} mode="arena" initialTab="leaderboard" />}
-        {showSocial && <Arena onBack={() => setShowSocial(false)} currentUserUid={user.uid} userData={userData} mode="social" initialTab="friends" triggerToast={triggerToast} />}
+        {showLeaderboard && <Suspense fallback={<GameLoadingFallback />}><Arena onBack={() => setShowLeaderboard(false)} currentUserUid={user.uid} userData={userData} mode="arena" initialTab="leaderboard" /></Suspense>}
+        {showSocial && <Suspense fallback={<GameLoadingFallback />}><Arena onBack={() => setShowSocial(false)} currentUserUid={user.uid} userData={userData} mode="social" initialTab="friends" triggerToast={triggerToast} /></Suspense>}
       </AnimatePresence>
 
       

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TapTap Cover — Modern Asymmetric (English)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;800;900&display=swap');
+        
+        body { margin: 0; background: #f8f9fa; display: flex; flex-direction: column; align-items: center; padding: 30px; gap: 20px; font-family: 'Outfit', sans-serif; }
+        canvas { width: 800px; max-width: 95vw; border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,0.1); }
+        button { background: #00b894; color: white; border: none; padding: 16px 40px;
+                 font-size: 18px; font-weight: 800; border-radius: 40px;
+                 cursor: pointer; box-shadow: 0 8px 25px rgba(0, 184, 148, 0.4); letter-spacing: 0.5px; transition: 0.2s;}
+        button:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0, 184, 148, 0.5); }
+        button:active { transform: translateY(2px); box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3); }
+        p { color: #636e72; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <p>TapTap Cover (1920×1080) — Dynamic Layout + English Text</p>
+    <canvas id="c" width="1920" height="1080"></canvas>
+    <button onclick="dl()">Download English Cover</button>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 1920, H = 1080;
+
+function roundRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath();
+}
+
+function buildScene() {
+    const bgImg = new Image();
+    bgImg.src = "bg_modern_v2.jpg"; 
+    bgImg.onload = () => {
+        setTimeout(render, 300);
+    };
+
+    function render() {
+        // 1. Draw Background
+        ctx.drawImage(bgImg, 0, 0, W, H);
+        
+        // Soft white gradient overlay ON THE LEFT SIDE to ensure text readability
+        const leftGrad = ctx.createLinearGradient(0, 0, 1300, 0);
+        leftGrad.addColorStop(0, 'rgba(255,255,255,0.95)');
+        leftGrad.addColorStop(0.5, 'rgba(255,255,255,0.85)');
+        leftGrad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = leftGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        const startX = 120; // Left alignment anchor
+
+        // 2. MAIN LOGO TEXT ("KoinKita") - Left aligned
+        const titleText = "KoinKita";
+        const titleY = 240;
+        
+        ctx.font = '900 240px "Outfit", "Arial Black", sans-serif';
+        ctx.textAlign = 'left'; 
+        ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round';
+        
+        // Deep Green Shadow / Stroke 1
+        ctx.lineWidth = 45;
+        ctx.strokeStyle = '#00b894'; // Mint green
+        ctx.strokeText(titleText, startX, titleY);
+        
+        // Bright Yellow Stroke 2
+        ctx.lineWidth = 25;
+        ctx.strokeStyle = '#fdcb6e'; // Bright yellow gold
+        ctx.strokeText(titleText, startX, titleY);
+
+        // White Text Fill
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(titleText, startX, titleY);
+        
+        // 3. HIGH-CONTRAST SUBTITLE BADGE - Left aligned
+        const subY = 440;
+        const subText = 'Master Your Money While Playing!';
+        
+        ctx.font = '800 44px "Outfit", Arial, sans-serif';
+        const textWidth = ctx.measureText(subText).width;
+        
+        const badgeW = textWidth + 100; // padding
+        const badgeH = 90;
+        
+        ctx.save();
+        // Drop shadow for the badge
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 10;
+        
+        ctx.fillStyle = '#16a085'; // Solid teal green
+        roundRect(ctx, startX, subY - badgeH/2, badgeW, badgeH, badgeH/2);
+        ctx.fill();
+        ctx.restore();
+        
+        // White text inside the badge
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'left';
+        ctx.fillText(subText, startX + 50, subY);
+
+        // 4. UI CARDS (2x2 Grid Layout on the left side)
+        const cards = [
+            { text: 'Manage Budget', icon: '📊' },
+            { text: 'Detect Scams',  icon: '🛡️' },
+            { text: 'Fin-Wordle',    icon: '🧩' },
+            { text: 'Asset Tree',    icon: '🌱' }
+        ];
+
+        const cardW = 380;
+        const cardH = 130;
+        const gapX = 40;
+        const gapY = 40;
+        const gridStartY = 640;
+
+        cards.forEach((c, i) => {
+            const col = i % 2;
+            const row = Math.floor(i / 2);
+            const cx = startX + (col * (cardW + gapX));
+            const cy = gridStartY + (row * (cardH + gapY));
+            
+            ctx.save();
+            // Drop Shadow
+            ctx.shadowColor = 'rgba(0, 184, 148, 0.15)';
+            ctx.shadowBlur = 30;
+            ctx.shadowOffsetY = 15;
+            
+            // White Card
+            ctx.fillStyle = '#ffffff';
+            roundRect(ctx, cx, cy, cardW, cardH, 25);
+            ctx.fill();
+            ctx.shadowColor = 'transparent'; // reset shadow
+            
+            // Thin elegant border
+            ctx.strokeStyle = '#f1f2f6';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Accent Line on the left side of the card
+            ctx.fillStyle = i % 2 === 0 ? '#00b894' : '#fdcb6e';
+            roundRect(ctx, cx + 5, cy + 30, 8, cardH - 60, 4);
+            ctx.fill();
+
+            // Icon background circle
+            const iconX = cx + 70;
+            const iconY = cy + cardH/2;
+            ctx.fillStyle = '#f8f9fa';
+            ctx.beginPath();
+            ctx.arc(iconX, iconY, 35, 0, Math.PI*2);
+            ctx.fill();
+
+            // Icon
+            ctx.fillStyle = '#2d3436';
+            ctx.font = '36px Arial';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(c.icon, iconX, iconY);
+
+            // Text
+            ctx.fillStyle = '#2d3436';
+            ctx.font = '800 28px "Outfit", Arial, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(c.text, iconX + 50, iconY);
+            
+            ctx.restore();
+        });
+    }
+}
+
+if (document.fonts) {
+    document.fonts.ready.then(buildScene);
+} else {
+    buildScene();
+}
+
+function dl(){
+    try{
+        const a=document.createElement('a');
+        a.download='TapTap_Modern_English.png';
+        a.href=canvas.toDataURL('image/png');a.click();
+    }catch(e){alert('Buka via localhost:8080');}
+}
+</script>
+</body>
+</html>
