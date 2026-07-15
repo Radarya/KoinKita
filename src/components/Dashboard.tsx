@@ -35,7 +35,8 @@ import {
   increment,
   arrayUnion,
   getDoc,
-  addDoc
+  addDoc,
+  deleteField
 } from 'firebase/firestore';
 
 // Lazy load heavy game components - each loads only when user opens that game
@@ -196,27 +197,51 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
           userLeague = calculateInitialLeague(userData.totalXp || 0);
           await updateDoc(doc(db, 'users', user.uid), { league: userLeague });
         }
+
+        // ── BUG FIX 2c: Guard – user already has a valid group for THIS week ──
+        // If the user's current leagueGroupId belongs to this week, we just need
+        // to stamp currentWeekId on the user doc (in case it was missing) and stop.
+        // This prevents duplicate groups when a user logs out/in within the same week.
+        if (userData.leagueGroupId && userData.currentWeekId === currentWeekId) {
+          // Nothing to do – already in correct group for this week
+          setLeagueCheckDone(true);
+          return;
+        }
+
+        // Verify the existing group really IS for the current week
+        // (edge case: leagueGroupId set but weekId mismatch on user doc)
+        if (userData.leagueGroupId && userData.currentWeekId !== currentWeekId) {
+          const existingGroupSnap = await getDoc(doc(db, 'league_groups', userData.leagueGroupId));
+          if (existingGroupSnap.exists() && existingGroupSnap.data().weekId === currentWeekId) {
+            // Group is already for this week – just update user's weekId stamp
+            await updateDoc(doc(db, 'users', user.uid), { currentWeekId });
+            setLeagueCheckDone(true);
+            return;
+          }
+        }
         
-        // If week has changed
-        if (userData.currentWeekId !== currentWeekId) {
-          let newLeague = userLeague;
-          let status = 'stayed';
-          let oldRank = null;
+        // ── Week has changed (or first time) – process promotion/demotion ──
+        let newLeague = userLeague;
+        let status = 'stayed';
+        let oldRank = null;
+        const oldGroupId = userData.leagueGroupId || null;
+        
+        // Check previous group standings
+        if (oldGroupId) {
+          const oldGroupRef = doc(db, 'league_groups', oldGroupId);
+          const oldGroupSnap = await getDoc(oldGroupRef);
           
-          // Check previous group standings if exists
-          if (userData.leagueGroupId) {
-            const oldGroupRef = doc(db, 'league_groups', userData.leagueGroupId);
-            const oldGroupSnap = await getDoc(oldGroupRef);
-            
-            if (oldGroupSnap.exists()) {
-              const oldGroupData = oldGroupSnap.data();
+          if (oldGroupSnap.exists()) {
+            const oldGroupData = oldGroupSnap.data();
+            // Only process standings if old group belongs to a PREVIOUS week
+            if (oldGroupData.weekId !== currentWeekId) {
               const groupLeague = oldGroupData.league || 0;
               const demotionRank = getDemotionRank(groupLeague);
 
               const playersObj = oldGroupData.players || {};
-              // Convert to array and sort by XP
-              const playersArr = Object.entries(playersObj).map(([uid, data]: [string, any]) => ({ uid, xp: data.xp || 0 }));
-              playersArr.sort((a, b) => b.xp - a.xp);
+              const playersArr = Object.entries(playersObj)
+                .map(([uid, data]: [string, any]) => ({ uid, xp: data.xp || 0 }))
+                .sort((a, b) => b.xp - a.xp);
               
               const myIndex = playersArr.findIndex(p => p.uid === user.uid);
               if (myIndex !== -1) {
@@ -229,7 +254,6 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                   status = 'demoted';
                 }
                 
-                // Send inbox message about promotion/demotion
                 if (status !== 'stayed') {
                   const inboxRef = collection(db, 'inbox');
                   await setDoc(doc(inboxRef), {
@@ -244,59 +268,84 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                   });
                 }
               }
+
+              // ── BUG FIX 2b: Remove player entry from OLD group ──
+              // Previously the player stayed in both leagues simultaneously.
+              await updateDoc(oldGroupRef, {
+                [`players.${user.uid}`]: deleteField(),
+                playerCount: increment(-1)
+              });
             }
           }
-          
-          // Find or create new group for current week
-          
-          const groupsRef = collection(db, 'league_groups');
-          const q = query(groupsRef, where('weekId', '==', currentWeekId));
-          const snap = await getDocs(q);
-          
-          let newGroupId = '';
-          const playerEntry = { xp: 0, displayName: userData.username || userData.name || userData.displayName || 'Pemain', photoUrl: userData.profilePictureUrl || userData.profilePicUrl || '', username: userData.username || '' };
-          
-          const availableGroups = snap.docs
-            .map(d => ({ id: d.id, data: d.data() }))
-            .filter(g => g.data.league === newLeague && g.data.playerCount < 15)
-            .sort((a, b) => b.data.playerCount - a.data.playerCount);
-
-          if (availableGroups.length > 0) {
-            newGroupId = availableGroups[0].id;
-            await updateDoc(doc(db, 'league_groups', newGroupId), {
-              playerCount: increment(1),
-              [`players.${user.uid}`]: playerEntry
-            });
-          } else {
-            const newGroupRef = doc(groupsRef);
-            newGroupId = newGroupRef.id;
-            await setDoc(newGroupRef, {
-              weekId: currentWeekId,
-              league: newLeague,
-              playerCount: 1,
-              players: {
-                [user.uid]: playerEntry
-              },
-              createdAt: Date.now()
-            });
-          }
-          
-          // Update user doc
-          await updateDoc(doc(db, 'users', user.uid), {
-            currentWeekId,
-            leagueGroupId: newGroupId,
-            league: newLeague,
-            lastLeagueStatus: status,
-            lastLeagueRank: oldRank
-          });
-          
-          if (status === 'promoted' || status === 'demoted') {
-            setLeaguePopup({ status, newLeague });
-          }
         }
+        
+        // ── BUG FIX 2a: Use Firestore compound query instead of JS filter ──
+        // Previously only filtered by weekId in Firestore and did the rest in JS,
+        // which could miss groups when result set > 50 docs.
+        const groupsRef = collection(db, 'league_groups');
+        const q = query(
+          groupsRef,
+          where('weekId', '==', currentWeekId),
+          where('league', '==', newLeague),
+          where('playerCount', '<', 15)
+        );
+        const snap = await getDocs(q);
+        
+        let newGroupId = '';
+        const playerEntry = {
+          xp: 0,
+          displayName: userData.username || userData.name || userData.displayName || 'Pemain',
+          photoUrl: userData.profilePictureUrl || userData.profilePicUrl || '',
+          username: userData.username || ''
+        };
+        
+        // Pick the most populated available group (to fill up groups before creating new ones)
+        const availableGroups = snap.docs
+          .map(d => ({ id: d.id, data: d.data() }))
+          .sort((a, b) => (b.data.playerCount || 0) - (a.data.playerCount || 0));
+
+        if (availableGroups.length > 0) {
+          newGroupId = availableGroups[0].id;
+          await updateDoc(doc(db, 'league_groups', newGroupId), {
+            playerCount: increment(1),
+            [`players.${user.uid}`]: playerEntry
+          });
+        } else {
+          // No available group – create a new one
+          const newGroupRef = doc(groupsRef);
+          newGroupId = newGroupRef.id;
+          await setDoc(newGroupRef, {
+            weekId: currentWeekId,
+            league: newLeague,
+            playerCount: 1,
+            players: { [user.uid]: playerEntry },
+            createdAt: Date.now()
+          });
+        }
+        
+        // Update user doc with new group and week
+        await updateDoc(doc(db, 'users', user.uid), {
+          currentWeekId,
+          leagueGroupId: newGroupId,
+          league: newLeague,
+          lastLeagueStatus: status,
+          lastLeagueRank: oldRank
+        });
+        
+        if (status === 'promoted' || status === 'demoted') {
+          setLeaguePopup({ status, newLeague });
+        }
+
       } catch (error) {
         if ((error as any).code === 'permission-denied') {
           console.warn("Permission denied for league processing. Please update Firestore rules.");
+        } else if ((error as any).code === 'failed-precondition') {
+          // Composite index not yet created – log a helpful message
+          console.warn(
+            "League query needs a Firestore composite index. " +
+            "Check the Firebase console error link to create it automatically.",
+            error
+          );
         } else {
           console.warn("League processing warning:", error);
         }
