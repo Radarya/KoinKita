@@ -53,13 +53,14 @@ import {
   signOut,
   User as FirebaseUser
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, collection, addDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, getDocFromCache, collection, addDoc, updateDoc } from 'firebase/firestore';
 import Dashboard from './components/Dashboard';
 import TermsModal from './components/TermsModal';
 import OnboardingModal from './components/OnboardingModal';
 import { useTranslation } from './lib/LanguageContext';
 import { bypassAutoplay, playClick, setAppActive } from './lib/audio';
 import { App as CapacitorApp } from '@capacitor/app';
+import { Dialog } from '@capacitor/dialog';
 
 // ==========================================
 export default function App() {
@@ -150,6 +151,45 @@ export default function App() {
       }
     };
   }, [processAddPath, language]);
+
+  // Hardware Back Button Interceptor
+  useEffect(() => {
+    let backListener: any = null;
+    if (Capacitor.isNativePlatform() && CapacitorApp && typeof CapacitorApp.addListener === 'function') {
+      backListener = CapacitorApp.addListener('backButton', async ({ canGoBack }) => {
+        // Dispatch a custom cancelable event
+        const event = new Event('hardwareBackButton', { cancelable: true });
+        window.dispatchEvent(event);
+        
+        // If a component (like Dashboard) intercepted it (e.g. to close a modal), defaultPrevented will be true.
+        // Also if we are showing Onboarding or Auth screens, we might want to prevent exit or handle it differently.
+        if (!event.defaultPrevented && currentScreenRef.current === 'app') {
+          const { value } = await Dialog.confirm({
+            title: languageRef.current === 'id' ? 'Keluar Aplikasi' : 'Exit App',
+            message: languageRef.current === 'id' 
+              ? 'Apakah Anda yakin ingin keluar dari KoinKita?' 
+              : 'Are you sure you want to exit KoinKita?',
+            okButtonTitle: languageRef.current === 'id' ? 'Ya' : 'Yes',
+            cancelButtonTitle: languageRef.current === 'id' ? 'Tidak' : 'No'
+          });
+          
+          if (value) {
+            CapacitorApp.exitApp();
+          }
+        } else if (!event.defaultPrevented && currentScreenRef.current === 'landing') {
+           CapacitorApp.exitApp();
+        } else if (!event.defaultPrevented && currentScreenRef.current === 'auth') {
+           setCurrentScreen('landing');
+        }
+      });
+    }
+    
+    return () => {
+      if (backListener && typeof backListener.remove === 'function') {
+        backListener.remove();
+      }
+    };
+  }, []);
 
   // Listen to Capacitor App State Changes (foreground/background) to manage audio/music
   useEffect(() => {
@@ -275,42 +315,52 @@ export default function App() {
           let displayName = user.displayName || (user.isAnonymous ? (language === 'id' ? 'Tamu' : 'Guest') : 'Pemain');
           let onboardingNotCompleted = false;
 
-          try {
-            const userDocRef = doc(db, 'users', user.uid);
-            const userSnap = await getDoc(userDocRef);
-            if (userSnap.exists()) {
-              const data = userSnap.data();
-              if (data.fullName) displayName = data.fullName;
-              if (!data.hasCompletedOnboarding) {
-                onboardingNotCompleted = true;
+            try {
+              const userDocRef = doc(db, 'users', user.uid);
+              let userSnap;
+              if (!navigator.onLine) {
+                userSnap = await getDocFromCache(userDocRef).catch(() => null);
               }
-            } else {
-              // Auto-create document for new anonymous guest
-              onboardingNotCompleted = true;
-              const randomTag = Math.floor(1000 + Math.random() * 9000).toString();
-              await setDoc(userDocRef, {
-                uid: user.uid,
-                name: displayName,
-                fullName: displayName,
-                email: user.email || 'guest@koinkita.xyz',
-                tag: randomTag,
-                totalCoins: 0,
-                coins: 0,
-                lives: 5,
-                level: 0,
-                friends: [],
-                claimedQuests: {},
-                dailyStats: {},
-                lastSentLife: {},
-                profilePicUrl: '',
-                createdAt: new Date().toISOString(),
-                isAnonymous: user.isAnonymous,
-                hasCompletedOnboarding: false
-              });
+              if (!userSnap) {
+                userSnap = await Promise.race([
+                  getDoc(userDocRef),
+                  new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+                ]).catch(() => null) as any;
+              }
+
+              if (userSnap && userSnap.exists()) {
+                const data = userSnap.data();
+                if (data.fullName) displayName = data.fullName;
+                if (!data.hasCompletedOnboarding) {
+                  onboardingNotCompleted = true;
+                }
+              } else if (userSnap && !userSnap.exists()) {
+                // Auto-create document for new anonymous guest
+                onboardingNotCompleted = true;
+                const randomTag = Math.floor(1000 + Math.random() * 9000).toString();
+                await setDoc(userDocRef, {
+                  uid: user.uid,
+                  name: displayName,
+                  fullName: displayName,
+                  email: user.email || 'guest@koinkita.xyz',
+                  tag: randomTag,
+                  totalCoins: 0,
+                  coins: 0,
+                  lives: 5,
+                  level: 0,
+                  friends: [],
+                  claimedQuests: {},
+                  dailyStats: {},
+                  lastSentLife: {},
+                  profilePicUrl: '',
+                  createdAt: new Date().toISOString(),
+                  isAnonymous: user.isAnonymous,
+                  hasCompletedOnboarding: false
+                });
+              }
+            } catch (e) {
+              console.warn("Error fetching/setting user profile inside auth state change", e);
             }
-          } catch (e) {
-            console.warn("Error fetching/setting user profile inside auth state change", e);
-          }
 
           const hasSeen = localStorage.getItem('hasSeenOnboarding') === 'true';
           // Skip re-showing onboarding if a link/sign-in operation is currently in flight
@@ -647,8 +697,9 @@ export default function App() {
         </>
       ) : (
         <GameAuth 
-          onBack={() => startTransition(() => setCurrentScreen('landing'))} 
-          triggerToast={triggerToast} 
+          onBack={currentUser?.isAnonymous ? () => setCurrentScreen('app') : () => setCurrentScreen('landing')} 
+          triggerToast={triggerToast}
+          isLinkingRef={isLinkingRef}
         />
       )}
     </>
@@ -814,7 +865,7 @@ const validateNameInput = (input: string, minLimit: number, maxLimit: number): b
   return true;
 };
 
-function GameAuth({ onBack, triggerToast }: { onBack?: () => void, triggerToast?: (msg: string, type: 'success'|'warning'|'error'|'info') => void }) {
+function GameAuth({ onBack, triggerToast, isLinkingRef }: { onBack?: () => void, triggerToast?: (msg: string, type: 'success'|'warning'|'error'|'info') => void, isLinkingRef: React.MutableRefObject<boolean> }) {
   const { language, toggleLanguage } = useTranslation();
   const tAuth = authTranslations[language];
 
@@ -2267,8 +2318,8 @@ function LandingPage({
             
             <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0 relative z-10 w-full md:w-auto justify-center">
               <a 
-                href="https://github.com/Radarya/KoinKita/releases/latest/download/KoinKita-v1.1.1.apk"
-                download="KoinKita-v1.1.1.apk"
+                href="https://github.com/Radarya/KoinKita/releases/latest/download/KoinKita-v1.2.0.apk"
+                download="KoinKita-v1.2.0.apk"
                 onClick={() => playClick()}
                 className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-emerald-700 font-extrabold text-lg rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 border-b-4 border-slate-200 hover:border-slate-100 cursor-pointer"
               >

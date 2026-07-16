@@ -50,9 +50,11 @@ const Arena        = lazy(() => import('./Arena'));
 import TermsModal from './TermsModal';
 import { SettingsModal } from './SettingsModal';
 import InboxModal from './InboxModal';
-import { DailyQuestsModal } from './DailyQuestsModal';
 import { TopicSelection } from './TopicSelection';
 import { AchievementsModal, ACHIEVEMENTS } from './AchievementsModal';
+import { QuestsTab } from './QuestsTab';
+import { ProfileTab } from './ProfileTab';
+import { BottomNavBar } from './BottomNavBar';
 import { playClick, playWin, setGameViewTrack } from '../lib/audio';
 import { useTranslation } from '../lib/LanguageContext';
 import { getCurrentWeekId, calculateInitialLeague, getLeagueInfo, getDemotionRank } from '../lib/leagueUtils';
@@ -92,14 +94,20 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
   const { t, language } = useTranslation();
   const [userData, setUserData] = useState<any>(null);
   const [activeGame, setActiveGame] = useState<string | null>(null);
-  const [showProfile, setShowProfile] = useState(false);
+  const [activeTab, setActiveTab] = useState<'home' | 'quests' | 'arena' | 'social' | 'profile'>('home');
+  const [showTopicSelection, setShowTopicSelection] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showInbox, setShowInbox] = useState(false);
   const [leagueCheckDone, setLeagueCheckDone] = useState(false);
 
   const [pendingFriendData, setPendingFriendData] = useState<any | null>(null);
   const [unreadInboxCount, setUnreadInboxCount] = useState(0);
   const [leaguePopup, setLeaguePopup] = useState<{status: string, newLeague: number} | null>(null);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+  const [showDailyQuests, setShowDailyQuests] = useState(false);
+  const [showSocial, setShowSocial] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
 
   useEffect(() => {
     const checkPendingFriend = async () => {
@@ -131,6 +139,24 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
     };
   }, [user]);
 
+  // Hardware Back Button modal interceptor
+  useEffect(() => {
+    const handleBack = (e: Event) => {
+      if (showTermsModal || showInbox || showDailyQuests || showSocial || showAchievements || leaguePopup || pendingFriendData) {
+        e.preventDefault();
+        setShowTermsModal(false);
+        setShowInbox(false);
+        setShowDailyQuests(false);
+        setShowSocial(false);
+        setShowAchievements(false);
+        setLeaguePopup(null);
+        setPendingFriendData(null);
+      }
+    };
+    window.addEventListener('hardwareBackButton', handleBack);
+    return () => window.removeEventListener('hardwareBackButton', handleBack);
+  }, [showTermsModal, showInbox, showDailyQuests, showSocial, showAchievements, leaguePopup, pendingFriendData]);
+
   const handleSendPendingRequest = async () => {
     if (!pendingFriendData) return;
     try {
@@ -155,15 +181,6 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
     }
   };
 
-  const [showSocial, setShowSocial] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(true);
-  
-  // Settings & Level state triggers
-  const [showSettings, setShowSettings] = useState(false);
-  const [showAchievements, setShowAchievements] = useState(false);
-  const [showDailyQuests, setShowDailyQuests] = useState(false);
-  const [showTopicSelection, setShowTopicSelection] = useState(false);
-  const [showInbox, setShowInbox] = useState(false);
   const [tutorialGameId, setTutorialGameId] = useState<string | null>(null);
   const [levelUpNotice, setLevelUpNotice] = useState<{ show: boolean, oldLevel: number, newLevel: number }>({ show: false, oldLevel: 0, newLevel: 0 });
   const [toastQueue, setToastQueue] = useState<any[]>([]);
@@ -579,10 +596,6 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
     }
   ];
 
-  if (showProfile) {
-    return <Suspense fallback={<GameLoadingFallback />}><UserProfile user={user} userData={userData} onBack={() => startTransition(() => setShowProfile(false))} /></Suspense>;
-  }
-
   if (showTopicSelection) {
     return <TopicSelection onSelect={(gameId) => {
       const currentLives = userData?.lives !== undefined ? userData.lives : 5;
@@ -644,7 +657,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-200/50 overflow-x-hidden relative pb-12">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-200/50 overflow-x-hidden relative pb-12 lg:pb-0 lg:flex lg:justify-center lg:items-start lg:h-screen lg:overflow-hidden">
       {/* Background Decor */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {/* Glow Orbs */}
@@ -654,10 +667,46 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
         {/* Cyber Grid Mesh */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px] opacity-40"></div>
       </div>
+
+      {/* Desktop Sidebar (Hidden on mobile) */}
+      <div className="hidden lg:flex flex-col w-[260px] bg-white/95 border-r border-slate-200 h-full shrink-0 shadow-sm relative z-20 py-8 px-6">
+        <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer transition-transform hover:scale-105 active:scale-95" onClick={() => { playClick(); setActiveTab('home'); }}>
+          <div className="w-10 h-10 bg-emerald-500 rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center shrink-0">
+            <span className="text-white text-xl font-black">K</span>
+          </div>
+          <span className="text-2xl font-black text-slate-800 tracking-tight">KoinKita</span>
+        </div>
+        
+        <nav className="flex flex-col gap-2 flex-1">
+          <button onClick={() => { playClick(); setActiveTab('home'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'home' ? 'bg-emerald-50 border-emerald-200 text-emerald-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
+            <Gamepad2 className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Dashboard' : 'Dashboard'}</span>
+          </button>
+          <button onClick={() => { playClick(); setActiveTab('quests'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'quests' ? 'bg-indigo-50 border-indigo-200 text-indigo-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
+            <Star className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Misi' : 'Quests'}</span>
+          </button>
+          <button onClick={() => { playClick(); setActiveTab('arena'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'arena' ? 'bg-rose-50 border-rose-200 text-rose-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
+            <Swords className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Arena' : 'Arena'}</span>
+          </button>
+          <button onClick={() => { playClick(); setActiveTab('social'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'social' ? 'bg-sky-50 border-sky-200 text-sky-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
+            <Users className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Sosial' : 'Social'}</span>
+          </button>
+          <button onClick={() => { playClick(); setActiveTab('profile'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'profile' ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
+            <UserCircle className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Profil' : 'Profile'}</span>
+          </button>
+        </nav>
+
+        <div className="mt-auto">
+          <button onClick={() => setShowSettings(true)} className="flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold text-slate-500 hover:bg-slate-100 transition-all w-full text-left border-2 border-transparent">
+            <Settings className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Pengaturan' : 'Settings'}</span>
+          </button>
+        </div>
+      </div>
       
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10 flex flex-col min-h-screen">
+      {/* Main Content Area */}
+      <div className="w-full max-w-xl mx-auto lg:mx-0 lg:h-full lg:overflow-y-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10 flex flex-col min-h-screen lg:min-h-0 bg-transparent lg:border-x lg:border-slate-200/50 lg:shadow-[0_0_40px_rgba(0,0,0,0.03)] hide-scrollbar">
         
         {/* ================= HEADER PART ================= */}
+        {activeTab === 'home' && (
         <motion.header 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -665,82 +714,28 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
           className="flex flex-col md:flex-row md:items-center justify-between mb-8 sm:mb-12 bg-white/95  p-6 rounded-[2rem] border border-slate-200 shadow-sm gap-6 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-50/50 rounded-full  pointer-events-none -mr-12 -mt-12"></div>
-          
-          {/* User Profile Info on Left */}
-          <motion.div 
-            whileHover={{ scale: 1.02 }}
-            onClick={() => {
-              playClick();
-              startTransition(() => {
-                setShowProfile(true);
-              });
-            }}
-            className="flex items-center gap-4 cursor-pointer hover:opacity-95 group min-w-0"
-          >
-            <div className="w-16 h-16 rounded-2xl overflow-hidden border-[3px] border-slate-200 group-hover:border-slate-400 bg-white flex items-center justify-center shrink-0 transition-all shadow-sm">
-              {displayPic ? (
-                <img 
-                  src={displayPic} 
-                  alt="Profile" 
-                  className="w-full h-full object-cover group-hover:scale-105 duration-200" 
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <User className="w-7 h-7 text-slate-400" />
-              )}
-            </div>
-            
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] font-black uppercase bg-slate-800 text-white px-2 py-0.5 rounded-md tracking-wider">
-                  {language === 'id' ? 'Liga' : 'League'}
-                </span>
-                <span className="text-xs text-slate-400 font-bold tracking-wide">
-                  {getLevelName(userLevel, language as 'id' | 'en')}
-                </span>
-              </div>
-              
-              <h1 className="text-xl sm:text-2xl font-poppins font-black text-slate-800 tracking-tight leading-tight mt-0.5 break-words flex flex-wrap items-center gap-1.5 max-w-full">
-                <span>{welcomeText},</span>
-                <span className="text-emerald-600 whitespace-normal break-words leading-tight flex-1 min-w-[200px]">{displayName}</span>
-                <span>👋</span>
-              </h1>
-            </div>
-          </motion.div>
-          
-          {/* Total Coins, Leaderboard Icon, Settings Icon, strictly displaying only these 3 on Right */}
-          <div className="flex items-center justify-start md:justify-end gap-3 flex-wrap sm:flex-nowrap shrink-0">
+          <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap shrink-0 w-full">
             {/* Elegant Coins Badge */}
-            <div className="flex items-center gap-3 bg-white p-1.5 pl-3.5 pr-4 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="p-1.5 bg-slate-50 rounded-full shrink-0 flex items-center justify-center">
-                <Coins className="w-5 h-5 text-amber-500 fill-amber-500" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">{t.totalCoins}</p>
-                <div className="font-poppins font-black text-lg text-slate-800 tracking-tight mt-0.5">
-                  {isDataLoading ? (
-                     <span className="w-14 h-4 bg-slate-200 animate-pulse rounded block"></span>
-                  ) : (
-                     displayCoins.toLocaleString('id-ID')
-                  )}
-                </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+              <Coins className="w-5 h-5 text-amber-500 fill-amber-500 shrink-0" />
+              <div className="font-poppins font-black text-lg text-slate-800 tracking-tight">
+                {isDataLoading ? (
+                   <span className="w-14 h-4 bg-slate-200 animate-pulse rounded block"></span>
+                ) : (
+                   displayCoins.toLocaleString('id-ID')
+                )}
               </div>
             </div>
 
             {/* Lives Badge */}
-            <div className="flex items-center gap-3 bg-white p-1.5 pl-3.5 pr-4 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="p-1.5 bg-rose-50 rounded-full shrink-0 flex items-center justify-center">
-                <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">{language === 'id' ? 'Nyawa' : 'Energy'}</p>
-                <div className="font-poppins font-black text-lg text-slate-800 tracking-tight mt-0.5">
-                  {isDataLoading ? (
-                     <span className="w-8 h-4 bg-slate-200 animate-pulse rounded block"></span>
-                  ) : (
-                     <>{userData?.lives !== undefined ? userData.lives : 5}<span className="text-sm text-slate-400">/5</span></>
-                  )}
-                </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+              <Heart className="w-5 h-5 text-rose-500 fill-rose-500 shrink-0" />
+              <div className="font-poppins font-black text-lg text-slate-800 tracking-tight">
+                {isDataLoading ? (
+                   <span className="w-8 h-4 bg-slate-200 animate-pulse rounded block"></span>
+                ) : (
+                   <>{userData?.lives !== undefined ? userData.lives : 5}<span className="text-sm text-slate-400">/5</span></>
+                )}
               </div>
             </div>
 
@@ -759,8 +754,10 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
             </button>
           </div>
         </motion.header>
+        )}
 
         {/* ================= MAIN SPACIOUS MENU GRID ================= */}
+        {activeTab === 'home' && (
         <main className="flex-grow flex flex-col items-center justify-center w-full px-4 sm:px-0">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -781,7 +778,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                 : 'Your financial adventure starts here. Improve your literacy and become a money management master.'}
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 w-full max-w-4xl mx-auto px-2">
+            <div className="w-full max-w-sm mx-auto px-2">
               
               {/* Main Action - Quick Play */}
               <button 
@@ -789,7 +786,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                   playClick();
                   setShowTopicSelection(true);
                 }}
-                className="sm:col-span-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] p-6 sm:p-8 flex items-center justify-between shadow-xl shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden text-left"
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] p-6 sm:p-8 flex items-center justify-between shadow-xl shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden text-left"
               >
                 <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] group-hover:animate-[shimmer_1.5s_infinite]"></div>
                 <div className="flex items-center gap-4 sm:gap-5 relative z-10">
@@ -803,105 +800,45 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                 </div>
                 <ChevronRight className="w-8 h-8 relative z-10 opacity-70 group-hover:opacity-100 group-hover:translate-x-2 transition-all hidden sm:block" />
               </button>
-
-              {/* Misi Harian */}
-              <button 
-                onClick={() => {
-                  playClick();
-                  setShowDailyQuests(true);
-                }}
-                className="sm:col-span-2 bg-white border-2 border-slate-100 hover:border-orange-200 hover:bg-orange-50 rounded-[2rem] p-5 sm:p-6 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all active:scale-95 group"
-              >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-100 text-orange-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Gift className="w-6 h-6 sm:w-7 sm:h-7" />
-                </div>
-                <span className="font-bold text-slate-700 text-sm sm:text-base">{language === 'id' ? 'Misi Harian' : 'Daily Quests'}</span>
-              </button>
-
-              {/* Arena */}
-              <button 
-                onClick={() => {
-                  playClick();
-                  setShowLeaderboard(true);
-                }}
-                className="sm:col-span-2 bg-white border-2 border-slate-100 hover:border-amber-200 hover:bg-amber-50 rounded-[2rem] p-5 sm:p-6 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all active:scale-95 group"
-              >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-amber-100 text-amber-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Trophy className="w-6 h-6 sm:w-7 sm:h-7" />
-                </div>
-                <span className="font-bold text-slate-700 text-sm sm:text-base">{language === 'id' ? 'Arena' : 'Arena'}</span>
-              </button>
-
-              {/* Pencapaian */}
-              <button 
-                onClick={() => {
-                  playClick();
-                  setShowSocial(true);
-                }}
-                className="sm:col-span-2 bg-white border-2 border-slate-100 hover:border-indigo-200 hover:bg-indigo-50 rounded-[2rem] p-5 sm:p-6 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all active:scale-95 group"
-              >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 text-blue-500 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Users className="w-6 h-6 sm:w-7 sm:h-7" />
-                </div>
-                <span className="font-bold text-slate-700 text-sm sm:text-base">{language === 'id' ? 'Sosial' : 'Social'}</span>
-              </button>
-
-              {/* Small utilities container */}
-              <div className="sm:col-span-2 grid grid-cols-2 grid-rows-2 gap-3">
-                
-                <button 
-                  onClick={() => {
-                    playClick();
-                    setShowSettings(true);
-                  }}
-                  className="col-span-1 row-span-1 bg-white border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-300 rounded-2xl flex items-center justify-center gap-2 text-center shadow-sm hover:shadow transition-all group p-3 active:scale-95"
-                >
-                  <Settings className="w-5 h-5 text-slate-500 group-hover:rotate-45 transition-transform" />
-                  <span className="font-bold text-[11px] text-slate-600">{language === 'id' ? 'Pengaturan' : 'Settings'}</span>
-                </button>
-                
-                <button 
-                  onClick={() => {
-                    playClick();
-                    setShowTermsModal(true);
-                  }}
-                  className="col-span-1 row-span-1 bg-white border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-300 rounded-2xl flex items-center justify-center gap-2 text-center shadow-sm hover:shadow transition-all group p-3 active:scale-95"
-                >
-                  <FileText className="w-4 h-4 text-slate-400 group-hover:scale-110 transition-transform" />
-                  <span className="font-bold text-[11px] text-slate-600">{language === 'id' ? 'Aturan' : 'Rules'}</span>
-                </button>
-
-                <button 
-                  onClick={() => {
-                    playClick();
-                    setShowAchievements(true);
-                  }}
-                  className="col-span-2 row-span-1 bg-white border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-300 rounded-2xl flex items-center justify-center gap-2 text-center shadow-sm hover:shadow transition-all group p-3 active:scale-95"
-                >
-                  <Medal className="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform" />
-                  <span className="font-bold text-[11px] text-slate-600">{language === 'id' ? 'Pencapaian' : 'Achievements'}</span>
-                </button>
-              </div>
-
             </div>
           </motion.div>
         </main>
+        )}
+
+        {activeTab === 'quests' && (
+           <QuestsTab user={user} userData={userData} triggerToast={triggerToast!} />
+        )}
         
-        {/* ================= FOOTER / CONTROLS ================= */}
-        <footer className="mt-12 pt-6 flex flex-row items-center justify-center shrink-0 w-full">
-          <button 
-            onClick={() => {
-              playClick();
-              handleLogout();
-            }}
-            className="flex items-center gap-2 px-5 py-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 font-bold rounded-xl transition-all cursor-pointer text-sm active:scale-95"
-          >
-            <LogOut className="w-4 h-4" /> {t.logout}
-          </button>
-        </footer>
+        {activeTab === 'arena' && (
+           <Suspense fallback={<GameLoadingFallback />}><Arena onBack={() => setActiveTab('home')} currentUserUid={user.uid} userData={userData} mode="arena" initialTab="leaderboard" /></Suspense>
+        )}
         
+        {activeTab === 'social' && (
+           <Suspense fallback={<GameLoadingFallback />}><Arena onBack={() => setActiveTab('home')} currentUserUid={user.uid} userData={userData} mode="social" initialTab="friends" triggerToast={triggerToast} /></Suspense>
+        )}
+        
+        {activeTab === 'profile' && (
+           <ProfileTab user={user} userData={userData} onShowSettings={() => setShowSettings(true)} triggerToast={triggerToast} />
+        )}
+
+        <div className="lg:hidden w-full">
+          <BottomNavBar activeTab={activeTab} onChangeTab={setActiveTab} />
+        </div>
       </div>
 
+      {/* Desktop Right Panel (Aesthetic / Ads / Info) */}
+      <div className="hidden xl:flex flex-col w-[320px] bg-white/40 h-full shrink-0 relative z-20 py-8 px-6 overflow-y-auto hide-scrollbar">
+         <div className="bg-white/80 p-6 rounded-[2rem] border border-slate-200 shadow-sm text-center sticky top-8">
+            <div className="w-16 h-16 bg-gradient-to-tr from-amber-100 to-amber-200 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-inner">
+              <Star className="w-8 h-8 text-amber-500" />
+            </div>
+            <h3 className="font-poppins font-black text-slate-800 mb-2">{language === 'id' ? 'Web Mode Aktif' : 'Web Mode Active'}</h3>
+            <p className="text-sm text-slate-500 font-medium leading-relaxed">
+               {language === 'id' ? 'Versi desktop memberikan pengalaman bermain yang lebih luas dan nyaman.' : 'Desktop version gives a wider and more comfortable gaming experience.'}
+            </p>
+         </div>
+      </div>
+      
       <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
 
       {/* League Promotion/Demotion Popup */}
@@ -945,18 +882,22 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
       <SettingsModal 
         isOpen={showSettings} 
         onClose={() => setShowSettings(false)} 
+        onShowTerms={() => {
+          setShowSettings(false);
+          setShowTermsModal(true);
+        }}
+        onLogout={() => {
+          setShowSettings(false);
+          handleLogout();
+        }}
         onShowProfile={() => {
           setShowSettings(false);
           startTransition(() => {
-            setShowProfile(true);
+            setActiveTab('profile');
           });
         }}
         onSwitchGoogle={onSwitchGoogle ? handleSwitchGoogleAccount : undefined}
       />
-      <AnimatePresence>
-        {showLeaderboard && <Suspense fallback={<GameLoadingFallback />}><Arena onBack={() => setShowLeaderboard(false)} currentUserUid={user.uid} userData={userData} mode="arena" initialTab="leaderboard" /></Suspense>}
-        {showSocial && <Suspense fallback={<GameLoadingFallback />}><Arena onBack={() => setShowSocial(false)} currentUserUid={user.uid} userData={userData} mode="social" initialTab="friends" triggerToast={triggerToast} /></Suspense>}
-      </AnimatePresence>
 
       
       {/* Pending Friend Request Modal */}
@@ -1138,22 +1079,6 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
         )}
       </AnimatePresence>
 
-      {/* Leaderboard Modal Dialog */}
-      
-
-      {/* Achievements Modal Dialog */}
-      <AnimatePresence>
-        {showAchievements && (
-          <AchievementsModal onClose={() => setShowAchievements(false)} userData={userData} userLevel={userLevel} />
-        )}
-      </AnimatePresence>
-
-      {/* Daily Quests Modal Dialog */}
-      <AnimatePresence>
-        {showDailyQuests && (
-          <DailyQuestsModal onClose={() => setShowDailyQuests(false)} user={user} userData={userData} triggerToast={triggerToast!} />
-        )}
-      </AnimatePresence>
 
       {/* Level Up Announcement Overlay Animation */}
       <AnimatePresence>
