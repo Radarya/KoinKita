@@ -213,52 +213,14 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
     }
   };
 
-  const handleShareProfile = async () => {
-    playClick();
-    const shareUrl = `https://www.koinkita.xyz/add/${currentUserUid}`;
-    const text = language === 'id' 
-      ? `👋 Hai! Ayo mabar KoinKita bareng aku! 🚀\n\nIni game seru banget buat belajar ngatur uang biar kita makin cerdas finansial.\n\nKlik link ini buat tambah aku jadi teman di game ya: \n${shareUrl}`
-      : `👋 Hi! Let's play KoinKita together! 🚀\n\nIt's a fun game to learn financial skills and get smarter with our money.\n\nClick this link to add me as a friend: \n${shareUrl}`;
-    
-    if (Capacitor.isNativePlatform()) {
-      try {
-        await Share.share({
-          title: 'KoinKita',
-          text: text,
-          dialogTitle: language === 'id' ? 'Bagikan tautan pertemanan' : 'Share friend link'
-        });
-      } catch (shareErr) {
-        console.warn("Capacitor Share failed, falling back to clipboard:", shareErr);
-        navigator.clipboard.writeText(text);
-        if (triggerToast) triggerToast(language === 'id' ? 'Disalin ke papan klip!' : 'Copied to clipboard!', 'success');
-      }
-    } else if (navigator.share) {
-      try {
-        await navigator.share({ title: 'KoinKita', text: text });
-      } catch (e) { console.warn(e); }
-    } else {
-      navigator.clipboard.writeText(text);
-      if (triggerToast) triggerToast(language === 'id' ? 'Disalin ke papan klip!' : 'Copied to clipboard!', 'success');
-    }
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 ">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="bg-slate-50 rounded-[2.5rem] w-full max-w-4xl h-[90vh] shadow-2xl flex flex-col overflow-hidden relative"
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans w-full pb-20 sm:pb-24 flex flex-col relative overflow-hidden">
+      <div 
+        className="w-full max-w-5xl mx-auto flex flex-col flex-grow relative"
       >
         {/* Header */}
-        <div className="px-6 py-6 border-b border-slate-200 bg-white flex items-center justify-between shrink-0 relative z-10">
+        <div className="px-4 sm:px-6 py-4 sm:py-6 border-b border-slate-200 bg-white flex items-center justify-between shrink-0 relative z-10 sticky top-0">
           <div className="flex items-center gap-4 w-full min-w-0">
-            <button 
-              onClick={() => { playClick(); onBack(); }}
-              className="p-3 bg-slate-100 hover:bg-slate-200 rounded-2xl transition-colors group cursor-pointer"
-            >
-              <ChevronLeft className="w-6 h-6 text-slate-500 group-hover:text-slate-800" />
-            </button>
             <div>
               <h2 className="text-2xl font-black text-slate-800 tracking-tight">
                 {mode === 'arena' ? 'Arena' : (language === 'id' ? 'Sosial' : 'Social')}
@@ -364,7 +326,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
                             <h3 className="font-bold text-slate-800 text-sm sm:text-base truncate flex items-center gap-2">
                               {player.username ? `@${player.username}` : (player.displayName || player.name || player.fullName || 'Pemain')}
                               {isCurrent && (
-                                <span className="bg-amber-500 text-white text-[9px] px-1.5 py-0.5 rounded-md uppercase tracking-wider">Anda</span>
+                                <span className="bg-amber-500 text-white text-[9px] px-1.5 py-0.5 rounded-md uppercase tracking-wider">{language === 'id' ? 'Anda' : 'You'}</span>
                               )}
                             </h3>
                           </div>
@@ -389,26 +351,6 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
           {activeTab === 'friends' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col space-y-6">
               
-              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between shrink-0">
-                <div className="flex items-center gap-4 w-full min-w-0">
-                  <div className="w-12 h-12 md:w-16 md:h-16 shrink-0 bg-slate-100 rounded-2xl flex items-center justify-center">
-                    <UserPlus className="w-8 h-8 text-slate-400" />
-                  </div>
-                  <div className="min-w-0 flex-grow">
-                    <h3 className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-widest">{language === 'id' ? 'ID Pemain Kamu' : 'Your Player ID'}</h3>
-                    <div className="flex flex-col">
-                      <span className="text-lg md:text-2xl font-black text-slate-800 font-poppins break-words whitespace-normal leading-tight">{userData?.fullName || userData?.name}</span>
-                      <span className="text-sm md:text-base font-bold text-slate-400">#{userData?.tag || '0000'}</span>
-                    </div>
-                  </div>
-                </div>
-                <button 
-                  onClick={handleShareProfile}
-                  className="px-4 py-3 sm:px-6 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold transition-all flex items-center gap-2 w-full md:w-auto justify-center shrink-0"
-                >
-                  <Share2 className="w-5 h-5" /> {language === 'id' ? 'Bagikan ID' : 'Share ID'}
-                </button>
-              </div>
 
               <div className="flex flex-col sm:flex-row gap-2 shrink-0">
                 <input 
@@ -469,7 +411,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
           )}
 
         </div>
-      </motion.div>
+      </div>
 
       {/* Selected Friend Modal */}
       <AnimatePresence>

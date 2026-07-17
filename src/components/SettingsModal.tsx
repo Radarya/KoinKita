@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Globe, Music, VolumeX, Check, Volume2, FastForward, User } from 'lucide-react';
+import { X, Globe, Music, VolumeX, Check, Volume2, FastForward, User, LogOut, FileText } from 'lucide-react';
 import { useTranslation } from '../lib/LanguageContext';
 import { auth, db } from '../firebase';
 import { deleteUser } from 'firebase/auth';
@@ -22,12 +22,14 @@ interface SettingsModalProps {
   onExitGame?: () => void;
   /** Called when the user wants to switch to a different Google account */
   onSwitchGoogle?: () => void;
+  onShowTerms?: () => void;
+  onLogout?: () => void;
 }
 
 /**
  * @description Settings modal to adjust BGM state, sound volume, track selection, and system language.
  */
-export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = false, onExitGame, onSwitchGoogle }: SettingsModalProps) {
+export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = false, onExitGame, onSwitchGoogle, onShowTerms, onLogout }: SettingsModalProps) {
   const { t, language, toggleLanguage } = useTranslation();
   const [audioMode, setAudioModeState] = useState<number>(1);
   const [volume, setVolume] = useState<number>(0.5);
@@ -276,7 +278,39 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                 {/* Account Deletion Feature (Danger Zone) */}
                 {!isGameMode && (
                   <div className="space-y-2 pt-6 border-t border-slate-100 mt-6 select-none">
-                    <span className="text-xs font-bold text-red-400 uppercase tracking-widest block">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
+                      {language === 'id' ? 'Lainnya' : 'Others'}
+                    </span>
+                    
+                    {onShowTerms && (
+                      <button
+                        onClick={() => {
+                          playClick();
+                          onClose();
+                          onShowTerms();
+                        }}
+                        className="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl flex items-center gap-3 border border-slate-200 cursor-pointer transition-all hover:scale-[1.01] text-xs mb-2"
+                      >
+                        <FileText className="w-4 h-4 text-slate-500" />
+                        <span>{language === 'id' ? 'Aturan & Panduan' : 'Rules & Guidelines'}</span>
+                      </button>
+                    )}
+
+                    {onLogout && (
+                      <button
+                        onClick={() => {
+                          playClick();
+                          onClose();
+                          onLogout();
+                        }}
+                        className="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl flex items-center gap-3 border border-slate-200 cursor-pointer transition-all hover:scale-[1.01] text-xs mb-6"
+                      >
+                        <LogOut className="w-4 h-4 text-slate-500" />
+                        <span>{language === 'id' ? 'Keluar Akun' : 'Log Out'}</span>
+                      </button>
+                    )}
+
+                    <span className="text-xs font-bold text-red-400 uppercase tracking-widest block pt-2 border-t border-slate-100">
                       {language === 'id' ? 'Kepatuhan & Privasi' : 'Compliance & Privacy'}
                     </span>
                     <button

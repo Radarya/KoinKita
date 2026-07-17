@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { QRCodeSVG } from 'qrcode.react';
 import { ArrowLeft, Camera, Loader2, Save, User as UserIcon, Store, Lock, Check, Coins } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, updateDoc, increment } from 'firebase/firestore';
@@ -246,7 +245,7 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
             <ArrowLeft className="w-5 h-5 text-slate-500" />
           </button>
           <h2 className="text-xl font-poppins font-black text-slate-800 ml-4">
-            {language === 'id' ? "Profil & Koleksi" : "Profile & Collection"}
+            {language === 'id' ? "Edit Profil & Avatar" : "Edit Profile & Avatar"}
           </h2>
         </div>
 
@@ -333,19 +332,6 @@ export default function UserProfile({ user, userData, onBack }: UserProfileProps
                 
               </div>
 
-              
-              <div className="bg-emerald-50 p-4 rounded-2xl flex items-center justify-between border border-emerald-100">
-                <div>
-                  <h3 className="text-sm font-bold text-emerald-800">{language === 'id' ? 'QR Teman' : 'Friend QR'}</h3>
-                  <p className="text-[10px] text-emerald-600 mb-2">{language === 'id' ? 'Scan untuk tambah teman' : 'Scan to add friend'}</p>
-                  <div className="text-xs font-black text-slate-800 bg-white px-2 py-1 rounded inline-block shadow-sm">
-                    {name}#{userTag}
-                  </div>
-                </div>
-                <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center shadow-sm p-1">
-                  <QRCodeSVG value={`https://www.koinkita.xyz/add/${user.uid}`} size={70} />
-                </div>
-              </div>
               <button 
                 onClick={handleSaveProfile} disabled={isSaving}
                 className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl shadow-md transition-all flex justify-center items-center gap-2 active:scale-95"
