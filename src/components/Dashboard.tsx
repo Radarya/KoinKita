@@ -300,15 +300,11 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
           }
         }
         
-        // ── BUG FIX 2a: Use Firestore compound query instead of JS filter ──
-        // Previously only filtered by weekId in Firestore and did the rest in JS,
-        // which could miss groups when result set > 50 docs.
+        // Reverted to single field query to avoid Firestore composite index errors
         const groupsRef = collection(db, 'league_groups');
         const q = query(
           groupsRef,
-          where('weekId', '==', currentWeekId),
-          where('league', '==', newLeague),
-          where('playerCount', '<', 15)
+          where('weekId', '==', currentWeekId)
         );
         const snap = await getDocs(q);
         
@@ -320,9 +316,10 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
           username: userData.username || ''
         };
         
-        // Pick the most populated available group (to fill up groups before creating new ones)
+        // Filter in JS for league matching and playerCount < 15
         const availableGroups = snap.docs
           .map(d => ({ id: d.id, data: d.data() }))
+          .filter(g => g.data.league === newLeague && (g.data.playerCount || 0) < 15)
           .sort((a, b) => (b.data.playerCount || 0) - (a.data.playerCount || 0));
 
         if (availableGroups.length > 0) {
