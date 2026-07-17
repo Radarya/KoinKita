@@ -5,6 +5,7 @@ import './index.css';
 import { LanguageProvider } from './lib/LanguageContext.tsx';
 import { ErrorBoundary } from './ErrorBoundary.tsx';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -12,6 +13,7 @@ createRoot(document.getElementById('root')!).render(
       <LanguageProvider>
         <App />
         <SpeedInsights />
+        <Analytics />
       </LanguageProvider>
     </ErrorBoundary>
   </StrictMode>,
