@@ -312,7 +312,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
         const playerEntry = {
           xp: 0,
           displayName: userData.username || userData.name || userData.displayName || 'Pemain',
-          photoUrl: userData.profilePictureUrl || userData.profilePicUrl || '',
+          photoUrl: userData.profilePictureUrl || userData.profilePicUrl || user.photoURL || '',
           username: userData.username || ''
         };
         

@@ -65,7 +65,7 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
                   id: uid,
                   xp: pData.xp || 0,
                   displayName: userData?.username || userData?.displayName || userData?.name || pData.displayName || 'Pemain',
-                  profilePictureUrl: userData?.profilePictureUrl || userData?.profilePicUrl || pData.photoUrl || '',
+                  profilePictureUrl: userData?.profilePictureUrl || userData?.profilePicUrl || pData.photoUrl || user?.photoURL || '',
                   username: userData?.username || pData.username || ''
                 };
               }
