@@ -24,7 +24,9 @@ import {
   Heart,
   Bell,
   Gift,
-  Star
+  Star,
+  Swords,
+  UserCircle
 } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { signOut } from 'firebase/auth';
