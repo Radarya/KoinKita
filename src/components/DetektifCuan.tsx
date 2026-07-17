@@ -561,7 +561,7 @@ export default function DetektifCuan({ user, userData, onBack }: DetektifCuanPro
 
   return (
     <div className={`min-h-screen ${combo >= 3 ? 'bg-amber-100' : 'bg-slate-100'} flex flex-col font-sans transition-colors duration-500 relative`}>
-      <PauseOverlay isPaused={isPaused} />
+      <PauseOverlay isPaused={isPaused && !showSettings} />
       
       {/* Visual glowing effect on combo */}
       {combo >= 3 && <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(245,158,11,0.5)] z-0"></div>}

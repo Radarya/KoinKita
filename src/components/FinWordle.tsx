@@ -402,7 +402,7 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
   
   return (
     <div className="min-h-screen bg-[#Fdfdfd] flex flex-col font-sans relative">
-      <PauseOverlay isPaused={isPaused} />
+      <PauseOverlay isPaused={isPaused && !showSettings} />
       <header className="bg-white p-4 shadow-sm flex items-center justify-between border-b border-slate-200">
         <div className="flex flex-col items-center">
           <h1 className="font-poppins font-bold text-xl text-slate-700 tracking-wider leading-tight">FIN-WORDLE</h1>

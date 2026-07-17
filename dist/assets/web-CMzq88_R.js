@@ -1,1 +1,0 @@
-import{W as n}from"./index-DPeoqWft.js";import"./vendor-motion-Bq689ybH.js";import"./vendor-lucide-iwC9b6-c.js";class o extends n{async alert(e){window.alert(e.message)}async prompt(e){const a=window.prompt(e.message,e.inputText||"");return{value:a!==null?a:"",cancelled:a===null}}async confirm(e){return{value:window.confirm(e.message)}}}export{o as DialogWeb};

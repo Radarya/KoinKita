@@ -117,8 +117,9 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
           className="fixed inset-0 z-50 bg-slate-50 flex flex-col overflow-hidden"
         >
           {/* Header */}
-          <div className="bg-white px-5 pt-8 pb-4 flex items-center gap-4 shadow-sm border-b border-slate-100 relative z-10 shrink-0">
-             <button
+          <div className="bg-white shadow-sm border-b border-slate-100 relative z-10 shrink-0">
+            <div className="max-w-md mx-auto w-full px-5 pt-8 pb-4 flex items-center gap-4">
+              <button
                 onClick={() => {
                   playClick();
                   onClose();
@@ -131,10 +132,12 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                 <Settings className="w-5 h-5 text-emerald-500" />
                 {t.settingsTitle || (language === 'id' ? 'Pengaturan' : 'Settings')}
               </h2>
+            </div>
           </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6 pb-12">
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="max-w-md mx-auto w-full p-5 space-y-6 pb-12">
             
             {/* Account Settings */}
             {!isGameMode && (onShowProfile || onLogout) && (
@@ -373,6 +376,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
               </section>
             )}
 
+            </div>
           </div>
 
           {/* First Confirmation Popup */}

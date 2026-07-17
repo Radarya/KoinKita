@@ -450,7 +450,7 @@ export default function PohonAset({ user, userData, onBack }: any) {
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] flex flex-col font-sans relative overflow-hidden">
-      <PauseOverlay isPaused={isPaused} />
+      <PauseOverlay isPaused={isPaused && !showSettings} />
       
       {/* HUD Bar */}
       <header className="bg-white p-4 shadow-sm flex items-center justify-between border-b border-emerald-100 z-20 sticky top-0">
