@@ -206,6 +206,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
   // Weekly League Processing
   useEffect(() => {
     if (!userData || !user?.uid || leagueCheckDone) return;
+    setLeagueCheckDone(true);
     
     const processLeague = async () => {
       try {
@@ -674,9 +675,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
       {/* Desktop Sidebar (Hidden on mobile) */}
       <div className="hidden lg:flex flex-col w-[260px] bg-white/95 border-r border-slate-200 h-full shrink-0 shadow-sm relative z-20 py-8 px-6">
         <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer transition-transform hover:scale-105 active:scale-95" onClick={() => { playClick(); setActiveTab('home'); }}>
-          <div className="w-10 h-10 bg-emerald-500 rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center shrink-0">
-            <span className="text-white text-xl font-black">K</span>
-          </div>
+          <img src="/icon.png" alt="KoinKita Logo" className="w-10 h-10 rounded-xl shadow-lg shadow-emerald-500/30 shrink-0" />
           <span className="text-2xl font-black text-slate-800 tracking-tight">KoinKita</span>
         </div>
         

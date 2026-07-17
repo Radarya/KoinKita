@@ -96,13 +96,31 @@ export default function Arena({ onBack, currentUserUid, userData, triggerToast, 
     if (activeTab === 'friends' && userData?.friends) {
       const fetchFriends = async () => {
         const friendsData = [];
+        const validFriends = [];
+        let hasInvalid = false;
         for (const fUid of userData.friends) {
           const docSnap = await getDoc(doc(db, 'users', fUid));
           if (docSnap.exists()) {
-            friendsData.push({ id: docSnap.id, ...docSnap.data() });
+            const data = docSnap.data();
+            if (data.friends && data.friends.includes(currentUserUid)) {
+              friendsData.push({ id: docSnap.id, ...data });
+              validFriends.push(fUid);
+            } else {
+              hasInvalid = true; // They unfriended us
+            }
+          } else {
+             hasInvalid = true; // Account deleted
           }
         }
         setFriendsList(friendsData);
+        if (hasInvalid) {
+          // Clean up our own friends list silently
+          try {
+            await updateDoc(doc(db, 'users', currentUserUid), { friends: validFriends });
+          } catch (e) {
+            console.warn("Failed to clean up friends list", e);
+          }
+        }
       };
       fetchFriends();
     }
