@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Globe, Music, VolumeX, Check, Volume2, FastForward, User, LogOut, FileText } from 'lucide-react';
+import { ChevronLeft, Globe, Music, VolumeX, Check, Volume2, User, LogOut, FileText, Trash2, AlertTriangle, ChevronRight, Settings, ShieldAlert } from 'lucide-react';
 import { useTranslation } from '../lib/LanguageContext';
 import { auth, db } from '../firebase';
 import { deleteUser } from 'firebase/auth';
@@ -27,13 +27,12 @@ interface SettingsModalProps {
 }
 
 /**
- * @description Settings modal to adjust BGM state, sound volume, track selection, and system language.
+ * @description Settings full page view to adjust BGM state, sound volume, language, and account.
  */
 export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = false, onExitGame, onSwitchGoogle, onShowTerms, onLogout }: SettingsModalProps) {
   const { t, language, toggleLanguage } = useTranslation();
   const [audioMode, setAudioModeState] = useState<number>(1);
   const [volume, setVolume] = useState<number>(0.5);
-
 
   // Deletion and compliance state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -58,7 +57,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
       // 2. Delete credentials from Firebase Authentication
       await deleteUser(user);
       
-      // Close settings modal completely
+      // Close settings completely
       setShowDeleteFinal(false);
       onClose();
     } catch (err: any) {
@@ -88,9 +87,6 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
     }
   }, [isGameMode, isOpen]);
 
-  /**
-   * @description Handles Audio Mode toggle explicitly
-   */
   const handleToggleAudioMode = () => {
     playClick();
     vibrateLight();
@@ -99,17 +95,11 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
     setAudioModeState(nextMode);
   };
 
-  /**
-   * @description Changes language state with visual feedback audio click.
-   */
   const handleToggleLanguage = () => {
     playClick();
     toggleLanguage();
   };
 
-  /**
-   * @description Updates volume setting in real-time
-   */
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVol = parseFloat(e.target.value);
     setVolume(newVol);
@@ -120,87 +110,62 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 "
+          initial={{ x: '100%', opacity: 0.5 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: '100%', opacity: 0.5 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="fixed inset-0 z-50 bg-slate-50 flex flex-col overflow-hidden"
         >
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0, y: 15 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 15 }}
-            className="bg-white rounded-3xl w-full max-w-sm shadow-2xl border border-slate-100 overflow-hidden flex flex-col"
-          >
-            {/* Header */}
-            <div className="bg-emerald-50 px-6 py-5 flex items-center justify-between border-b border-emerald-100/50 shrink-0">
-              <h2 className="font-poppins font-bold text-lg text-slate-800 flex items-center gap-2">
-                <span className="w-1.5 h-5 bg-emerald-500 rounded-full inline-block"></span>
-                {t.settingsTitle}
-              </h2>
-              <button
+          {/* Header */}
+          <div className="bg-white px-5 pt-8 pb-4 flex items-center gap-4 shadow-sm border-b border-slate-100 relative z-10 shrink-0">
+             <button
                 onClick={() => {
                   playClick();
                   onClose();
                 }}
-                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                className="w-10 h-10 flex items-center justify-center bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 rounded-full transition-colors cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <ChevronLeft className="w-6 h-6" />
               </button>
-            </div>
+              <h2 className="font-poppins font-bold text-xl text-slate-800 flex items-center gap-2">
+                <Settings className="w-5 h-5 text-emerald-500" />
+                {t.settingsTitle || (language === 'id' ? 'Pengaturan' : 'Settings')}
+              </h2>
+          </div>
 
-            {/* List options */}
-            <div className="p-6 space-y-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
-              {/* Language Settings */}
-              <div className="space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
-                  {t.languageLabel || (language === 'id' ? 'Bahasa Utama' : 'System Language')}
-                </span>
-                <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
-                  <button
-                    onClick={() => language !== 'id' && handleToggleLanguage()}
-                    className={`py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      language === 'id'
-                        ? 'bg-white shadow-md text-emerald-600 border border-slate-200/50'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    <span className="text-base font-black">ID</span>
-                    <span>Indonesia</span>
-                    {language === 'id' && <Check className="w-4 h-4 text-emerald-600 shrink-0" />}
-                  </button>
-                  <button
-                    onClick={() => language !== 'en' && handleToggleLanguage()}
-                    className={`py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      language === 'en'
-                        ? 'bg-white shadow-md text-emerald-600 border border-slate-200/50'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    <span className="text-base font-black">EN</span>
-                    <span>English</span>
-                    {language === 'en' && <Check className="w-4 h-4 text-emerald-600 shrink-0" />}
-                  </button>
-                </div>
-              </div>
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6 pb-12">
+            
+            {/* Account Settings */}
+            {!isGameMode && (onShowProfile || onLogout) && (
+              <section className="space-y-3">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">
+                  {language === 'id' ? 'Akun Saya' : 'My Account'}
+                </h3>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                  
+                  {onShowProfile && (
+                    <button
+                      onClick={() => {
+                        playClick();
+                        onClose();
+                        onShowProfile();
+                      }}
+                      className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors border-b border-slate-50 cursor-pointer text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-800">{language === 'id' ? 'Profil Akun' : 'Account Profile'}</p>
+                          <p className="text-xs text-slate-500">{language === 'id' ? 'Lihat dan edit informasi' : 'View and edit information'}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-slate-300" />
+                    </button>
+                  )}
 
-              {/* Profile Account Section */}
-              {!isGameMode && onShowProfile && (
-                <div className="space-y-2">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
-                    {language === 'id' ? 'Profil Akun' : 'Account Profile'}
-                  </span>
-                  <button
-                    onClick={() => {
-                      playClick();
-                      onClose();
-                      onShowProfile();
-                    }}
-                    className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-all hover:scale-[1.01]"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>{language === 'id' ? ' Lihat & Edit Profil' : ' View & Edit Profile'}</span>
-                  </button>
-                  {/* Switch Google Account - only shown for Google-linked accounts */}
                   {onSwitchGoogle && auth.currentUser && !auth.currentUser.isAnonymous && auth.currentUser.providerData.some(p => p.providerId === 'google.com') && (
                     <button
                       onClick={() => {
@@ -208,59 +173,125 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                         onClose();
                         onSwitchGoogle();
                       }}
-                      className="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl flex items-center justify-center gap-2 border border-slate-200 cursor-pointer transition-all hover:scale-[1.01] text-sm mt-1"
+                      className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors border-b border-slate-50 cursor-pointer text-left"
                     >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.709 0 3.277.604 4.5 1.625l2.437-2.437C17.312 1.696 14.933 1 12.24 1 6.58 1 2 5.58 2 11.24s4.58 10.24 10.24 10.24c5.795 0 10.24-4.11 10.24-10.24 0-.685-.08-1.355-.24-1.955H12.24z"/>
-                      </svg>
-                      <span>{language === 'id' ? 'Ganti Akun Google' : 'Switch Google Account'}</span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.709 0 3.277.604 4.5 1.625l2.437-2.437C17.312 1.696 14.933 1 12.24 1 6.58 1 2 5.58 2 11.24s4.58 10.24 10.24 10.24c5.795 0 10.24-4.11 10.24-10.24 0-.685-.08-1.355-.24-1.955H12.24z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-800">{language === 'id' ? 'Ganti Akun Google' : 'Switch Google Account'}</p>
+                          <p className="text-xs text-slate-500">{language === 'id' ? 'Masuk dengan Google lain' : 'Sign in with another Google'}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-slate-300" />
                     </button>
                   )}
-                </div>
-              )}
 
-              {/* Unified 3-Mode Audio Toggle Wrapper */}
-              <div className="space-y-2.5">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
-                  {t.bgmLabel || (language === 'id' ? 'Pengaturan Audio' : 'Audio Settings')}
-                </span>
-                
+                  {onLogout && (
+                    <button
+                      onClick={() => {
+                        playClick();
+                        onClose();
+                        onLogout();
+                      }}
+                      className="w-full flex items-center justify-between p-4 hover:bg-red-50 transition-colors cursor-pointer text-left group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-slate-50 text-slate-500 group-hover:bg-red-100 group-hover:text-red-600 flex items-center justify-center transition-colors">
+                          <LogOut className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-800 group-hover:text-red-600 transition-colors">{language === 'id' ? 'Keluar' : 'Log Out'}</p>
+                          <p className="text-xs text-slate-500 group-hover:text-red-400 transition-colors">{language === 'id' ? 'Akhiri sesi saat ini' : 'End current session'}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-red-300 transition-colors" />
+                    </button>
+                  )}
+
+                </div>
+              </section>
+            )}
+
+            {/* Language Settings */}
+            <section className="space-y-3">
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">
+                {language === 'id' ? 'Bahasa & Lokalisasi' : 'Language & Localization'}
+              </h3>
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => language !== 'id' && handleToggleLanguage()}
+                    className={`p-4 rounded-2xl flex flex-col items-center gap-2 transition-all cursor-pointer ${
+                      language === 'id'
+                        ? 'bg-emerald-50 border-2 border-emerald-500 text-emerald-700 shadow-sm'
+                        : 'bg-slate-50 border-2 border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                    }`}
+                  >
+                    <span className="text-xl font-black">ID</span>
+                    <span className="text-sm font-bold">Indonesia</span>
+                    {language === 'id' && <Check className="w-5 h-5 text-emerald-600 absolute top-3 right-3" />}
+                  </button>
+                  <button
+                    onClick={() => language !== 'en' && handleToggleLanguage()}
+                    className={`p-4 rounded-2xl flex flex-col items-center gap-2 transition-all cursor-pointer relative ${
+                      language === 'en'
+                        ? 'bg-emerald-50 border-2 border-emerald-500 text-emerald-700 shadow-sm'
+                        : 'bg-slate-50 border-2 border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                    }`}
+                  >
+                    <span className="text-xl font-black">EN</span>
+                    <span className="text-sm font-bold">English</span>
+                    {language === 'en' && <Check className="w-5 h-5 text-emerald-600 absolute top-3 right-3" />}
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* Audio Settings */}
+            <section className="space-y-3">
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">
+                {language === 'id' ? 'Pengaturan Audio' : 'Audio Settings'}
+              </h3>
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                 <button
                   onClick={handleToggleAudioMode}
-                  className={`w-full p-4 rounded-2xl border flex items-center justify-between text-left transition-all cursor-pointer ${
+                  className={`w-full p-5 flex items-center justify-between text-left transition-all cursor-pointer border-b border-slate-50 ${
                     audioMode === 1
-                      ? 'bg-emerald-50/40 border-emerald-100 text-emerald-800'
+                      ? 'bg-emerald-50/50 hover:bg-emerald-50'
                       : audioMode === 2 
-                        ? 'bg-amber-50/40 border-amber-100 text-amber-800'
-                        : 'bg-slate-50/50 border-slate-200/50 text-slate-600'
+                        ? 'bg-amber-50/50 hover:bg-amber-50'
+                        : 'bg-slate-50/50 hover:bg-slate-50'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl transition-all ${
-                      audioMode === 1 ? 'bg-emerald-100 text-emerald-600' : audioMode === 2 ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-500'
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
+                      audioMode === 1 ? 'bg-emerald-100 text-emerald-600 shadow-inner' : audioMode === 2 ? 'bg-amber-100 text-amber-600 shadow-inner' : 'bg-slate-200 text-slate-500 shadow-inner'
                     }`}>
-                      {audioMode === 1 ? <Music className="w-5 h-5 text-emerald-600" /> : audioMode === 2 ? <Volume2 className="w-5 h-5 text-amber-600" /> : <VolumeX className="w-5 h-5 text-slate-400" />}
+                      {audioMode === 1 ? <Music className="w-6 h-6" /> : audioMode === 2 ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm">
+                      <h4 className={`font-bold text-base ${audioMode === 1 ? 'text-emerald-700' : audioMode === 2 ? 'text-amber-700' : 'text-slate-600'}`}>
                         {audioMode === 1 ? (language === 'id' ? 'Musik & Getar' : 'Music & Haptics') : audioMode === 2 ? (language === 'id' ? 'Sound & Getar' : 'SFX & Haptics') : (language === 'id' ? 'Hening' : 'Muted')}
                       </h4>
-                      <p className={`text-xs mt-0.5 max-w-[160px] leading-tight ${audioMode === 3 ? 'text-slate-400' : 'text-slate-500'}`}>
-                        {audioMode === 1 ? (language === 'id' ? 'Musik, efek & getaran aktif' : 'BGM, SFX & Haptics active') : audioMode === 2 ? (language === 'id' ? 'Hanya efek & getaran aktif' : 'Only SFX & Haptics active') : (language === 'id' ? 'Audio & getaran mati' : 'Audio & haptics muted')}
+                      <p className={`text-xs mt-1 leading-tight ${audioMode === 3 ? 'text-slate-400' : 'text-slate-500'}`}>
+                        {audioMode === 1 ? (language === 'id' ? 'Semua audio & efek nyala' : 'All BGM, SFX & Haptics on') : audioMode === 2 ? (language === 'id' ? 'Musik dimatikan, efek nyala' : 'Only SFX & Haptics active') : (language === 'id' ? 'Audio & getaran mati total' : 'Audio & haptics muted completely')}
                       </p>
                     </div>
                   </div>
                 </button>
 
-                {/* Real-time Volume Adjustment slider */}
                 {audioMode !== 3 && (
-                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-2">
-                    <div className="flex items-center justify-between text-xs text-slate-550 font-bold">
-                      <span className="flex items-center gap-1.5">
-                        <Volume2 className="w-4 h-4 text-slate-400" />
-                        {language === 'id' ? 'Volume Suara' : 'Audio Volume'}
+                  <div className="p-5 space-y-4 bg-white">
+                    <div className="flex items-center justify-between text-sm font-bold text-slate-700">
+                      <span className="flex items-center gap-2">
+                        <Volume2 className="w-5 h-5 text-slate-400" />
+                        {language === 'id' ? 'Volume Suara' : 'Volume Level'}
                       </span>
-                      <span className="font-mono">{Math.round(volume * 100)}%</span>
+                      <span className="font-mono text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">{Math.round(volume * 100)}%</span>
                     </div>
                     <input
                       type="range"
@@ -269,219 +300,202 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
                       step="0.05"
                       value={volume}
                       onChange={handleVolumeChange}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500 outline-none"
+                      className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500 outline-none hover:accent-emerald-400 transition-all"
                     />
                   </div>
                 )}
-
-
-                {/* Account Deletion Feature (Danger Zone) */}
-                {!isGameMode && (
-                  <div className="space-y-2 pt-6 border-t border-slate-100 mt-6 select-none">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
-                      {language === 'id' ? 'Lainnya' : 'Others'}
-                    </span>
-                    
-                    {onShowTerms && (
-                      <button
-                        onClick={() => {
-                          playClick();
-                          onClose();
-                          onShowTerms();
-                        }}
-                        className="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl flex items-center gap-3 border border-slate-200 cursor-pointer transition-all hover:scale-[1.01] text-xs mb-2"
-                      >
-                        <FileText className="w-4 h-4 text-slate-500" />
-                        <span>{language === 'id' ? 'Aturan & Panduan' : 'Rules & Guidelines'}</span>
-                      </button>
-                    )}
-
-                    {onLogout && (
-                      <button
-                        onClick={() => {
-                          playClick();
-                          onClose();
-                          onLogout();
-                        }}
-                        className="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl flex items-center gap-3 border border-slate-200 cursor-pointer transition-all hover:scale-[1.01] text-xs mb-6"
-                      >
-                        <LogOut className="w-4 h-4 text-slate-500" />
-                        <span>{language === 'id' ? 'Keluar Akun' : 'Log Out'}</span>
-                      </button>
-                    )}
-
-                    <span className="text-xs font-bold text-red-400 uppercase tracking-widest block pt-2 border-t border-slate-100">
-                      {language === 'id' ? 'Kepatuhan & Privasi' : 'Compliance & Privacy'}
-                    </span>
-                    <button
-                      id="btn-delete-account-init"
-                      onClick={() => {
-                        playClick();
-                        vibrateLight();
-                        setShowDeleteConfirm(true);
-                      }}
-                      className="w-full py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl flex items-center justify-center gap-2 border border-red-200 cursor-pointer transition-all hover:scale-[1.01] text-xs"
-                    >
-                      <span>🗑️ {language === 'id' ? 'Hapus Akun / Delete Account' : 'Hapus Akun / Delete Account'}</span>
-                    </button>
-                  </div>
-                )}
-                
-                {/* Exit Game Button */}
-                {isGameMode && onExitGame && (
-                   <div className="space-y-2 pt-6 border-t border-slate-100 mt-6 select-none">
-                     <button
-                       onClick={() => {
-                         playClick();
-                         vibrateLight();
-                         onExitGame();
-                         onClose();
-                       }}
-                       className="w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl flex items-center justify-center gap-2 border border-slate-300 cursor-pointer transition-all hover:scale-[1.01] text-xs"
-                     >
-                       <span>Keluar Game / Exit Game</span>
-                     </button>
-                   </div>
-                )}
-
               </div>
-            </div>
+            </section>
 
-            {/* First Confirmation Popup */}
-            <AnimatePresence>
-              {showDeleteConfirm && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 "
-                >
-                  <motion.div
-                    initial={{ scale: 0.95, opacity: 0, y: 15 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.95, opacity: 0, y: 15 }}
-                    className="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl border border-red-100 overflow-hidden relative"
+            {/* Others / Legal */}
+            {!isGameMode && onShowTerms && (
+              <section className="space-y-3">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">
+                  {language === 'id' ? 'Lainnya' : 'Others'}
+                </h3>
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                  <button
+                    onClick={() => {
+                      playClick();
+                      onClose();
+                      onShowTerms();
+                    }}
+                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors cursor-pointer text-left"
                   >
-                    <div className="text-center space-y-4">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl bg-red-50 text-red-600 border border-red-200">
-                        ⚠️
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                        <FileText className="w-5 h-5" />
                       </div>
-                      <h3 className="font-poppins font-black text-lg text-slate-800 leading-tight">
-                        {language === 'id' ? 'Apakah Kamu Yakin?' : 'Are You Sure?'}
-                      </h3>
-                      <p className="text-slate-500 text-xs font-bold leading-relaxed px-1">
-                        {language === 'id' 
-                          ? 'Apakah kamu yakin ingin menghapus akun dan semua data koin secara permanen? Tindakan ini tidak dapat dibatalkan.' 
-                          : 'Are you sure you want to permanently delete your account and all coin data? This action cannot be undone.'}
-                      </p>
-                      <div className="flex gap-3 pt-2">
-                        <button
-                          onClick={() => {
-                            playClick();
-                            setShowDeleteConfirm(false);
-                          }}
-                          className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-xs transition-all cursor-pointer border border-slate-200"
-                        >
-                          {language === 'id' ? 'Batal' : 'Cancel'}
-                        </button>
-                        <button
-                          onClick={() => {
-                            playClick();
-                            setShowDeleteConfirm(false);
-                            setShowDeleteFinal(true);
-                          }}
-                          className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-extrabold rounded-xl text-xs transition-all shadow-md shadow-red-500/15 cursor-pointer"
-                        >
-                          {language === 'id' ? 'Ya, Lanjutkan' : 'Yes, Continue'}
-                        </button>
+                      <div>
+                        <p className="font-bold text-slate-800">{language === 'id' ? 'Aturan & Panduan' : 'Rules & Guidelines'}</p>
+                        <p className="text-xs text-slate-500">{language === 'id' ? 'Kebijakan privasi & info' : 'Privacy policy & info'}</p>
                       </div>
                     </div>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
- 
-            {/* Second Confirmation Popup */}
-            <AnimatePresence>
-              {showDeleteFinal && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/80 "
+                    <ChevronRight className="w-5 h-5 text-slate-300" />
+                  </button>
+                </div>
+              </section>
+            )}
+
+            {/* Danger Zone */}
+            {!isGameMode && (
+              <section className="space-y-3 pt-4">
+                <button
+                  id="btn-delete-account-init"
+                  onClick={() => {
+                    playClick();
+                    vibrateLight();
+                    setShowDeleteConfirm(true);
+                  }}
+                  className="w-full py-4 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl flex items-center justify-center gap-2 border border-red-200 border-dashed cursor-pointer transition-all hover:scale-[1.01] text-sm group shadow-sm"
                 >
-                  <motion.div
-                    initial={{ scale: 0.95, opacity: 0, y: 15 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.95, opacity: 0, y: 15 }}
-                    className="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl border border-red-200 overflow-hidden relative"
-                  >
-                    <div className="text-center space-y-4">
-                      <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto text-xl text-red-600 border border-red-300">
-                        🚨
-                      </div>
-                      <h3 className="font-poppins font-black text-lg text-red-600 leading-tight">
-                        {language === 'id' ? 'KONFIRMASI TERAKHIR' : 'FINAL CONFIRMATION'}
-                      </h3>
-                      <p className="text-slate-600 text-xs font-extrabold leading-relaxed px-1">
-                        {language === 'id' 
-                          ? 'Perhatian: Semua data koin, pencapaian level, dan riwayat kamu pada KoinKita akan dihapus permanen selamanya dari server.' 
-                          : 'Caution: All total coins, level progress, and historic records on KoinKita will be permanently erased forever from our server.'}
-                      </p>
+                  <Trash2 className="w-5 h-5 group-hover:animate-pulse" />
+                  <span>{language === 'id' ? 'Hapus Akun Permanen' : 'Permanently Delete Account'}</span>
+                </button>
+              </section>
+            )}
 
-                      {deleteError && (
-                        <div className="p-3 bg-red-50 text-red-700 text-[11px] font-bold rounded-xl border border-red-200 text-left leading-normal">
-                          {deleteError}
-                        </div>
-                      )}
-                      
-                      <div className="flex flex-col gap-2 pt-2">
-                        <button
-                          disabled={isDeleting}
-                          onClick={handleDeleteAccount}
-                          className="w-full py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-black rounded-xl text-xs transition-all shadow-lg shadow-red-650/20 cursor-pointer flex items-center justify-center gap-2"
-                        >
-                          {isDeleting ? (
-                            <>
-                              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                              <span>{language === 'id' ? 'Menghapus...' : 'Deleting...'}</span>
-                            </>
-                          ) : (
-                            <span>{language === 'id' ? 'YA, HAPUS AKUN SAYA SEKARANG' : 'YES, DELETE MY REPOSITORY'}</span>
-                          )}
-                        </button>
-                        <button
-                          disabled={isDeleting}
-                          onClick={() => {
-                            playClick();
-                            setShowDeleteFinal(false);
-                            setDeleteError(null);
-                          }}
-                          className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-605 font-bold rounded-xl text-xs transition-all cursor-pointer border border-slate-200"
-                        >
-                          {language === 'id' ? 'Batal & Kembali' : 'Abort & Keep Account'}
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Exit Game Mode */}
+            {isGameMode && onExitGame && (
+              <section className="space-y-3 pt-4">
+                <button
+                  onClick={() => {
+                    playClick();
+                    vibrateLight();
+                    onExitGame();
+                    onClose();
+                  }}
+                  className="w-full py-4 px-4 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl flex items-center justify-center gap-2 border border-red-200 cursor-pointer transition-all hover:scale-[1.01] text-sm shadow-sm"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>{language === 'id' ? 'Keluar Game' : 'Exit Game'}</span>
+                </button>
+              </section>
+            )}
 
-            {/* Footer */}
-            <div className="bg-slate-50 px-6 py-4 flex justify-end border-t border-slate-100 shrink-0">
-              <button
-                onClick={() => {
-                  playClick();
-                  vibrateLight();
-                  onClose();
-                }}
-                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-md cursor-pointer transition-colors text-sm w-full sm:w-auto text-center"
+          </div>
+
+          {/* First Confirmation Popup */}
+          <AnimatePresence>
+            {showDeleteConfirm && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm"
               >
-                {t.close || (language === 'id' ? 'Tutup' : 'Close')}
-              </button>
-            </div>
-          </motion.div>
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0, y: 15 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.95, opacity: 0, y: 15 }}
+                  className="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl border border-red-100 overflow-hidden relative"
+                >
+                  <div className="text-center space-y-4">
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto text-2xl bg-red-50 text-red-600 border border-red-200">
+                      <AlertTriangle className="w-7 h-7" />
+                    </div>
+                    <h3 className="font-poppins font-black text-lg text-slate-800 leading-tight">
+                      {language === 'id' ? 'Apakah Kamu Yakin?' : 'Are You Sure?'}
+                    </h3>
+                    <p className="text-slate-500 text-sm font-medium leading-relaxed px-1">
+                      {language === 'id' 
+                        ? 'Apakah kamu yakin ingin menghapus akun dan semua data koin secara permanen? Tindakan ini tidak dapat dibatalkan.' 
+                        : 'Are you sure you want to permanently delete your account and all coin data? This action cannot be undone.'}
+                    </p>
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={() => {
+                          playClick();
+                          setShowDeleteConfirm(false);
+                        }}
+                        className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-all cursor-pointer border border-slate-200"
+                      >
+                        {language === 'id' ? 'Batal' : 'Cancel'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          playClick();
+                          setShowDeleteConfirm(false);
+                          setShowDeleteFinal(true);
+                        }}
+                        className="flex-1 py-3.5 bg-red-500 hover:bg-red-600 text-white font-extrabold rounded-xl transition-all shadow-md shadow-red-500/20 cursor-pointer"
+                      >
+                        {language === 'id' ? 'Ya, Lanjutkan' : 'Yes, Continue'}
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+ 
+          {/* Second Confirmation Popup */}
+          <AnimatePresence>
+            {showDeleteFinal && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm"
+              >
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0, y: 15 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.95, opacity: 0, y: 15 }}
+                  className="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl border border-red-200 overflow-hidden relative"
+                >
+                  <div className="text-center space-y-4">
+                    <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto text-red-600 border border-red-300">
+                      <ShieldAlert className="w-7 h-7" />
+                    </div>
+                    <h3 className="font-poppins font-black text-lg text-red-600 leading-tight">
+                      {language === 'id' ? 'KONFIRMASI TERAKHIR' : 'FINAL CONFIRMATION'}
+                    </h3>
+                    <p className="text-slate-600 text-sm font-bold leading-relaxed px-1 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      {language === 'id' 
+                        ? 'Perhatian: Semua data koin, pencapaian level, dan riwayat kamu pada KoinKita akan dihapus permanen selamanya dari server.' 
+                        : 'Caution: All total coins, level progress, and historic records on KoinKita will be permanently erased forever from our server.'}
+                    </p>
+
+                    {deleteError && (
+                      <div className="p-3 bg-red-50 text-red-700 text-[11px] font-bold rounded-xl border border-red-200 text-left leading-normal">
+                        {deleteError}
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-col gap-3 pt-2">
+                      <button
+                        disabled={isDeleting}
+                        onClick={handleDeleteAccount}
+                        className="w-full py-4 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-black rounded-xl transition-all shadow-lg shadow-red-600/30 cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        {isDeleting ? (
+                          <>
+                            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            <span>{language === 'id' ? 'Menghapus...' : 'Deleting...'}</span>
+                          </>
+                        ) : (
+                          <span>{language === 'id' ? 'HAPUS AKUN SAYA SEKARANG' : 'DELETE MY ACCOUNT'}</span>
+                        )}
+                      </button>
+                      <button
+                        disabled={isDeleting}
+                        onClick={() => {
+                          playClick();
+                          setShowDeleteFinal(false);
+                          setDeleteError(null);
+                        }}
+                        className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-all cursor-pointer border border-slate-200"
+                      >
+                        {language === 'id' ? 'Batal & Kembali' : 'Abort & Keep Account'}
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
         </motion.div>
       )}
     </AnimatePresence>
