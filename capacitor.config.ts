@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appName: 'KoinKita',
   webDir: 'dist',
   plugins: {
+    
     FirebaseAuthentication: {
       skipNativeAuth: false,
       providers: ["google.com"],

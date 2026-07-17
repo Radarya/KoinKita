@@ -8,6 +8,7 @@ import { vibrateLight, vibrateMedium, vibrateHeavy, vibrateSuccess, vibrateError
 import { useTranslation } from '../lib/LanguageContext';
 
 import { SettingsModal } from './SettingsModal';
+import PauseOverlay from './PauseOverlay';
 
 // Define base target and duration
 const BASE_TARGET = 30_000_000;
@@ -449,6 +450,8 @@ export default function PohonAset({ user, userData, onBack }: any) {
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] flex flex-col font-sans relative overflow-hidden">
+      <PauseOverlay isPaused={isPaused} />
+      
       {/* HUD Bar */}
       <header className="bg-white p-4 shadow-sm flex items-center justify-between border-b border-emerald-100 z-20 sticky top-0">
         <div className="flex items-center gap-3">

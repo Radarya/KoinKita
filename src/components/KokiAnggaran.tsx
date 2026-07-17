@@ -8,6 +8,7 @@ import { vibrateLight, vibrateMedium, vibrateHeavy, vibrateSuccess, vibrateError
 import { useTranslation } from '../lib/LanguageContext';
 
 import { SettingsModal } from './SettingsModal';
+import PauseOverlay from './PauseOverlay';
 import { LEVEL_ORDERS, EMERGENCY_SCENARIOS } from './KokiAnggaranData';
 
 // KEBUTUHAN (Needs), KEINGINAN (Wants), or TABUNGAN (Savings)
@@ -602,7 +603,9 @@ export default function KokiAnggaran({ user, userData, onBack }: KokiAnggaranPro
 
   // Active Game screen
   return (
-    <div className={`min-h-screen ${isFrenzy ? 'bg-red-50' : 'bg-emerald-50'} flex flex-col font-sans transition-colors duration-500`}>
+    <div className={`min-h-screen ${isFrenzy ? 'bg-red-50' : 'bg-emerald-50'} flex flex-col font-sans transition-colors duration-500 relative`}>
+      <PauseOverlay isPaused={isPaused} />
+      
       {/* Top HUD */}
       <header className={`${isFrenzy ? 'bg-red-100 border-red-200' : 'bg-white border-emerald-100'} p-4 shadow-sm flex items-center justify-between border-b sticky top-0 z-10 transition-colors duration-500`}>
         <div className="flex items-center gap-4">

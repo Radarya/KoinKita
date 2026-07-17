@@ -1,0 +1,19 @@
+diff --git a/node_modules/@capacitor-firebase/authentication/android/src/main/java/io/capawesome/capacitorjs/plugins/firebase/authentication/handlers/GoogleAuthProviderHandler.java b/node_modules/@capacitor-firebase/authentication/android/src/main/java/io/capawesome/capacitorjs/plugins/firebase/authentication/handlers/GoogleAuthProviderHandler.java
+index 13c2263..58c00c9 100644
+--- a/node_modules/@capacitor-firebase/authentication/android/src/main/java/io/capawesome/capacitorjs/plugins/firebase/authentication/handlers/GoogleAuthProviderHandler.java
++++ b/node_modules/@capacitor-firebase/authentication/android/src/main/java/io/capawesome/capacitorjs/plugins/firebase/authentication/handlers/GoogleAuthProviderHandler.java
+@@ -191,6 +191,14 @@ public class GoogleAuthProviderHandler {
+     }
+ 
+     public void signOut() {
++        try {
++            GoogleSignInClient googleSignInClient = buildGoogleSignInClient();
++            if (googleSignInClient != null) {
++                googleSignInClient.signOut();
++            }
++        } catch (Exception e) {
++            // ignore
++        }
+         ClearCredentialStateRequest request = new ClearCredentialStateRequest();
+         Executor executor = Executors.newSingleThreadExecutor();
+         CredentialManager credentialManager = CredentialManager.create(pluginImplementation.getPlugin().getActivity());

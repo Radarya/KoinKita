@@ -384,24 +384,25 @@ export const setAppActive = (isActive: boolean) => {
   initBgm();
   
   if (!isActive) {
-    // App is in background: immediately pause background music
-    if (bgmAudio) {
-      bgmAudio.pause();
-    }
-    // Also suspend Web Audio context if initialized
-    if (audioCtx && audioCtx.state === 'running') {
-      audioCtx.suspend();
+    setGamePaused(true);
+    // App is in background: fade out background music slowly (1 second)
+    if (bgmAudio && !bgmAudio.paused) {
+      fadeAudio(0, 1000);
     }
   } else {
     // App returned to foreground: resume if settings allow
     const mode = getAudioMode();
-    if (mode === 1 && bgmAudio && bgmAudio.paused) {
-      bgmAudio.play().catch(() => setupBypassListeners());
+    if (mode === 1) {
+      if (bgmAudio && bgmAudio.paused) {
+        bgmAudio.play().then(() => {
+          fadeAudio(gamePaused ? getBgmVolume() * 0.3 : getBgmVolume(), 1500);
+        }).catch(() => setupBypassListeners());
+      } else {
+        fadeAudio(gamePaused ? getBgmVolume() * 0.3 : getBgmVolume(), 1500);
+      }
     }
     if (audioCtx && audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
-    // Sync current BGM volume state
-    updateBgmStateFromMode();
   }
 };

@@ -6,6 +6,7 @@ import { db } from '../firebase';
 import { playClick, playCorrect, playWrong, playWin, playLose, setGameViewTrack, subscribeToPause } from '../lib/audio';
 import { vibrateLight, vibrateMedium, vibrateHeavy, vibrateSuccess, vibrateError } from '../lib/haptics';
 import { useTranslation } from '../lib/LanguageContext';
+import PauseOverlay from './PauseOverlay';
 
 import { LEVEL_WORDS } from './FinWordleData';
 import { SettingsModal } from './SettingsModal';
@@ -400,7 +401,8 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
   const emptyRows = Math.max(0, MAX_GUESSES - guesses.length - 1);
   
   return (
-    <div className="min-h-screen bg-[#Fdfdfd] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#Fdfdfd] flex flex-col font-sans relative">
+      <PauseOverlay isPaused={isPaused} />
       <header className="bg-white p-4 shadow-sm flex items-center justify-between border-b border-slate-200">
         <div className="flex flex-col items-center">
           <h1 className="font-poppins font-bold text-xl text-slate-700 tracking-wider leading-tight">FIN-WORDLE</h1>

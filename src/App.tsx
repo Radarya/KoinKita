@@ -61,6 +61,11 @@ import { useTranslation } from './lib/LanguageContext';
 import { bypassAutoplay, playClick, setAppActive } from './lib/audio';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Dialog } from '@capacitor/dialog';
+import { 
+  setupNotificationChannels, 
+  schedulePanicNotifications, 
+  cancelAllScheduledNotifications 
+} from './lib/notifications';
 
 // ==========================================
 export default function App() {
@@ -152,6 +157,13 @@ export default function App() {
     };
   }, [processAddPath, language]);
 
+  // Initial setup for Notifications & Permissions
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      setupNotificationChannels();
+    }
+  }, []);
+
   // Hardware Back Button Interceptor
   useEffect(() => {
     let backListener: any = null;
@@ -200,6 +212,15 @@ export default function App() {
         listener = CapacitorApp.addListener('appStateChange', (state) => {
           if (state && typeof state.isActive === 'boolean') {
             setAppActive(state.isActive);
+            
+            // Notification Scheduler Logic
+            if (!state.isActive) {
+              // App went to background -> Schedule Panic Baiting!
+              schedulePanicNotifications(languageRef.current, auth.currentUser?.uid || 'guest');
+            } else {
+              // App came to foreground -> Cancel scheduled panics
+              cancelAllScheduledNotifications();
+            }
           }
         });
       }

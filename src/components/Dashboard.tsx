@@ -4,27 +4,50 @@ import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
 
 import { 
-  ShieldAlert, 
+  Mail, 
+  Lock, 
+  Calendar, 
+  ShieldCheck, 
+  Coins, 
+  ArrowRight, 
+  LogIn, 
+  UserPlus,
+  X,
+  FileText,
+  Shield,
+  Eye,
+  EyeOff,
+  Info,
+  Globe,
+  Copy,
+  Check,
+  ShieldAlert,
+  Settings,
+  Flame,
+  ArrowUp,
+  MapPin,
+  Camera,
+  PlayCircle,
+  Gamepad2,
+  Star,
+  Trophy,
+  Bell,
+  Heart,
+  TrendingUp,
+  Award,
+  Zap,
+  Target,
   ChefHat, 
   Leaf, 
   MessageSquareText, 
   LogOut, 
-  FileText,
-  Coins,
-  Trophy,
   Users,
   User,
-  UserPlus,
-  Settings,
   Sparkles,
-  Gamepad2,
   ChevronRight,
   Loader2,
   Medal,
-  Heart,
-  Bell,
   Gift,
-  Star,
   Swords,
   UserCircle
 } from 'lucide-react';
@@ -424,7 +447,31 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
               // Just update the reset date marker without changing lives
               updateDoc(docRef, { lastLivesReset: todayStr }).catch(console.warn);
             }
-            // ─────────────────────────────────────────────────────────────────
+            
+            // 🔥 Daily Streak Tracking 🔥
+            const lastActiveDate = data.lastActiveDate || '';
+            const currentStreak = data.streakCount || 0;
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().slice(0, 10);
+            
+            if (lastActiveDate !== todayStr) {
+              let newStreak = currentStreak;
+              if (lastActiveDate === yesterdayStr) {
+                // Played yesterday, increment streak!
+                newStreak += 1;
+              } else {
+                // Missed a day or first time, reset to 1
+                newStreak = 1;
+              }
+              
+              updateDoc(docRef, {
+                streakCount: newStreak,
+                lastActiveDate: todayStr
+              }).catch(console.warn);
+              data.streakCount = newStreak;
+            }
+            // 🔥─────────────────────────────────────────────────────────────────
 
             // Level-up condition trigger check
 
@@ -660,7 +707,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-200/50 overflow-x-hidden relative pb-12 lg:pb-0 lg:flex lg:justify-center lg:items-start lg:h-screen lg:overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-200/50 overflow-clip relative pb-12 lg:pb-0 lg:flex lg:justify-center lg:items-start lg:h-screen lg:overflow-hidden">
       {/* Background Decor */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {/* Glow Orbs */}
@@ -712,28 +759,41 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col md:flex-row md:items-center justify-between mb-8 sm:mb-12 bg-white/95  p-6 rounded-[2rem] border border-slate-200 shadow-sm gap-6 relative overflow-hidden"
+          className="sticky top-0 z-50 flex items-center justify-center mb-6 sm:mb-8 bg-white/95 backdrop-blur-md px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 shadow-sm gap-2 sm:gap-4 rounded-none w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] -mx-4 sm:-mx-6 -mt-6 sm:-mt-8"
         >
-          <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-50/50 rounded-full  pointer-events-none -mr-12 -mt-12"></div>
-          <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap shrink-0 w-full">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50/50 rounded-full pointer-events-none -mr-12 -mt-12"></div>
+          
+          <div className="flex items-center justify-center gap-3 sm:gap-6 flex-nowrap shrink-0 w-full overflow-x-auto no-scrollbar px-2 sm:px-0">
             {/* Elegant Coins Badge */}
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
-              <Coins className="w-5 h-5 text-amber-500 fill-amber-500 shrink-0" />
-              <div className="font-poppins font-black text-lg text-slate-800 tracking-tight">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-100 shrink-0">
+              <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 fill-amber-500 shrink-0" />
+              <div className="font-poppins font-black text-base sm:text-lg text-slate-800 tracking-tight">
                 {isDataLoading ? (
-                   <span className="w-14 h-4 bg-slate-200 animate-pulse rounded block"></span>
+                   <span className="w-10 sm:w-14 h-4 bg-slate-200 animate-pulse rounded block"></span>
                 ) : (
                    displayCoins.toLocaleString('id-ID')
                 )}
               </div>
             </div>
 
-            {/* Lives Badge */}
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
-              <Heart className="w-5 h-5 text-rose-500 fill-rose-500 shrink-0" />
-              <div className="font-poppins font-black text-lg text-slate-800 tracking-tight">
+            {/* Streak Badge */}
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-100 shrink-0">
+              <Flame className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${(userData?.streakCount || 0) > 0 ? 'text-orange-500 fill-orange-500' : 'text-slate-300'}`} />
+              <div className="font-poppins font-black text-base sm:text-lg text-slate-800 tracking-tight">
                 {isDataLoading ? (
-                   <span className="w-8 h-4 bg-slate-200 animate-pulse rounded block"></span>
+                   <span className="w-6 sm:w-8 h-4 bg-slate-200 animate-pulse rounded block"></span>
+                ) : (
+                  <span>{userData?.streakCount || 0}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Lives Badge */}
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-100 shrink-0">
+              <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-rose-500 fill-rose-500 shrink-0" />
+              <div className="font-poppins font-black text-base sm:text-lg text-slate-800 tracking-tight">
+                {isDataLoading ? (
+                   <span className="w-6 sm:w-8 h-4 bg-slate-200 animate-pulse rounded block"></span>
                 ) : (
                    <>{userData?.lives !== undefined ? userData.lives : 5}<span className="text-sm text-slate-400">/5</span></>
                 )}
@@ -746,11 +806,11 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                 playClick();
                 setShowInbox(true);
               }}
-              className="p-3 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 relative"
+              className="p-2 sm:p-2.5 bg-slate-50 border border-slate-100 hover:bg-slate-100 rounded-xl transition-all hover:scale-105 active:scale-95 relative shrink-0"
             >
-              <Bell className="w-6 h-6 text-slate-600" />
+              <Bell className="w-6 h-6 sm:w-7 sm:h-7 text-slate-600" />
               {unreadInboxCount > 0 && (
-                <span className="absolute top-2 right-2 w-3 h-3 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
+                <span className="absolute top-1.5 right-1.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
               )}
             </button>
           </div>
