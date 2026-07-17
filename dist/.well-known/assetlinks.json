@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "xyz.koinkita.app",
+      "sha256_cert_fingerprints": [
+        "BA:35:8F:84:F7:26:25:5D:49:53:AB:A4:1B:54:C3:EE:C9:D8:CF:B7:68:A8:14:6F:DE:3C:56:D4:2E:C7:53:B3",
+        "60:99:42:DD:36:7C:81:29:27:1C:A2:59:FF:71:2F:AF:C9:26:69:B9:E6:4D:BA:45:F1:94:61:DF:15:4D:D0:B6"
+      ]
+    }
+  }
+]

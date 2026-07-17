@@ -947,10 +947,10 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
           setShowSettings(false);
           setShowTermsModal(true);
         }}
-        onLogout={() => {
+        onLogout={!user?.isAnonymous ? () => {
           setShowSettings(false);
           handleLogout();
-        }}
+        } : undefined}
         onShowProfile={() => {
           setShowSettings(false);
           startTransition(() => {
