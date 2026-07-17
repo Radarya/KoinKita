@@ -23,7 +23,8 @@ import {
   Medal,
   Heart,
   Bell,
-  Gift
+  Gift,
+  Star
 } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { signOut } from 'firebase/auth';
