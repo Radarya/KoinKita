@@ -228,9 +228,22 @@ export default function App() {
       console.warn("Capacitor App plugin not available or error adding appStateChange listener:", err);
     }
 
+    // Web Fallback for Anti-Cheat PauseOverlay
+    const handleVisibilityChange = () => {
+      const isVisible = document.visibilityState === 'visible';
+      setAppActive(isVisible);
+    };
+
+    if (!Capacitor.isNativePlatform()) {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+
     return () => {
       if (listener && typeof listener.remove === 'function') {
         listener.remove();
+      }
+      if (!Capacitor.isNativePlatform()) {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
       }
     };
   }, []);
