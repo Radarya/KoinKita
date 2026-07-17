@@ -497,7 +497,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
   const handleLogout = async () => {
     try {
       if (user?.isAnonymous) {
-        // Guest: do NOT sign out — keep Firebase anonymous session alive so progress is retained.
+        // Guest: do NOT sign out - keep Firebase anonymous session alive so progress is retained.
         // Just navigate back to login choice screen.
         if (triggerToast) {
           triggerToast(
@@ -508,6 +508,12 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
         onGuestLogout?.();
       } else {
         // Google / Email: perform a real sign out
+        if (Capacitor.isNativePlatform()) {
+          try {
+            const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+            await FirebaseAuthentication.signOut();
+          } catch (e) {}
+        }
         if (triggerToast) {
           triggerToast(language === 'id' ? 'Berhasil keluar. Sampai jumpa!' : 'Successfully logged out. See you!', 'info');
         }
@@ -520,22 +526,18 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
 
   const handleSwitchGoogleAccount = async () => {
     try {
-      // 1. Sign out from Firebase Auth
-      await signOut(auth);
-      // 2. Also sign out from Google Play Services (native) to clear the cached
-      //    Google account token. Without this, signInWithGoogle() silently returns
-      //    the same account without showing the account picker.
       if (Capacitor.isNativePlatform()) {
         try {
+          const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
           await FirebaseAuthentication.signOut();
-        } catch (nativeSignOutErr) {
-          console.warn("Native Google sign-out warning:", nativeSignOutErr);
-        }
+        } catch (e) {}
       }
-      // 3. Trigger fresh sign-in via App.tsx handleLinkGoogle
-      onSwitchGoogle?.();
-    } catch (err) {
-      console.warn("Switch Google account sign-out failed:", err);
+      if (triggerToast) {
+        triggerToast(language === 'id' ? 'Silakan masuk dengan akun Google yang baru' : 'Please sign in with your new Google account', 'info');
+      }
+      await signOut(auth);
+    } catch (error) {
+      console.warn("Switch Google error:", error);
     }
   };
 
