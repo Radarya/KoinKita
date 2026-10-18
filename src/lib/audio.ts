@@ -54,6 +54,9 @@ const playTone = (freq: number, type: OscillatorType, duration: number, vol: num
 export const playClick = () => {
   const mode = getAudioMode();
   if (mode === 3) return;
+  
+  try { if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(80); } catch(e) {}
+
   try {
     initAudio();
     if (!audioCtx) return;
@@ -78,6 +81,8 @@ export const playClick = () => {
 export const playCorrect = () => {
   const mode = getAudioMode();
   if (mode === 3) return;
+
+  try { if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([100, 50, 150, 50, 200]); } catch(e) {}
 
   try {
     initAudio();
@@ -105,6 +110,9 @@ export const playCorrect = () => {
 export const playWrong = () => {
   const mode = getAudioMode();
   if (mode === 3) return;
+
+  try { if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([200, 80, 200]); } catch(e) {}
+
   try {
     initAudio();
     if (!audioCtx) return;
@@ -131,6 +139,8 @@ export const playWrong = () => {
 export const playWin = () => {
   const mode = getAudioMode();
   if (mode === 3) return;
+
+  try { if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([100, 50, 150, 50, 200]); } catch(e) {}
 
   try {
     initAudio();

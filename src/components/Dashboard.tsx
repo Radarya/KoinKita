@@ -423,7 +423,14 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
             // ── Daily Lives Regeneration ──────────────────────────────────────
             // Regenerate lives to 5 once per calendar day (matching the UI promise
             // "Tunggu besok" / "Wait tomorrow").
-            const todayStr = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+            const getLocalYMD = (d: Date) => {
+              const y = d.getFullYear();
+              const m = String(d.getMonth() + 1).padStart(2, '0');
+              const dd = String(d.getDate()).padStart(2, '0');
+              return `${y}-${m}-${dd}`;
+            };
+            
+            const todayStr = getLocalYMD(new Date()); // Local YYYY-MM-DD
             const lastReset = data.lastLivesReset || '';
             const currentLivesVal = data.lives !== undefined ? data.lives : 5;
             if (lastReset !== todayStr && currentLivesVal < 5) {
@@ -453,7 +460,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
             const currentStreak = data.streakCount || 0;
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().slice(0, 10);
+            const yesterdayStr = getLocalYMD(yesterday);
             
             if (lastActiveDate !== todayStr) {
               let newStreak = currentStreak;
@@ -778,7 +785,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
 
             {/* Streak Badge */}
             <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-100 shrink-0">
-              <Flame className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${(userData?.streakCount || 0) > 0 ? 'text-orange-500 fill-orange-500' : 'text-slate-300'}`} />
+              <Flame className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${(userData?.streakCount || 0) > 7 ? 'text-cyan-500 fill-cyan-500' : (userData?.streakCount || 0) > 0 ? 'text-orange-500 fill-orange-500' : 'text-slate-300'}`} />
               <div className="font-poppins font-black text-base sm:text-lg text-slate-800 tracking-tight">
                 {isDataLoading ? (
                    <span className="w-6 sm:w-8 h-4 bg-slate-200 animate-pulse rounded block"></span>

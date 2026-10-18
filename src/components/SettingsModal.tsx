@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Globe, Music, VolumeX, Check, Volume2, User, LogOut, FileText, Trash2, AlertTriangle, ChevronRight, Settings, ShieldAlert } from 'lucide-react';
 import { useTranslation } from '../lib/LanguageContext';
@@ -106,7 +107,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
     setBgmVolume(newVol);
   };
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -114,7 +115,7 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: '100%', opacity: 0.5 }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed inset-0 z-50 bg-slate-50 flex flex-col overflow-hidden"
+          className="fixed inset-0 z-[100] bg-slate-50 flex flex-col overflow-hidden"
         >
           {/* Header */}
           <div className="bg-white shadow-sm border-b border-slate-100 relative z-10 shrink-0">
@@ -504,4 +505,6 @@ export function SettingsModal({ isOpen, onClose, onShowProfile, isGameMode = fal
       )}
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }

@@ -1,6 +1,6 @@
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { db } from '../firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 
 export interface NotificationTemplate {
   titleId: string;
@@ -197,12 +197,18 @@ export const schedulePanicNotifications = async (language: string, uid: string) 
       });
     }
 
-    // 4. Fake Social Ping (Random time within the day)
-    const randomHours = Math.floor(Math.random() * 8) + 2; // 2 to 10 hours before midnight
-    const hasFakeSocial = Math.random() > 0.5;
+    // 4. Fake Social Ping (Random time within active hours 10:00-20:00)
+    const activeHour = Math.floor(Math.random() * 10) + 10; // 10 to 19
+    const activeMinute = Math.floor(Math.random() * 60);
+    const socialTime = new Date(now);
+    socialTime.setHours(activeHour, activeMinute, 0, 0);
+    if (socialTime <= now) {
+      socialTime.setDate(socialTime.getDate() + 1);
+    }
+    
+    const hasFakeSocial = true; // Always schedule at least one active-hour notification
 
     if (hasFakeSocial) {
-      const socialTime = new Date(midnight.getTime() - (randomHours * 60 * 60 * 1000));
       // Fetch a random friend name (fallback to a generic name if no friends)
       let friendName = "Budi";
       try {
@@ -212,7 +218,14 @@ export const schedulePanicNotifications = async (language: string, uid: string) 
           const friendDocs = snap.docs.map(d => d.data());
           if (friendDocs.length > 0) {
             const randomFriend = friendDocs[Math.floor(Math.random() * friendDocs.length)];
-            friendName = randomFriend.name || "Budi";
+            friendName = randomFriend.name || randomFriend.username || "Budi";
+          } else {
+            // Check friends array in user doc
+            const userDocRef = doc(db, 'users', uid);
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists() && userDocSnap.data().friendIds?.length > 0) {
+               friendName = "Temanmu"; // fallback if we don't fetch the user details
+            }
           }
         }
       } catch (e) {

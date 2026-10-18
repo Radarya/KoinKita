@@ -12,7 +12,7 @@ import { LEVEL_WORDS } from './FinWordleData';
 import { SettingsModal } from './SettingsModal';
 import { Settings } from 'lucide-react';
 
-const MAX_GUESSES = 6;
+const MAX_GUESSES = 5;
 
 type LetterState = 'correct' | 'present' | 'absent' | 'empty';
 
@@ -56,6 +56,9 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
   
   const [showSettings, setShowSettings] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  
+  const [revealedClues, setRevealedClues] = useState<Record<number, string>>({});
+  const [showGlossary, setShowGlossary] = useState(false);
 
   useEffect(() => {
     setGameViewTrack('tebak-kata');
@@ -83,6 +86,7 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
       setGameOver(false);
       setMessage(null);
       setIsTransitioning(false);
+      setRevealedClues({});
     } else {
       setShowVictory(true);
       if (user?.uid && hasMistake.current) {
@@ -98,6 +102,7 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
     setCurrentWordIndex(0);
     setTargetWordObj(shuffled[0]);
     setGuesses([]);
+    setRevealedClues({});
     setCurrentGuess("");
     setGameOver(false);
     setMessage(null);
@@ -155,8 +160,8 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
         setTimeout(() => handleEarnCoins(50), 500);
         setMessage(language === 'id' ? "Luar biasa! +50 Koin" : "Magnificent! +50 Coins");
         setTimeout(() => {
-          getNextWord();
-        }, 2000);
+          setShowGlossary(true);
+        }, 1500);
       } else if (newGuesses.length >= MAX_GUESSES) {
         // lose round
         hasMistake.current = true;
@@ -166,8 +171,8 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
         vibrateHeavy();
         setMessage((language === 'id' ? "Jawaban: " : "Answer: ") + localizedWord);
         setTimeout(() => {
-          getNextWord();
-        }, 2500);
+          setShowGlossary(true);
+        }, 2000);
       } else {
         playClick(); // normal submission
         vibrateMedium();
@@ -288,15 +293,14 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
         if (statuses[i] === 'correct') foundLetters.add(targetArr[i]);
       });
     });
+    const availableIndexes = targetArr.map((_, i) => i).filter(i => !revealedClues[i]);
     
-    const unrevealedIdxs = targetArr.map((c, i) => i).filter(i => !foundLetters.has(targetArr[i]));
-    
-    if (unrevealedIdxs.length === 0) {
-      showMessage(language === 'id' ? "Semua huruf sudah terbuka!" : "All letters already uncovered!");
+    if (availableIndexes.length === 0) {
+      showMessage(language === 'id' ? "Semua klu sudah terbuka!" : "All clues revealed!");
       return;
     }
     
-    const randomIdx = unrevealedIdxs[Math.floor(Math.random() * unrevealedIdxs.length)];
+    const randomIdx = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
     const revealedLetter = targetArr[randomIdx];
     
     // Deduct 20 coins
@@ -308,6 +312,8 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
         console.warn("Gagal mengurangi coin:", err);
       }
     }
+    
+    setRevealedClues(prev => ({ ...prev, [randomIdx]: revealedLetter }));
     
     showMessage(language === 'id' 
       ? `Klu: Ada huruf '${revealedLetter}' di posisi ke-${randomIdx + 1}`
@@ -392,6 +398,40 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
                {language === 'id' ? "Kembali ke Dashboard" : "Back to Dashboard"}
              </button>
            </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (showGlossary) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans relative z-50">
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center border-t-4 border-blue-500 overflow-hidden relative">
+           <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 relative z-10 border border-blue-100 shadow-inner">
+             <HelpCircle className="w-8 h-8 text-blue-500 drop-shadow-sm" />
+           </div>
+           
+           <h2 className="text-sm tracking-widest uppercase font-poppins font-black text-slate-400 mb-1">
+             {language === 'id' ? "Tahukah Kamu?" : "Did You Know?"}
+           </h2>
+           <h3 className="text-2xl font-black text-blue-600 mb-4">{localizedWord}</h3>
+           
+           <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
+             <p className="text-slate-600 text-sm font-medium leading-relaxed italic">
+               "{localizedClue}"
+             </p>
+           </div>
+           
+           <button 
+             onClick={() => {
+               playClick();
+               setShowGlossary(false);
+               getNextWord();
+             }}
+             className="w-full py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-md transition-transform active:scale-[0.98]"
+           >
+             {language === 'id' ? "Lanjut Main" : "Continue"}
+           </button>
         </motion.div>
       </div>
     );
@@ -497,18 +537,25 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
             <div className={`flex gap-1 sm:gap-1.5 justify-center ${shakeRow ? 'animate-shake' : ''}`}>
               {Array(WORD_LENGTH).fill('').map((_, j) => {
                 const char = currentGuess[j] || '';
+                const clueChar = revealedClues[j];
                 const isActive = char !== '';
+                const isClue = !char && clueChar;
+                
                 return (
                   <div 
                     key={j}
-                    className={`flex items-center justify-center font-bold rounded-lg border-2 ${isActive ? 'border-slate-400 text-slate-800 scale-[1.02]' : 'border-slate-200 bg-slate-50'} transition-all`}
+                    className={`flex items-center justify-center font-bold rounded-lg border-2 transition-all ${
+                      isActive ? 'border-slate-400 text-slate-800 scale-[1.02]' 
+                      : isClue ? 'border-amber-200 bg-amber-50 text-amber-500' 
+                      : 'border-slate-200 bg-slate-50'
+                    }`}
                     style={{ 
                       width: WORD_LENGTH > 8 ? '28px' : WORD_LENGTH > 6 ? '34px' : '48px',
                       height: WORD_LENGTH > 8 ? '32px' : WORD_LENGTH > 6 ? '38px' : '48px',
                       fontSize: WORD_LENGTH > 6 ? '1.1rem' : '1.25rem'
                     }}
                   >
-                    {char}
+                    {char || clueChar || ''}
                   </div>
                 )
               })}
@@ -518,16 +565,22 @@ export default function FinWordle({ user, userData, onBack }: FinWordleProps) {
           {/* Empty Rows */}
           {Array(emptyRows).fill('').map((_, i) => (
             <div key={`empty-${i}`} className="flex gap-1 sm:gap-1.5 justify-center">
-              {Array(WORD_LENGTH).fill('').map((_, j) => (
-                <div 
-                  key={`empty-${i}-${j}`} 
-                  className="rounded-lg border-2 border-slate-100 bg-slate-50/50" 
-                  style={{ 
-                    width: WORD_LENGTH > 8 ? '28px' : WORD_LENGTH > 6 ? '34px' : '48px',
-                    height: WORD_LENGTH > 8 ? '32px' : WORD_LENGTH > 6 ? '38px' : '48px'
-                  }}
-                />
-              ))}
+              {Array(WORD_LENGTH).fill('').map((_, j) => {
+                const clueChar = revealedClues[j];
+                return (
+                  <div 
+                    key={`empty-${i}-${j}`} 
+                    className={`flex items-center justify-center font-bold rounded-lg border-2 ${clueChar ? 'border-amber-100 bg-amber-50/50 text-amber-300' : 'border-slate-100 bg-slate-50/50'}`} 
+                    style={{ 
+                      width: WORD_LENGTH > 8 ? '28px' : WORD_LENGTH > 6 ? '34px' : '48px',
+                      height: WORD_LENGTH > 8 ? '32px' : WORD_LENGTH > 6 ? '38px' : '48px',
+                      fontSize: WORD_LENGTH > 6 ? '1.1rem' : '1.25rem'
+                    }}
+                  >
+                    {clueChar || ''}
+                  </div>
+                )
+              })}
             </div>
           ))}
         </div>

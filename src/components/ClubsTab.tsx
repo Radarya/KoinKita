@@ -7,6 +7,7 @@ import { uploadToImgBB } from '../lib/imgbb';
 import { useTranslation } from '../lib/LanguageContext';
 import { playClick, playWin } from '../lib/audio';
 import { getCurrentWeekId } from '../lib/leagueUtils';
+import PlayerProfileModal from './PlayerProfileModal';
 
 interface ClubsTabProps {
   currentUserUid: string;
@@ -24,12 +25,12 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
   const [newClubName, setNewClubName] = useState('');
   
   const [donateAmount, setDonateAmount] = useState('');
-  
   // New features state
   const [memberDetails, setMemberDetails] = useState<any[]>([]);
   const [showEditPhoto, setShowEditPhoto] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
 
   useEffect(() => {
     const clubsRef = collection(db, 'clubs');
@@ -345,7 +346,14 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
             <h3 className="font-bold text-slate-800 mb-4">{language === 'id' ? 'Daftar Anggota' : 'Members List'}</h3>
             <div className="space-y-3">
               {memberDetails.map((member) => (
-                <div key={member.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                <div 
+                  key={member.id} 
+                  onClick={() => {
+                    playClick();
+                    setSelectedPlayer(member);
+                  }}
+                  className="flex items-center gap-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-100 cursor-pointer transition-colors"
+                >
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-200 shrink-0">
                     {member.profilePictureUrl || member.profilePicUrl ? (
                       <img src={member.profilePictureUrl || member.profilePicUrl} alt={member.name} className="w-full h-full object-cover" />
@@ -537,6 +545,14 @@ export default function ClubsTab({ currentUserUid, userData, triggerToast }: Clu
           </div>
         )}
       </AnimatePresence>
+
+      <PlayerProfileModal 
+        isOpen={!!selectedPlayer} 
+        onClose={() => setSelectedPlayer(null)} 
+        player={selectedPlayer} 
+        currentUserUid={currentUserUid} 
+        triggerToast={triggerToast} 
+      />
     </div>
   );
 }
