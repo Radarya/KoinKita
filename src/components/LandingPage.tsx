@@ -204,6 +204,32 @@ export default function LandingPage({
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted]   = useState(false);
 
+  // ── Ciko Interactive Speech Bubble ──────────────────────────────────────
+  const [cikoDialogueIndex, setCikoDialogueIndex] = useState(0);
+  const cikoDialogues = [
+    {
+      id: 'Halo, aku Ciko! Siap latihan lima menit hari ini?',
+      en: "Hey, I'm Ciko! Ready for your five-minute financial sprint?"
+    },
+    {
+      id: 'Aturan emas: Sisihkan tabungan di awal bulan, bukan sisa belanja.',
+      en: 'Golden rule: Save money at the start of the month, not what remains.'
+    },
+    {
+      id: 'Rumus 50/30/20: 50% Kebutuhan, 30% Keinginan, 20% Masa Depan.',
+      en: 'The 50/30/20 formula: 50% Needs, 30% Wants, 20% Future Assets.'
+    },
+    {
+      id: 'Waspada tawaran cuan instan. Cek selalu izin resmi OJK sebelum investasi!',
+      en: 'Beware of get-rich-quick schemes. Always verify official regulatory permits!'
+    }
+  ];
+
+  const handleCikoClick = () => {
+    playClick();
+    setCikoDialogueIndex((prev) => (prev + 1) % cikoDialogues.length);
+  };
+
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedbackComment.trim()) return;
@@ -489,14 +515,47 @@ export default function LandingPage({
               </motion.p>
             </div>
 
-            {/* Right: Ciko Mascot Hero Showcase */}
+            {/* Right: Ciko Mascot Hero Showcase with Interactive Comic Bubble */}
             <motion.div
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] as const }}
-              className="w-full lg:w-[46%] flex items-center justify-center order-1 lg:order-2 py-6"
+              className="w-full lg:w-[46%] flex flex-col items-center justify-center order-1 lg:order-2 py-4"
             >
-              <CikoMascot size={320} animated={true} />
+              <div
+                onClick={handleCikoClick}
+                className="relative flex flex-col items-center cursor-pointer group select-none"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCikoClick(); }}
+                aria-label={language === 'id' ? 'Klik Ciko untuk tips finansial' : 'Click Ciko for financial tips'}
+              >
+                {/* Comic Speech Bubble */}
+                <motion.div
+                  key={cikoDialogueIndex}
+                  initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.25 }}
+                  className="bg-white border-2 border-[#0D1117] px-5 py-3 rounded-2xl max-w-xs sm:max-w-sm mb-3 relative text-center"
+                >
+                  <p className="text-sm font-bold text-[#0D1117] leading-snug">
+                    {language === 'id'
+                      ? cikoDialogues[cikoDialogueIndex].id
+                      : cikoDialogues[cikoDialogueIndex].en}
+                  </p>
+                  <span className="block mt-1 text-[11px] font-bold text-emerald-700 tracking-wide">
+                    {language === 'id' ? 'Klik Ciko untuk tips lain' : 'Tap Ciko for next tip'}
+                  </span>
+
+                  {/* Bubble tail pointed down to Ciko */}
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white border-r-2 border-b-2 border-[#0D1117] rotate-45" />
+                </motion.div>
+
+                {/* Animated Ciko Mascot */}
+                <div className="group-hover:scale-105 transition-transform duration-200">
+                  <CikoMascot size={280} animated={true} />
+                </div>
+              </div>
             </motion.div>
 
           </div>
