@@ -81,6 +81,7 @@ import { AchievementsModal, ACHIEVEMENTS } from './AchievementsModal';
 import { QuestsTab } from './QuestsTab';
 import { ProfileTab } from './ProfileTab';
 import { BottomNavBar } from './BottomNavBar';
+import { CikoMascot } from './CikoMascot';
 import { playClick, playWin, setGameViewTrack } from '../lib/audio';
 import { useTranslation } from '../lib/LanguageContext';
 import { getCurrentWeekId, calculateInitialLeague, getLeagueInfo, getDemotionRank } from '../lib/leagueUtils';
@@ -455,7 +456,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
               updateDoc(docRef, { lastLivesReset: todayStr }).catch(console.warn);
             }
             
-            // 🔥 Daily Streak Tracking 🔥
+            // Daily Streak Tracking
             const lastActiveDate = data.lastActiveDate || '';
             const currentStreak = data.streakCount || 0;
             const yesterday = new Date();
@@ -478,7 +479,6 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
               }).catch(console.warn);
               data.streakCount = newStreak;
             }
-            // 🔥─────────────────────────────────────────────────────────────────
 
             // Level-up condition trigger check
 
@@ -601,12 +601,12 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
 
   const getLevelName = (lvl: number, lang: 'id' | 'en') => {
     switch (lvl) {
-      case 5: return lang === 'id' ? 'Master Kekayaan 👑' : 'Wealth Master 👑';
-      case 4: return lang === 'id' ? 'Ahli Anggaran 💎' : 'Budget Expert 💎';
-      case 3: return lang === 'id' ? 'Investor Cerdas 🏅' : 'Smart Investor 🏅';
-      case 2: return lang === 'id' ? 'Bijak Belanja 🥇' : 'Wise Spender 🥇';
-      case 1: return lang === 'id' ? 'Sadar Finansial 🥈' : 'Financially Aware 🥈';
-      default: return lang === 'id' ? 'Pemula 🥉' : 'Beginner 🥉';
+      case 5: return lang === 'id' ? 'Master Kekayaan' : 'Wealth Master';
+      case 4: return lang === 'id' ? 'Ahli Anggaran' : 'Budget Expert';
+      case 3: return lang === 'id' ? 'Investor Cerdas' : 'Smart Investor';
+      case 2: return lang === 'id' ? 'Bijak Belanja' : 'Wise Spender';
+      case 1: return lang === 'id' ? 'Sadar Finansial' : 'Financially Aware';
+      default: return lang === 'id' ? 'Pemula' : 'Beginner';
     }
   };
 
@@ -614,42 +614,42 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
     {
       id: "detektif-cuan",
       title: t.detektifCuanTitle,
-      description: t.detektifCuanDesc,
-      icon: <ShieldAlert className="w-10 h-10 text-blue-500 mb-4" />,
-      color: "hover:border-blue-400 hover:shadow-blue-500/20 hover:text-blue-600",
-      active: true,
-      badge: language === 'id' ? "Investasi" : "Finance IQ",
+      description: language === 'id'
+        ? 'Saring pesan mencurigakan, kenali modus phishing, dan amankan aset dari penipuan digital.'
+        : 'Filter suspicious texts, identify phishing threats, and secure assets from digital scams.',
+      icon: <ShieldAlert className="w-6 h-6 text-blue-600" />,
+      tag: language === 'id' ? "Keamanan Digital" : "Digital Security",
+      unlockLevel: 0
+    },
+    {
+      id: "fin-wordle",
+      title: t.tebakKataTitle,
+      description: language === 'id'
+        ? 'Tebak istilah finansial tersembunyi dengan bantuan petunjuk definisi resmi regulator perbankan.'
+        : 'Guess hidden financial terms using clues and official banking regulatory definitions.',
+      icon: <MessageSquareText className="w-6 h-6 text-amber-600" />,
+      tag: language === 'id' ? "Kamus Istilah" : "Glossary Quiz",
       unlockLevel: 0
     },
     {
       id: "koki-anggaran",
       title: t.kokiAnggaranTitle,
-      description: t.kokiAnggaranDesc,
-      icon: <ChefHat className="w-10 h-10 text-slate-400 mb-4" />,
-      color: "hover:border-emerald-400 hover:shadow-emerald-500/20 hover:text-emerald-600",
-      active: true,
-      badge: language === 'id' ? "Anggaran" : "Budgeting",
+      description: language === 'id'
+        ? 'Alokasikan porsi pengeluaran dengan metode 50/30/20 untuk kebutuhan, keinginan, dan tabungan.'
+        : 'Allocate spending using the 50/30/20 formula for needs, wants, and emergency savings.',
+      icon: <ChefHat className="w-6 h-6 text-emerald-600" />,
+      tag: language === 'id' ? "Manajemen Anggaran" : "Budgeting",
       unlockLevel: 2
     },
     {
       id: "pohon-aset",
       title: t.pohonAsetTitle,
-      description: t.pohonAsetDesc,
-      icon: <Leaf className="w-10 h-10 text-green-600 mb-4" />,
-      color: "hover:border-green-600 hover:shadow-green-600/20 hover:text-green-700",
-      active: true,
-      badge: language === 'id' ? "Pasif Income" : "Assets Plan",
+      description: language === 'id'
+        ? 'Tumbuhkan modal portofolio hingga target 100 juta melalui instrumen aman dan pertumbuhan cepat.'
+        : 'Grow your portfolio capital toward 100 million target through balanced safe and growth assets.',
+      icon: <Leaf className="w-6 h-6 text-green-600" />,
+      tag: language === 'id' ? "Investasi & Portofolio" : "Asset Investment",
       unlockLevel: 3
-    },
-    {
-      id: "fin-wordle",
-      title: t.tebakKataTitle,
-      description: t.tebakKataDesc,
-      icon: <MessageSquareText className="w-10 h-10 text-amber-500 mb-4" />,
-      color: "hover:border-amber-400 hover:shadow-amber-500/20 hover:text-amber-600",
-      active: true,
-      badge: language === 'id' ? "Kuis Istilah" : "Quiz Game",
-      unlockLevel: 0
     }
   ];
 
@@ -714,162 +714,238 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-200/50 overflow-clip relative pb-12 lg:pb-0 lg:flex lg:justify-center lg:items-start lg:h-screen lg:overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Glow Orbs */}
-        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-emerald-200/30 rounded-full "></div>
-        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-amber-200/30 rounded-full "></div>
-        
-        {/* Cyber Grid Mesh */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px] opacity-40"></div>
-      </div>
-
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-200/50 overflow-clip relative pb-16 lg:pb-0 lg:flex lg:justify-center lg:items-start lg:h-screen lg:overflow-hidden">
       {/* Desktop Sidebar (Hidden on mobile) */}
-      <div className="hidden lg:flex flex-col w-[260px] bg-white/95 border-r border-slate-200 h-full shrink-0 shadow-sm relative z-20 py-8 px-6">
-        <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer transition-transform hover:scale-105 active:scale-95" onClick={() => { playClick(); setActiveTab('home'); }}>
-          <img src="/icon.png" alt="KoinKita Logo" className="w-10 h-10 rounded-xl shadow-lg shadow-emerald-500/30 shrink-0" />
-          <span className="text-2xl font-black text-slate-800 tracking-tight">KoinKita</span>
+      <aside className="hidden lg:flex flex-col w-[260px] bg-white border-r border-slate-200 h-full shrink-0 relative z-20 py-8 px-6">
+        <div 
+          className="flex items-center gap-3 mb-10 px-2 cursor-pointer transition-transform active:scale-95" 
+          onClick={() => { playClick(); setActiveTab('home'); }}
+        >
+          <CikoMascot size={36} />
+          <span className="text-2xl font-black text-slate-900 tracking-tight">CIKO</span>
         </div>
         
         <nav className="flex flex-col gap-2 flex-1">
-          <button onClick={() => { playClick(); setActiveTab('home'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'home' ? 'bg-emerald-50 border-emerald-200 text-emerald-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
-            <Gamepad2 className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Dashboard' : 'Dashboard'}</span>
+          <button 
+            onClick={() => { playClick(); setActiveTab('home'); }} 
+            className={`flex items-center gap-3.5 px-4 py-3 rounded-full font-bold transition-colors cursor-pointer text-sm ${activeTab === 'home' ? 'bg-emerald-50 text-emerald-800' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <Gamepad2 className="w-5 h-5 shrink-0" />
+            <span>{language === 'id' ? 'Beranda Belajar' : 'Learning Hub'}</span>
           </button>
-          <button onClick={() => { playClick(); setActiveTab('quests'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'quests' ? 'bg-indigo-50 border-indigo-200 text-indigo-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
-            <Star className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Misi' : 'Quests'}</span>
+          <button 
+            onClick={() => { playClick(); setActiveTab('quests'); }} 
+            className={`flex items-center gap-3.5 px-4 py-3 rounded-full font-bold transition-colors cursor-pointer text-sm ${activeTab === 'quests' ? 'bg-indigo-50 text-indigo-800' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <Star className="w-5 h-5 shrink-0" />
+            <span>{language === 'id' ? 'Misi Harian' : 'Daily Quests'}</span>
           </button>
-          <button onClick={() => { playClick(); setActiveTab('arena'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'arena' ? 'bg-rose-50 border-rose-200 text-rose-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
-            <Swords className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Arena' : 'Arena'}</span>
+          <button 
+            onClick={() => { playClick(); setActiveTab('arena'); }} 
+            className={`flex items-center gap-3.5 px-4 py-3 rounded-full font-bold transition-colors cursor-pointer text-sm ${activeTab === 'arena' ? 'bg-rose-50 text-rose-800' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <Swords className="w-5 h-5 shrink-0" />
+            <span>{language === 'id' ? 'Arena Liga' : 'League Arena'}</span>
           </button>
-          <button onClick={() => { playClick(); setActiveTab('social'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'social' ? 'bg-sky-50 border-sky-200 text-sky-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
-            <Users className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Sosial' : 'Social'}</span>
+          <button 
+            onClick={() => { playClick(); setActiveTab('social'); }} 
+            className={`flex items-center gap-3.5 px-4 py-3 rounded-full font-bold transition-colors cursor-pointer text-sm ${activeTab === 'social' ? 'bg-sky-50 text-sky-800' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <Users className="w-5 h-5 shrink-0" />
+            <span>{language === 'id' ? 'Klub & Sosial' : 'Social & Clubs'}</span>
           </button>
-          <button onClick={() => { playClick(); setActiveTab('profile'); }} className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold transition-all border-2 ${activeTab === 'profile' ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-100'}`}>
-            <UserCircle className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Profil' : 'Profile'}</span>
+          <button 
+            onClick={() => { playClick(); setActiveTab('profile'); }} 
+            className={`flex items-center gap-3.5 px-4 py-3 rounded-full font-bold transition-colors cursor-pointer text-sm ${activeTab === 'profile' ? 'bg-amber-50 text-amber-800' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <UserCircle className="w-5 h-5 shrink-0" />
+            <span>{language === 'id' ? 'Profil Pengguna' : 'User Profile'}</span>
           </button>
         </nav>
 
-        <div className="mt-auto">
-          <button onClick={() => setShowSettings(true)} className="flex items-center gap-4 px-4 py-4 rounded-2xl font-extrabold text-slate-500 hover:bg-slate-100 transition-all w-full text-left border-2 border-transparent">
-            <Settings className="w-6 h-6 shrink-0" /> <span className="text-[15px]">{language === 'id' ? 'Pengaturan' : 'Settings'}</span>
+        <div className="mt-auto pt-4 border-t border-slate-100">
+          <button 
+            onClick={() => { playClick(); setShowSettings(true); }} 
+            className="flex items-center gap-3.5 px-4 py-3 rounded-full font-bold text-slate-600 hover:bg-slate-100 transition-colors w-full text-left cursor-pointer text-sm"
+          >
+            <Settings className="w-5 h-5 shrink-0" />
+            <span>{language === 'id' ? 'Pengaturan' : 'Settings'}</span>
           </button>
         </div>
-      </div>
+      </aside>
       
       {/* Main Content Area */}
-      <div className="w-full max-w-xl mx-auto lg:mx-0 lg:h-full lg:overflow-y-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10 flex flex-col min-h-screen lg:min-h-0 bg-transparent lg:border-x lg:border-slate-200/50 lg:shadow-[0_0_40px_rgba(0,0,0,0.03)] hide-scrollbar">
+      <div className="w-full max-w-2xl mx-auto lg:mx-0 lg:h-full lg:overflow-y-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10 flex flex-col min-h-screen lg:min-h-0 bg-transparent lg:border-x lg:border-slate-200 hide-scrollbar">
         
-        {/* ================= HEADER PART ================= */}
+        {/* ================= HEADER STATUS BAR ================= */}
         {activeTab === 'home' && (
-        <motion.header 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="sticky top-0 z-50 flex items-center justify-center mb-6 sm:mb-8 bg-white/95 backdrop-blur-md px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 shadow-sm gap-2 sm:gap-4 rounded-none w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] -mx-4 sm:-mx-6 -mt-6 sm:-mt-8"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50/50 rounded-full pointer-events-none -mr-12 -mt-12"></div>
+        <header className="sticky top-0 z-40 flex items-center justify-between mb-6 bg-white px-4 py-3 sm:px-6 border-b border-slate-200 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] -mx-4 sm:-mx-6 -mt-6 sm:-mt-8">
+          {/* Level Pill */}
+          <div className="flex items-center gap-2 bg-slate-100 rounded-full px-3.5 py-1.5 border border-slate-200/80 shrink-0">
+            <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
+            <span className="text-xs font-bold text-slate-800 tracking-tight">
+              {getLevelName(userLevel, language)}
+            </span>
+          </div>
           
-          <div className="flex items-center justify-center gap-3 sm:gap-6 flex-nowrap shrink-0 w-full overflow-x-auto no-scrollbar px-2 sm:px-0">
-            {/* Elegant Coins Badge */}
-            <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-100 shrink-0">
-              <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 fill-amber-500 shrink-0" />
-              <div className="font-poppins font-black text-base sm:text-lg text-slate-800 tracking-tight">
-                {isDataLoading ? (
-                   <span className="w-10 sm:w-14 h-4 bg-slate-200 animate-pulse rounded block"></span>
-                ) : (
-                   displayCoins.toLocaleString('id-ID')
-                )}
-              </div>
+          {/* Metrics Pill Group */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Coins */}
+            <div className="flex items-center gap-1.5 bg-slate-100 rounded-full px-3 py-1.5 border border-slate-200/80 shrink-0">
+              <Coins className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
+              <span className="font-bold text-xs sm:text-sm text-slate-900 tabular-nums">
+                {isDataLoading ? '...' : displayCoins.toLocaleString('id-ID')}
+              </span>
             </div>
 
-            {/* Streak Badge */}
-            <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-100 shrink-0">
-              <Flame className={`w-5 h-5 sm:w-6 sm:h-6 shrink-0 ${(userData?.streakCount || 0) > 7 ? 'text-cyan-500 fill-cyan-500' : (userData?.streakCount || 0) > 0 ? 'text-orange-500 fill-orange-500' : 'text-slate-300'}`} />
-              <div className="font-poppins font-black text-base sm:text-lg text-slate-800 tracking-tight">
-                {isDataLoading ? (
-                   <span className="w-6 sm:w-8 h-4 bg-slate-200 animate-pulse rounded block"></span>
-                ) : (
-                  <span>{userData?.streakCount || 0}</span>
-                )}
-              </div>
+            {/* Streak */}
+            <div className="flex items-center gap-1.5 bg-slate-100 rounded-full px-3 py-1.5 border border-slate-200/80 shrink-0">
+              <Flame className={`w-4 h-4 shrink-0 ${(userData?.streakCount || 0) > 0 ? 'text-orange-500 fill-orange-500' : 'text-slate-400'}`} />
+              <span className="font-bold text-xs sm:text-sm text-slate-900 tabular-nums">
+                {userData?.streakCount || 0}
+              </span>
             </div>
 
-            {/* Lives Badge */}
-            <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-slate-100 shrink-0">
-              <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-rose-500 fill-rose-500 shrink-0" />
-              <div className="font-poppins font-black text-base sm:text-lg text-slate-800 tracking-tight">
-                {isDataLoading ? (
-                   <span className="w-6 sm:w-8 h-4 bg-slate-200 animate-pulse rounded block"></span>
-                ) : (
-                   <>{userData?.lives !== undefined ? userData.lives : 5}<span className="text-sm text-slate-400">/5</span></>
-                )}
-              </div>
+            {/* Lives */}
+            <div className="flex items-center gap-1.5 bg-slate-100 rounded-full px-3 py-1.5 border border-slate-200/80 shrink-0">
+              <Heart className="w-4 h-4 text-rose-500 fill-rose-500 shrink-0" />
+              <span className="font-bold text-xs sm:text-sm text-slate-900 tabular-nums">
+                {userData?.lives !== undefined ? userData.lives : 5}/5
+              </span>
             </div>
 
-            {/* Inbox Button */}
+            {/* Inbox */}
             <button 
               onClick={() => {
                 playClick();
                 setShowInbox(true);
               }}
-              className="p-2 sm:p-2.5 bg-slate-50 border border-slate-100 hover:bg-slate-100 rounded-xl transition-all hover:scale-105 active:scale-95 relative shrink-0"
+              className="p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors relative shrink-0 cursor-pointer text-slate-700"
+              aria-label="Pemberitahuan"
             >
-              <Bell className="w-6 h-6 sm:w-7 sm:h-7 text-slate-600" />
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
               {unreadInboxCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white"></span>
               )}
             </button>
           </div>
-        </motion.header>
+        </header>
         )}
 
-        {/* ================= MAIN SPACIOUS MENU GRID ================= */}
+        {/* ================= BERANDA BELAJAR (MAIN GAME HUB) ================= */}
         {activeTab === 'home' && (
-        <main className="flex-grow flex flex-col items-center justify-center w-full px-4 sm:px-0">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex flex-col items-center text-center mt-4 sm:mt-8 w-full"
-          >
-            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/10 border-2 border-emerald-50 mb-6 sm:mb-8">
-              <Gamepad2 className="w-12 h-12 sm:w-16 sm:h-16 text-emerald-500" />
-            </div>
-            
-            <h2 className="text-3xl sm:text-4xl font-poppins font-black text-slate-800 mb-3 tracking-tight">
-              {language === 'id' ? 'Selamat Datang di KoinKita' : 'Welcome to KoinKita'}
-            </h2>
-            <p className="text-slate-500 font-medium max-w-md mx-auto mb-10 text-sm sm:text-base leading-relaxed px-4">
-              {language === 'id' 
-                ? 'Petualangan finansialmu dimulai di sini. Tingkatkan literasi dan jadilah master pengelola keuangan.' 
-                : 'Your financial adventure starts here. Improve your literacy and become a money management master.'}
-            </p>
-
-            <div className="w-full max-w-sm mx-auto px-2">
+        <main className="flex-grow flex flex-col w-full pb-8">
+          {/* Welcome Banner with Ciko Mascot */}
+          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 mb-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex-1 text-center sm:text-left">
+              <span className="inline-block text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full mb-3">
+                {language === 'id' ? 'Beranda Belajar' : 'Learning Hub'}
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                {language === 'id' ? `Halo, ${displayName}` : `Hello, ${displayName}`}
+              </h2>
+              <p className="text-slate-600 text-sm sm:text-base mt-2 leading-relaxed max-w-md">
+                {language === 'id'
+                  ? 'Pilih modul simulasi di bawah untuk mengasah literasi dan ketangkasan finansialmu.'
+                  : 'Choose a simulation module below to strengthen your financial skills and habits.'}
+              </p>
               
-              {/* Main Action - Quick Play */}
-              <button 
-                onClick={() => {
-                  playClick();
-                  setShowTopicSelection(true);
-                }}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] p-6 sm:p-8 flex items-center justify-between shadow-xl shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden text-left"
-              >
-                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] group-hover:animate-[shimmer_1.5s_infinite]"></div>
-                <div className="flex items-center gap-4 sm:gap-5 relative z-10">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0  border border-white/20">
-                    <Sparkles className="w-7 h-7 sm:w-8 sm:h-8" />
+              <div className="flex items-center justify-center sm:justify-start gap-4 mt-5 text-xs text-slate-500 font-bold">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>{language === 'id' ? '4 Modul Simulasi' : '4 Simulation Modules'}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                  <span>{language === 'id' ? `${displayCoins.toLocaleString('id-ID')} Koin Terkumpul` : `${displayCoins.toLocaleString('id-ID')} Coins Earned`}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="shrink-0 flex items-center justify-center p-2 bg-slate-50 rounded-2xl border border-slate-100">
+              <CikoMascot size={86} />
+            </div>
+          </div>
+
+          {/* Section Heading */}
+          <div className="mb-4">
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              {language === 'id' ? 'Modul Simulasi Keuangan' : 'Financial Simulation Modules'}
+            </h3>
+            <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
+              {language === 'id'
+                ? 'Selesaikan setiap skenario untuk mengumpulkan koin dan menaikkan peringkat liga.'
+                : 'Complete each scenario to earn coins and climb the league rankings.'}
+            </p>
+          </div>
+
+          {/* Game Modules List */}
+          <div className="grid grid-cols-1 gap-4">
+            {games.map((game) => {
+              const isLocked = userLevel < game.unlockLevel;
+              return (
+                <div 
+                  key={game.id}
+                  className={`bg-white rounded-3xl p-5 sm:p-6 border transition-colors ${isLocked ? 'border-slate-200 bg-slate-50/70 opacity-90' : 'border-slate-200 hover:border-slate-300'}`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className={`p-3 rounded-2xl shrink-0 ${isLocked ? 'bg-slate-200 text-slate-500' : 'bg-slate-100'}`}>
+                        {isLocked ? <Lock className="w-6 h-6 text-slate-400" /> : game.icon}
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                          {game.tag}
+                        </span>
+                        <h4 className={`text-lg font-black tracking-tight ${isLocked ? 'text-slate-500' : 'text-slate-900'}`}>
+                          {game.title}
+                        </h4>
+                      </div>
+                    </div>
+
+                    {isLocked && (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-600 shrink-0">
+                        {language === 'id' ? `Buka di Liga ${game.unlockLevel}` : `Unlocks at League ${game.unlockLevel}`}
+                      </span>
+                    )}
                   </div>
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black tracking-tight">{language === 'id' ? 'MULAI MAIN' : 'QUICK PLAY'}</h3>
-                    <p className="text-emerald-50 font-medium text-xs sm:text-sm mt-1 opacity-90">{language === 'id' ? 'Lanjutkan petualangan finansialmu' : 'Continue your financial adventure'}</p>
+
+                  <p className={`text-sm mt-3 leading-relaxed ${isLocked ? 'text-slate-400' : 'text-slate-600'}`}>
+                    {game.description}
+                  </p>
+
+                  <div className="mt-5 flex items-center justify-between pt-4 border-t border-slate-100">
+                    <div className="text-xs font-bold text-slate-500">
+                      {isLocked 
+                        ? (language === 'id' ? 'Selesaikan misi arena untuk membuka liga berikutnya' : 'Complete arena challenges to unlock next league')
+                        : (language === 'id' ? 'Biaya main: 1 Nyawa' : 'Cost: 1 Heart')
+                      }
+                    </div>
+
+                    {isLocked ? (
+                      <button
+                        disabled
+                        className="px-5 py-2 rounded-full font-bold text-xs bg-slate-100 text-slate-400 cursor-not-allowed"
+                      >
+                        {language === 'id' ? 'Terkunci' : 'Locked'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          playClick();
+                          setTutorialGameId(game.id);
+                        }}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer"
+                      >
+                        <span>{language === 'id' ? 'Mulai Modul' : 'Start Module'}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
-                <ChevronRight className="w-8 h-8 relative z-10 opacity-70 group-hover:opacity-100 group-hover:translate-x-2 transition-all hidden sm:block" />
-              </button>
-            </div>
-          </motion.div>
+              );
+            })}
+          </div>
         </main>
         )}
 
@@ -894,18 +970,39 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
         </div>
       </div>
 
-      {/* Desktop Right Panel (Aesthetic / Ads / Info) */}
-      <div className="hidden xl:flex flex-col w-[320px] bg-white/40 h-full shrink-0 relative z-20 py-8 px-6 overflow-y-auto hide-scrollbar">
-         <div className="bg-white/80 p-6 rounded-[2rem] border border-slate-200 shadow-sm text-center sticky top-8">
-            <div className="w-16 h-16 bg-gradient-to-tr from-amber-100 to-amber-200 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-inner">
-              <Star className="w-8 h-8 text-amber-500" />
+      {/* Desktop Right Panel (CIKO Financial Habit & Stats) */}
+      <aside className="hidden xl:flex flex-col w-[320px] bg-slate-50 h-full shrink-0 relative z-20 py-8 px-6 overflow-y-auto hide-scrollbar border-l border-slate-200">
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 sticky top-8 flex flex-col gap-5">
+          <div className="flex items-center gap-3">
+            <CikoMascot size={40} />
+            <div>
+              <h4 className="font-black text-slate-900 text-base leading-tight">
+                {language === 'id' ? 'Tips CIKOSmart' : 'CIKOSmart Tips'}
+              </h4>
+              <span className="text-xs text-slate-500 font-medium">
+                {language === 'id' ? 'Kebiasaan Finansial Hari Ini' : 'Financial Habit of the Day'}
+              </span>
             </div>
-            <h3 className="font-poppins font-black text-slate-800 mb-2">{language === 'id' ? 'Web Mode Aktif' : 'Web Mode Active'}</h3>
-            <p className="text-sm text-slate-500 font-medium leading-relaxed">
-               {language === 'id' ? 'Versi desktop memberikan pengalaman bermain yang lebih luas dan nyaman.' : 'Desktop version gives a wider and more comfortable gaming experience.'}
-            </p>
-         </div>
-      </div>
+          </div>
+
+          <p className="text-sm text-slate-600 leading-relaxed font-medium bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            {language === 'id'
+              ? 'Terapkan aturan 24 jam sebelum membeli barang non-esensial untuk menyaring antara kebutuhan nyata dan keinginan sesaat.'
+              : 'Apply the 24-hour rule before purchasing non-essential items to distinguish true needs from impulse wants.'}
+          </p>
+
+          <div className="pt-2 border-t border-slate-100 flex flex-col gap-3">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+              <span>{language === 'id' ? 'Pemulihan Nyawa' : 'Heart Refill'}</span>
+              <span className="text-slate-900 tabular-nums">24 Jam</span>
+            </div>
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+              <span>{language === 'id' ? 'Peringkat Liga' : 'League Tier'}</span>
+              <span className="text-emerald-700 font-extrabold">{getLevelName(userLevel, language)}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
       
       <TermsModal isOpen={showTermsModal} onClose={() => setShowTermsModal(false)} />
 
@@ -915,27 +1012,27 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
           const lInfo = getLeagueInfo(leaguePopup.newLeague);
           const isPromoted = leaguePopup.status === 'promoted';
           return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 " onClick={() => setLeaguePopup(null)}>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80" onClick={() => setLeaguePopup(null)}>
               <motion.div 
-                initial={{ scale: 0.8, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.8, opacity: 0, y: 20 }}
-                className={`bg-white rounded-[2rem] p-8 max-w-sm w-full text-center shadow-2xl border-4 ${isPromoted ? 'border-emerald-400' : 'border-rose-400'}`}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-3xl p-8 max-w-sm w-full text-center border border-slate-200"
                 onClick={e => e.stopPropagation()}
               >
-                <div className="text-6xl mb-4 animate-bounce">
-                  {lInfo.emoji}
+                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Trophy className={`w-8 h-8 ${isPromoted ? 'text-emerald-600' : 'text-slate-500'}`} />
                 </div>
-                <h2 className={`text-3xl font-black mb-2 ${isPromoted ? 'text-emerald-500' : 'text-rose-500'}`}>
-                  {isPromoted ? (language === 'id' ? 'NAIK LIGA!' : 'PROMOTED!') : (language === 'id' ? 'TURUN LIGA' : 'DEMOTED')}
+                <h2 className={`text-2xl font-black mb-2 tracking-tight ${isPromoted ? 'text-emerald-600' : 'text-slate-800'}`}>
+                  {isPromoted ? (language === 'id' ? 'Naik Liga' : 'Promoted') : (language === 'id' ? 'Turun Liga' : 'Demoted')}
                 </h2>
-                <p className="text-slate-600 font-medium mb-6">
-                  {language === 'id' ? `Kamu sekarang berada di ` : `You are now in `} 
-                  <strong className={`font-black ${lInfo.color}`}>{language === 'id' ? lInfo.nameId : lInfo.nameEn}</strong>.
+                <p className="text-slate-600 text-sm font-medium mb-6 leading-relaxed">
+                  {language === 'id' ? 'Kamu sekarang berada di liga ' : 'You are now in '} 
+                  <strong className="font-black text-slate-900">{language === 'id' ? lInfo.nameId : lInfo.nameEn}</strong>.
                 </p>
                 <button 
                   onClick={() => { playClick(); setLeaguePopup(null); }}
-                  className={`w-full py-4 rounded-xl font-bold text-white transition-all active:scale-95 ${isPromoted ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-800 hover:bg-slate-900'}`}
+                  className="w-full py-3 rounded-full font-bold text-white transition-colors cursor-pointer bg-slate-900 hover:bg-slate-800 text-sm"
                 >
                   {language === 'id' ? 'Lanjutkan' : 'Continue'}
                 </button>
@@ -1040,66 +1137,66 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 "
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 30 }}
-              className="bg-white rounded-[2.5rem] p-8 max-w-sm sm:max-w-md w-full shadow-2xl border border-slate-100/80 overflow-hidden relative"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full border border-slate-200 overflow-hidden relative"
             >
-              <div className="absolute top-0 left-0 bg-emerald-500 h-2 w-full"></div>
-              
               {/* Header */}
               <div className="text-center mb-6">
-                <span className="text-3xl mb-3 block">📖</span>
-                <h3 className="text-xl sm:text-2xl font-poppins font-black text-slate-800 leading-tight">
-                  {tutorialGameId === 'detektif-cuan' && (language === 'id' ? 'Cara Bermain Detektif Cuan' : 'How to Play Detektif Cuan')}
-                  {tutorialGameId === 'koki-anggaran' && (language === 'id' ? 'Cara Bermain Koki Anggaran' : 'How to Play Budget Chef')}
-                  {tutorialGameId === 'pohon-aset' && (language === 'id' ? 'Cara Bermain Pohon Aset' : 'How to Play Asset Tree')}
-                  {tutorialGameId === 'fin-wordle' && (language === 'id' ? 'Cara Bermain Tebak Kata' : 'How to Play Guess Terms')}
+                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600">
+                  <FileText className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
+                  {tutorialGameId === 'detektif-cuan' && (language === 'id' ? 'Panduan Detektif Cuan' : 'How to Play Detektif Cuan')}
+                  {tutorialGameId === 'koki-anggaran' && (language === 'id' ? 'Panduan Koki Anggaran' : 'How to Play Budget Chef')}
+                  {tutorialGameId === 'pohon-aset' && (language === 'id' ? 'Panduan Pohon Aset' : 'How to Play Asset Tree')}
+                  {tutorialGameId === 'fin-wordle' && (language === 'id' ? 'Panduan Tebak Kata' : 'How to Play Guess Terms')}
                 </h3>
-                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">
-                  {language === 'id' ? 'Panduan Singkat' : 'Quick Guidebook'}
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mt-1">
+                  {language === 'id' ? 'Petunjuk Modul' : 'Module Briefing'}
                 </p>
               </div>
 
               {/* Description Body */}
-              <div className="space-y-4 mb-6 text-left text-sm text-slate-600 leading-relaxed font-medium bg-slate-50 p-5 rounded-3xl border border-slate-100 max-h-[360px] overflow-y-auto">
+              <div className="space-y-4 mb-6 text-left text-sm text-slate-600 leading-relaxed font-medium bg-slate-50 p-5 rounded-2xl border border-slate-100 max-h-[360px] overflow-y-auto">
                 <div>
                   <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-1">
                     {language === 'id' ? 'Misi Kamu:' : 'Your Mission:'}
                   </h4>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     {tutorialGameId === 'detektif-cuan' && (language === 'id' 
                       ? 'Warga butuh bantuanmu menyaring SMS / Aplikasi mencurigakan. Tentukan setiap pesan penawaran itu AMAN atau BAHAYA (Scam/Phishing).'
                       : 'Help citizens filter fake draws and dangerous APK text. Decide if each message is SAFE or THREAT.')}
                     {tutorialGameId === 'koki-anggaran' && (language === 'id' 
-                      ? 'Kelola porsi keuangan dengan metode 50/30/20! Geser/klik panci yang pas untuk menyortir pengeluaran sehari-hari: KEBUTUHAN (Hijau), KEINGINAN (Kuning/Perak), atau TABUNGAN (Biru). Buang arisan bodong/pinjol (SCAM) ke tempat sampah!'
-                      : 'Sort financial transactions based on the 50/30/20 rule: KEBUTUHAN (Needs), KEINGINAN (Wants), or TABUNGAN/DANA DARURAT (Savings). Drag scams or loans to the bin!')}
+                      ? 'Kelola porsi keuangan dengan metode 50/30/20! Geser/klik panci yang pas untuk menyortir pengeluaran: KEBUTUHAN (50%), KEINGINAN (30%), atau TABUNGAN (20%). Hindari pinjol ilegal dan penipuan.'
+                      : 'Sort transactions based on the 50/30/20 rule: Needs (50%), Wants (30%), or Savings (20%). Drag scams or illegal loans to the bin.')}
                     {tutorialGameId === 'pohon-aset' && (language === 'id' 
-                      ? 'Targetkan pertumbuhan modal mencapai Rp 100.000.000 dalam batas waktu 60 detik! Tempatkan aset investasi pada Cabang TUMBUH CEPAT (Saham/Kripto) atau Cabang AMAN (Emas/SBN) dengan presisi.'
-                      : 'Grow your seed capital to Rp 100,000,000 within 60 seconds! Plant correct assets onto their corresponding branches: FAST GROWTH (high-yield) or SAFE & STABLE (bond notes).')}
+                      ? 'Targetkan pertumbuhan modal mencapai Rp 100.000.000 dalam batas waktu 60 detik. Tempatkan instrumen pada cabang Pertumbuhan Cepat atau cabang Aman & Stabil.'
+                      : 'Grow your seed capital to Rp 100,000,000 within 60 seconds. Plant assets onto fast growth or safe branches.')}
                     {tutorialGameId === 'fin-wordle' && (language === 'id' 
-                      ? 'Tebak istilah keuangan rahasia dari petunjuk definisi akurat yang tersedia!'
+                      ? 'Tebak istilah keuangan rahasia dari petunjuk definisi akurat yang tersedia.'
                       : 'Guess the secret financial vocabulary terms based on defined outlines.')}
                   </p>
                 </div>
 
-                <div className="border-t border-slate-200/65 pt-3">
-                  <h4 className="font-bold text-red-500 text-xs uppercase tracking-wider mb-1">
-                    {language === 'id' ? 'Peringatan & Aturan:' : 'Rules & Caution:'}
+                <div className="border-t border-slate-200/80 pt-3">
+                  <h4 className="font-bold text-rose-600 text-xs uppercase tracking-wider mb-1">
+                    {language === 'id' ? 'Aturan & Konsekuensi:' : 'Rules & Caution:'}
                   </h4>
-                  <p className="text-xs text-slate-500 font-semibold">
+                  <p className="text-xs text-slate-600 font-semibold leading-relaxed">
                     {tutorialGameId === 'detektif-cuan' && (language === 'id' 
-                      ? '⚠️ Memilih "AMAN" pada pesan penipuan memotong -25 Koin & 1 Nyawa! Detik waktu berpikir dikurangi per level akun!'
-                      : '⚠️ Choosing SAFE on a scam costs -25 Coins & 1 Heart! The game timer tightens with your account level!')}
+                      ? 'Memilih "AMAN" pada pesan penipuan memotong -25 Koin dan 1 Nyawa. Waktu berpikir makin ketat seiring tingginya level.'
+                      : 'Choosing SAFE on a scam costs -25 Coins and 1 Heart. The timer tightens with account level.')}
                     {tutorialGameId === 'koki-anggaran' && (language === 'id' 
-                      ? '⚠️ Ada keadaan DARURAT MEDIS acak di tengah game. Jika kamu lalai mengisi Panci Tabungan, kamu dipotong -40 Koin & 1 Nyawa!'
-                      : '⚠️ Medical EMERGENCIES strike mid-game! Lacking savings triggers direct online loan penalties of -40 Coins & -1 Life!')}
+                      ? 'Keadaan darurat acak dapat terjadi di tengah permainan. Jika tabungan kosong, penalti koin dan nyawa akan berlaku.'
+                      : 'Emergencies strike mid-game. Lacking savings triggers direct coin and heart penalties.')}
                     {tutorialGameId === 'pohon-aset' && (language === 'id' 
-                      ? '⚠️ Ada bahaya "MARKET CRASH" mendadak yang meruntuhkan total tabungan kamu 25%-40% dan mengoyak aset cepat tumbuh!'
-                      : '⚠️ Sudden MARKET CRASHES can destroy 25%-40% of accumulate asset portfolios! Avoid over-investing in fast growth assets.')}
+                      ? 'Koreksi pasar mendadak dapat mengurangi akumulasi portofolio. Hindari penempatan modal berlebih pada aset spekulatif.'
+                      : 'Sudden market corrections can lower accumulated portfolio value. Diversify between safe and fast assets.')}
                     {tutorialGameId === 'fin-wordle' && (language === 'id' 
-                      ? '⚠️ Jawab secepat mungkin untuk bonus tertinggi!'
-                      : '⚠️ Answer swiftly to lock maximum score!')}
+                      ? 'Jawab secepat mungkin dengan kesalahan seminimal mungkin untuk mendapatkan skor maksimal.'
+                      : 'Answer swiftly with minimal mistakes to lock maximum score.')}
                   </p>
                 </div>
               </div>
@@ -1111,7 +1208,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                     playClick();
                     setTutorialGameId(null);
                   }}
-                  className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-sm rounded-2xl cursor-pointer transition-all active:translate-y-[1px]"
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-full cursor-pointer transition-colors"
                 >
                   {language === 'id' ? 'Batal' : 'Cancel'}
                 </button>
@@ -1137,16 +1234,15 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                       }).catch(console.warn);
                     }
                   }}
-                  className="flex-[2] py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm rounded-2xl cursor-pointer transition-all active:translate-y-[1px] border-b-[3px] border-emerald-700 hover:scale-[1.01]"
+                  className="flex-[2] py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-full cursor-pointer transition-colors"
                 >
-                  {language === 'id' ? 'MULAI BERMAIN 🚀' : 'START GAME 🚀'}
+                  {language === 'id' ? 'Mulai Bermain' : 'Start Game'}
                 </button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
 
       {/* Level Up Announcement Overlay Animation */}
       <AnimatePresence>
@@ -1155,35 +1251,30 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 "
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80"
           >
             <motion.div 
-              initial={{ scale: 0.8, y: 50, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1, transition: { type: 'spring', damping: 15 } }}
-              exit={{ scale: 0.8, y: 50, opacity: 0 }}
-              className="bg-white rounded-[2rem] p-8 max-w-sm w-full text-center border border-amber-200 shadow-2xl relative overflow-hidden"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-sm w-full text-center border border-slate-200 relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-tr from-amber-100/10 via-transparent to-emerald-100/10 pointer-events-none"></div>
-              <div className="absolute -top-12 -left-12 w-24 h-24 bg-amber-200/20 rounded-full  pointer-events-none"></div>
-              <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-emerald-200/20 rounded-full  pointer-events-none"></div>
-
               <div className="relative z-10 flex flex-col items-center">
-                <div className="w-20 h-20 bg-amber-100 border-4 border-amber-300 rounded-full mb-6 flex items-center justify-center shadow-lg relative animate-bounce">
-                  <span className="text-4xl">👑</span>
-                  <div className="absolute -top-1 right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black animate-pulse">UP</div>
+                <div className="w-16 h-16 bg-amber-50 rounded-full mb-5 flex items-center justify-center border border-amber-200">
+                  <Trophy className="w-8 h-8 text-amber-500" />
                 </div>
 
-                <h1 className="text-3xl font-poppins font-black text-amber-600 tracking-tight leading-none mb-2">
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-tight mb-2">
                   {t.levelUpTitle}
                 </h1>
                 
-                <p className="text-slate-500 text-sm font-medium mb-6 leading-relaxed">
+                <p className="text-slate-600 text-sm font-medium mb-6 leading-relaxed">
                   {t.levelUpDesc.replace('{newLevel}', levelUpNotice.newLevel.toString())}
                 </p>
 
-                <div className="bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl px-6 py-4 border border-amber-300 shadow-lg text-white font-poppins font-extrabold text-xl mb-8 flex items-center gap-3">
-                  <span className="line-through text-amber-200 font-medium text-sm">LV {levelUpNotice.oldLevel}</span>
-                  <span className="text-white">🚀 LV {levelUpNotice.newLevel}</span>
+                <div className="bg-slate-100 rounded-full px-6 py-2.5 border border-slate-200 text-slate-900 font-bold text-base mb-6 flex items-center gap-3">
+                  <span className="line-through text-slate-400 font-medium text-sm">LV {levelUpNotice.oldLevel}</span>
+                  <span className="text-emerald-700 font-extrabold">Level {levelUpNotice.newLevel}</span>
                 </div>
 
                 <button
@@ -1191,9 +1282,9 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                     playClick();
                     setLevelUpNotice({ show: false, oldLevel: 0, newLevel: 0 });
                   }}
-                  className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 hover:scale-[1.02] active:scale-95 text-white font-black text-base rounded-2xl shadow-xl shadow-emerald-500/15 duration-200 cursor-pointer transition-all"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-full transition-colors cursor-pointer"
                 >
-                  {language === 'id' ? 'Lanjutkan Keren!' : 'Continue Rocking!'}
+                  {language === 'id' ? 'Lanjutkan' : 'Continue'}
                 </button>
               </div>
             </motion.div>

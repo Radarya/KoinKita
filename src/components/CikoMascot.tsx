@@ -8,7 +8,7 @@ interface CikoMascotProps {
   animated?: boolean;
 }
 
-export default function CikoMascot({
+export function CikoMascot({
   size = 120,
   className = '',
   pose = 'hero',
@@ -169,3 +169,5 @@ export default function CikoMascot({
     </motion.div>
   );
 }
+
+export default CikoMascot;

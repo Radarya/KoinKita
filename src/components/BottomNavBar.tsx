@@ -27,7 +27,7 @@ export function BottomNavBar({ activeTab, onChangeTab }: BottomNavBarProps) {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[80] bg-white border-t border-slate-200 pb-2 sm:pb-4 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] w-full max-w-md mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-[80] bg-white border-t border-slate-200 pb-2 sm:pb-4 w-full max-w-md mx-auto">
       <div className="flex justify-around items-center h-16 px-2">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -37,11 +37,11 @@ export function BottomNavBar({ activeTab, onChangeTab }: BottomNavBarProps) {
             <button
               key={tab.id}
               onClick={() => handleTabClick(tab.id as any)}
-              className="relative flex flex-col items-center justify-center w-full h-full"
+              className="relative flex flex-col items-center justify-center w-full h-full cursor-pointer"
             >
-              <div className={`flex flex-col items-center justify-center w-14 h-12 rounded-xl transition-all duration-300 ${isActive ? tab.bg : 'bg-transparent'}`}>
-                <Icon className={`w-6 h-6 mb-0.5 transition-all duration-300 ${isActive ? tab.color : 'text-slate-400'}`} />
-                <span className={`text-[10px] font-bold transition-all duration-300 ${isActive ? tab.color : 'text-slate-400'}`}>
+              <div className={`flex flex-col items-center justify-center w-14 h-12 rounded-full transition-colors ${isActive ? 'bg-emerald-50 text-emerald-700' : 'text-slate-500 hover:text-slate-800'}`}>
+                <Icon className="w-5 h-5 mb-0.5" />
+                <span className="text-[10px] font-bold">
                   {tab.label}
                 </span>
               </div>
@@ -49,6 +49,6 @@ export function BottomNavBar({ activeTab, onChangeTab }: BottomNavBarProps) {
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }
