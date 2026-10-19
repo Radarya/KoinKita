@@ -714,7 +714,7 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-200/50 overflow-clip relative pb-16 lg:pb-0 lg:flex lg:justify-center lg:items-start lg:h-screen lg:overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-200/50 relative pb-28 lg:pb-0 lg:flex lg:justify-center lg:items-start lg:h-screen lg:overflow-hidden">
       {/* Desktop Sidebar (Hidden on mobile) */}
       <aside className="hidden lg:flex flex-col w-[260px] bg-white border-r border-slate-200 h-full shrink-0 relative z-20 py-8 px-6">
         <div 
@@ -775,42 +775,45 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
       </aside>
       
       {/* Main Content Area */}
-      <div className="w-full max-w-2xl mx-auto lg:mx-0 lg:h-full lg:overflow-y-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10 flex flex-col min-h-screen lg:min-h-0 bg-transparent lg:border-x lg:border-slate-200 hide-scrollbar">
+      <div className="w-full max-w-2xl mx-auto lg:mx-0 lg:h-full lg:overflow-y-auto relative z-10 flex flex-col min-h-screen lg:min-h-0 bg-slate-50 lg:border-x lg:border-slate-200 hide-scrollbar">
         
-        {/* ================= HEADER STATUS BAR ================= */}
+        {/* ================= COMPACT RESPONSIVE TOP BAR ================= */}
         {activeTab === 'home' && (
-        <header className="sticky top-0 z-40 flex items-center justify-between mb-6 bg-white px-4 py-3 sm:px-6 border-b border-slate-200 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] -mx-4 sm:-mx-6 -mt-6 sm:-mt-8">
-          {/* Level Pill */}
-          <div className="flex items-center gap-2 bg-slate-100 rounded-full px-3.5 py-1.5 border border-slate-200/80 shrink-0">
-            <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
-            <span className="text-xs font-bold text-slate-800 tracking-tight">
-              {getLevelName(userLevel, language)}
-            </span>
+        <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 px-3.5 sm:px-6 py-2.5 flex items-center justify-between gap-2 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+          {/* Left: Mascot Avatar + Brand / Level Tag */}
+          <div className="flex items-center gap-2 shrink-0">
+            <CikoMascot size={32} />
+            <div className="flex flex-col">
+              <span className="text-[13px] font-black text-slate-900 leading-none tracking-tight">CIKO</span>
+              <span className="text-[10px] font-bold text-emerald-700 tracking-wide mt-0.5">
+                {getLevelName(userLevel, language)}
+              </span>
+            </div>
           </div>
           
-          {/* Metrics Pill Group */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Right: Compact Tabular Metrics */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Coins */}
-            <div className="flex items-center gap-1.5 bg-slate-100 rounded-full px-3 py-1.5 border border-slate-200/80 shrink-0">
-              <Coins className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
-              <span className="font-bold text-xs sm:text-sm text-slate-900 tabular-nums">
+            <div className="flex items-center gap-1 bg-slate-100 rounded-full px-2.5 py-1 text-slate-800 shrink-0">
+              <Coins className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+              <span className="font-bold text-xs text-slate-900 tabular-nums">
                 {isDataLoading ? '...' : displayCoins.toLocaleString('id-ID')}
               </span>
             </div>
 
             {/* Streak */}
-            <div className="flex items-center gap-1.5 bg-slate-100 rounded-full px-3 py-1.5 border border-slate-200/80 shrink-0">
-              <Flame className={`w-4 h-4 shrink-0 ${(userData?.streakCount || 0) > 0 ? 'text-orange-500 fill-orange-500' : 'text-slate-400'}`} />
-              <span className="font-bold text-xs sm:text-sm text-slate-900 tabular-nums">
+            <div className="flex items-center gap-1 bg-slate-100 rounded-full px-2.5 py-1 text-slate-800 shrink-0">
+              <Flame className={`w-3.5 h-3.5 shrink-0 ${(userData?.streakCount || 0) > 0 ? 'text-orange-500 fill-orange-500' : 'text-slate-400'}`} />
+              <span className="font-bold text-xs text-slate-900 tabular-nums">
                 {userData?.streakCount || 0}
               </span>
             </div>
 
             {/* Lives */}
-            <div className="flex items-center gap-1.5 bg-slate-100 rounded-full px-3 py-1.5 border border-slate-200/80 shrink-0">
-              <Heart className="w-4 h-4 text-rose-500 fill-rose-500 shrink-0" />
-              <span className="font-bold text-xs sm:text-sm text-slate-900 tabular-nums">
-                {userData?.lives !== undefined ? userData.lives : 5}/5
+            <div className="flex items-center gap-1 bg-slate-100 rounded-full px-2.5 py-1 text-slate-800 shrink-0">
+              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 shrink-0" />
+              <span className="font-bold text-xs text-slate-900 tabular-nums">
+                {userData?.lives !== undefined ? userData.lives : 5}
               </span>
             </div>
 
@@ -820,12 +823,12 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
                 playClick();
                 setShowInbox(true);
               }}
-              className="p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors relative shrink-0 cursor-pointer text-slate-700"
+              className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors relative shrink-0 cursor-pointer text-slate-700"
               aria-label="Pemberitahuan"
             >
-              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Bell className="w-4 h-4" />
               {unreadInboxCount > 0 && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white"></span>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full border border-white"></span>
               )}
             </button>
           </div>
@@ -834,117 +837,217 @@ export default function Dashboard({ user, onShowTerms, triggerToast, onGuestLogo
 
         {/* ================= BERANDA BELAJAR (MAIN GAME HUB) ================= */}
         {activeTab === 'home' && (
-        <main className="flex-grow flex flex-col w-full pb-8">
-          {/* Welcome Banner with Ciko Mascot */}
-          <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 mb-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex-1 text-center sm:text-left">
-              <span className="inline-block text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full mb-3">
-                {language === 'id' ? 'Beranda Belajar' : 'Learning Hub'}
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                {language === 'id' ? `Halo, ${displayName}` : `Hello, ${displayName}`}
+        <main className="flex-grow flex flex-col w-full px-4 sm:px-6 py-5 pb-32 gap-5">
+          {/* Zone 1: Featured Daily Mission (Detektif Cuan) */}
+          <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-7 relative overflow-hidden">
+            <div className="relative z-10 max-w-md">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                  {language === 'id' ? 'Misi Utama Hari Ini' : 'Featured Daily Mission'}
+                </span>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                {language === 'id' ? 'Detektif Cuan: Modus Phishing' : 'Scam Detective: Phishing Threats'}
               </h2>
-              <p className="text-slate-600 text-sm sm:text-base mt-2 leading-relaxed max-w-md">
-                {language === 'id'
-                  ? 'Pilih modul simulasi di bawah untuk mengasah literasi dan ketangkasan finansialmu.'
-                  : 'Choose a simulation module below to strengthen your financial skills and habits.'}
-              </p>
               
-              <div className="flex items-center justify-center sm:justify-start gap-4 mt-5 text-xs text-slate-500 font-bold">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span>{language === 'id' ? '4 Modul Simulasi' : '4 Simulation Modules'}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                  <span>{language === 'id' ? `${displayCoins.toLocaleString('id-ID')} Koin Terkumpul` : `${displayCoins.toLocaleString('id-ID')} Coins Earned`}</span>
-                </div>
+              <p className="text-slate-300 text-sm mt-2 leading-relaxed">
+                {language === 'id'
+                  ? 'Warga kota butuh bantuanmu memverifikasi pesan APK mencurigakan dan undian palsu. Lindungi saldo dan amankan aset warga.'
+                  : 'Citizens need your help verifying suspicious APK messages and fake draws. Protect citizen funds and expose digital scams.'}
+              </p>
+
+              <div className="flex items-center gap-4 mt-4 text-xs font-bold text-slate-300">
+                <span className="flex items-center gap-1.5">
+                  <Coins className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                  <span>+50 Koin</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />
+                  <span>1 Nyawa</span>
+                </span>
+                <span className="text-slate-400">·</span>
+                <span className="text-emerald-400">
+                  {language === 'id' ? 'Akses Terbuka' : 'Unlocked'}
+                </span>
+              </div>
+
+              <div className="mt-5">
+                <button
+                  onClick={() => {
+                    playClick();
+                    setTutorialGameId('detektif-cuan');
+                  }}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm transition-colors cursor-pointer"
+                >
+                  <span>{language === 'id' ? 'Mulai Investigasi' : 'Start Investigation'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
-            <div className="shrink-0 flex items-center justify-center p-2 bg-slate-50 rounded-2xl border border-slate-100">
-              <CikoMascot size={86} />
+            {/* Mascot in corner on tablet/desktop */}
+            <div className="hidden sm:block absolute right-6 bottom-4 opacity-95 pointer-events-none">
+              <CikoMascot size={110} pose="hero" />
             </div>
           </div>
 
-          {/* Section Heading */}
-          <div className="mb-4">
-            <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-              {language === 'id' ? 'Modul Simulasi Keuangan' : 'Financial Simulation Modules'}
-            </h3>
-            <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
-              {language === 'id'
-                ? 'Selesaikan setiap skenario untuk mengumpulkan koin dan menaikkan peringkat liga.'
-                : 'Complete each scenario to earn coins and climb the league rankings.'}
-            </p>
+          {/* Zone 2: Daily Vocabulary Challenge (FinWordle Banner) */}
+          <div className="bg-amber-50 rounded-3xl p-5 sm:p-6 border border-amber-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              {/* Letter tiles visual */}
+              <div className="flex gap-1 shrink-0 pt-0.5">
+                {['C', 'U', 'A', 'N'].map((char, i) => (
+                  <span key={i} className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white border border-amber-300 font-bold text-amber-900 text-xs sm:text-sm flex items-center justify-center shadow-none">
+                    {char}
+                  </span>
+                ))}
+              </div>
+
+              <div>
+                <h3 className="text-base sm:text-lg font-black text-amber-950 tracking-tight leading-snug">
+                  {language === 'id' ? 'FinWordle: Tebak Istilah Harian' : 'FinWordle: Daily Vocabulary'}
+                </h3>
+                <p className="text-amber-900/80 text-xs sm:text-sm mt-0.5 leading-relaxed">
+                  {language === 'id'
+                    ? 'Pecahkan 1 kosakata keuangan rahasia dari definisi perbankan resmi OJK.'
+                    : 'Guess today\'s secret financial vocabulary term using regulatory clues.'}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                playClick();
+                setTutorialGameId('fin-wordle');
+              }}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition-colors cursor-pointer shrink-0 text-center"
+            >
+              {language === 'id' ? 'Tebak Kata Hari Ini' : 'Play Today\'s Word'}
+            </button>
           </div>
 
-          {/* Game Modules List */}
-          <div className="grid grid-cols-1 gap-4">
-            {games.map((game) => {
-              const isLocked = userLevel < game.unlockLevel;
-              return (
-                <div 
-                  key={game.id}
-                  className={`bg-white rounded-3xl p-5 sm:p-6 border transition-colors ${isLocked ? 'border-slate-200 bg-slate-50/70 opacity-90' : 'border-slate-200 hover:border-slate-300'}`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className={`p-3 rounded-2xl shrink-0 ${isLocked ? 'bg-slate-200 text-slate-500' : 'bg-slate-100'}`}>
-                        {isLocked ? <Lock className="w-6 h-6 text-slate-400" /> : game.icon}
-                      </div>
-                      <div>
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
-                          {game.tag}
-                        </span>
-                        <h4 className={`text-lg font-black tracking-tight ${isLocked ? 'text-slate-500' : 'text-slate-900'}`}>
-                          {game.title}
-                        </h4>
-                      </div>
-                    </div>
+          {/* Zone 3: Asymmetric Simulation Grid (Koki Anggaran & Pohon Aset) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Card A: Koki Anggaran */}
+            <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3">
+                  <ChefHat className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                  {language === 'id' ? 'Koki Anggaran' : 'Budget Chef'}
+                </h3>
+                <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                  {language === 'id'
+                    ? 'Racik proporsi pengeluaran dengan formula 50/30/20 untuk memisahkan kebutuhan dan keinginan.'
+                    : 'Manage monthly cash flow with the 50/30/20 rule to separate needs and wants.'}
+                </p>
 
-                    {isLocked && (
-                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-600 shrink-0">
-                        {language === 'id' ? `Buka di Liga ${game.unlockLevel}` : `Unlocks at League ${game.unlockLevel}`}
-                      </span>
-                    )}
+                {/* Visual Budget Ratio Meter */}
+                <div className="my-4">
+                  <div className="w-full bg-slate-100 rounded-full h-2.5 flex overflow-hidden">
+                    <div className="bg-emerald-500 h-full w-1/2" />
+                    <div className="bg-amber-400 h-full w-[30%]" />
+                    <div className="bg-sky-500 h-full w-1/5" />
                   </div>
-
-                  <p className={`text-sm mt-3 leading-relaxed ${isLocked ? 'text-slate-400' : 'text-slate-600'}`}>
-                    {game.description}
-                  </p>
-
-                  <div className="mt-5 flex items-center justify-between pt-4 border-t border-slate-100">
-                    <div className="text-xs font-bold text-slate-500">
-                      {isLocked 
-                        ? (language === 'id' ? 'Selesaikan misi arena untuk membuka liga berikutnya' : 'Complete arena challenges to unlock next league')
-                        : (language === 'id' ? 'Biaya main: 1 Nyawa' : 'Cost: 1 Heart')
-                      }
-                    </div>
-
-                    {isLocked ? (
-                      <button
-                        disabled
-                        className="px-5 py-2 rounded-full font-bold text-xs bg-slate-100 text-slate-400 cursor-not-allowed"
-                      >
-                        {language === 'id' ? 'Terkunci' : 'Locked'}
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          playClick();
-                          setTutorialGameId(game.id);
-                        }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer"
-                      >
-                        <span>{language === 'id' ? 'Mulai Modul' : 'Start Module'}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+                  <div className="flex justify-between text-[10px] font-bold text-slate-500 mt-1.5">
+                    <span>50% Butuh</span>
+                    <span>30% Ingin</span>
+                    <span>20% Tabung</span>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+
+              <div className="pt-2">
+                {userLevel < 2 ? (
+                  <button
+                    disabled
+                    className="w-full py-2.5 rounded-full bg-slate-100 text-slate-400 font-bold text-xs cursor-not-allowed flex items-center justify-center gap-1.5"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>{language === 'id' ? 'Terbuka di Liga 2' : 'Unlocks at League 2'}</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      playClick();
+                      setTutorialGameId('koki-anggaran');
+                    }}
+                    className="w-full py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors cursor-pointer text-center"
+                  >
+                    {language === 'id' ? 'Racik Anggaran' : 'Cook Budget'}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Card B: Pohon Aset */}
+            <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-green-50 text-green-700 flex items-center justify-center mb-3">
+                  <Leaf className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                  {language === 'id' ? 'Pohon Aset' : 'Asset Tree'}
+                </h3>
+                <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                  {language === 'id'
+                    ? 'Kembangkan modal awal hingga target 100 juta dengan diversifikasi instrumen aman dan pertumbuhan.'
+                    : 'Grow capital toward 100 million target through balanced safe and growth instruments.'}
+                </p>
+
+                {/* Portfolio Target Box */}
+                <div className="my-4 p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-500">
+                    {language === 'id' ? 'Target Portofolio' : 'Target Portfolio'}
+                  </span>
+                  <span className="text-xs font-black text-slate-900 tabular-nums">
+                    Rp 100.000.000
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                {userLevel < 3 ? (
+                  <button
+                    disabled
+                    className="w-full py-2.5 rounded-full bg-slate-100 text-slate-400 font-bold text-xs cursor-not-allowed flex items-center justify-center gap-1.5"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>{language === 'id' ? 'Terbuka di Liga 3' : 'Unlocks at League 3'}</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      playClick();
+                      setTutorialGameId('pohon-aset');
+                    }}
+                    className="w-full py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors cursor-pointer text-center"
+                  >
+                    {language === 'id' ? 'Tanam Modal' : 'Plant Assets'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Zone 4: Ciko Companion Insight */}
+          <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 flex items-center gap-4">
+            <div className="shrink-0">
+              <CikoMascot size={52} pose="hero" />
+            </div>
+            <div className="flex-1">
+              <h4 className="text-sm font-black text-slate-900 leading-tight">
+                {language === 'id' ? 'Kiat CIKO Hari Ini' : 'CIKO\'s Tip of the Day'}
+              </h4>
+              <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                {language === 'id'
+                  ? 'Dana darurat bukan untuk investasi atau gaya hidup, melainkan jangkar penyelamat saat terjadi risiko medis atau kehilangan pendapatan.'
+                  : 'Emergency funds are not for investment or lifestyle; they are your safety anchor against unexpected medical or income risks.'}
+              </p>
+            </div>
           </div>
         </main>
         )}
