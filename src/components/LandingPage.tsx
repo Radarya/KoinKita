@@ -209,32 +209,49 @@ export default function LandingPage({
     if (!feedbackComment.trim()) return;
     setFeedbackSubmitting(true);
     playClick();
+
+    const payload = {
+      name: feedbackName.trim() || 'Anonim',
+      email: feedbackEmail.trim() || 'anonim@koinkita.xyz',
+      rating: feedbackRating,
+      comment: feedbackComment.trim(),
+      createdAt: Date.now()
+    };
+
+    // 1. Simpan ke Firestore
     try {
-      await addDoc(collection(db, 'feedbacks'), {
-        name: feedbackName || 'Anonim',
-        email: feedbackEmail || 'anonim@koinkita.xyz',
-        rating: feedbackRating,
-        comment: feedbackComment,
-        createdAt: Date.now()
-      });
+      await addDoc(collection(db, 'feedbacks'), payload);
+    } catch (fsErr) {
+      console.warn('Firestore feedbacks write:', fsErr);
+    }
+
+    // 2. Kirim notifikasi email via FormSubmit AJAX (kebal auth)
+    try {
       await fetch('https://formsubmit.co/ajax/aydinaryasatyaradithya@gmail.com', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
-          Nama: feedbackName || 'Anonim',
-          Email: feedbackEmail || 'Anonim',
-          Rating: `${feedbackRating} Bintang`,
-          Saran: feedbackComment
+          _subject: 'Masukan Pengguna CIKO (Landing Page)',
+          _captcha: 'false',
+          Nama: payload.name,
+          Email: payload.email,
+          Rating: `${payload.rating} Bintang`,
+          Saran: payload.comment
         })
       });
-      setFeedbackSubmitted(true);
-      setFeedbackName(''); setFeedbackEmail('');
-      setFeedbackRating(5); setFeedbackComment('');
-    } catch (err) {
-      console.warn('Feedback submission error:', err);
-    } finally {
-      setFeedbackSubmitting(false);
+    } catch (mailErr) {
+      console.warn('FormSubmit notification error:', mailErr);
     }
+
+    setFeedbackSubmitted(true);
+    setFeedbackName('');
+    setFeedbackEmail('');
+    setFeedbackRating(5);
+    setFeedbackComment('');
+    setFeedbackSubmitting(false);
   };
 
   // ── Games data ───────────────────────────────────────────────────────────

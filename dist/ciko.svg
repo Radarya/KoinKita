@@ -1,0 +1,84 @@
+<svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="cikoCoinShine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#EAB308" />
+    </linearGradient>
+    <linearGradient id="cikoEyeIris" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="45%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#0B132B" />
+    </linearGradient>
+  </defs>
+
+  <!-- Jengger Merah -->
+  <g id="crest">
+    <circle cx="118" cy="38" r="14" fill="#DC2626" />
+    <circle cx="100" cy="30" r="17" fill="#EF4444" />
+    <circle cx="84" cy="39" r="13" fill="#DC2626" />
+  </g>
+
+  <!-- Kepala Bulat Chibi -->
+  <g id="body">
+    <ellipse cx="100" cy="102" rx="68" ry="60" fill="#F59E0B" />
+    <ellipse cx="100" cy="100" rx="66" ry="58" fill="#FBBF24" />
+    <circle cx="56" cy="115" r="9" fill="#FB923C" opacity="0.45" />
+    <circle cx="144" cy="115" r="9" fill="#FB923C" opacity="0.45" />
+  </g>
+
+  <!-- Mata Berbinar Anime -->
+  <g id="eyes">
+    <!-- Mata Kiri -->
+    <g transform="translate(70, 92)">
+      <circle cx="0" cy="0" r="23" fill="#FFFFFF" />
+      <circle cx="1" cy="0" r="20" fill="url(#cikoEyeIris)" />
+      <circle cx="2" cy="1" r="14" fill="#0A0F1D" />
+      <circle cx="-4" cy="-4" r="7" fill="#FFFFFF" />
+      <g transform="translate(6, 6)">
+        <polygon points="0,-4 1.2,-1.2 4,0 1.2,1.2 0,4 -1.2,1.2 -4,0 -1.2,-1.2" fill="#FFFFFF" />
+      </g>
+      <circle cx="-5.5" cy="7" r="1.8" fill="#BAE6FD" />
+    </g>
+
+    <!-- Mata Kanan -->
+    <g transform="translate(130, 92)">
+      <circle cx="0" cy="0" r="23" fill="#FFFFFF" />
+      <circle cx="-1" cy="0" r="20" fill="url(#cikoEyeIris)" />
+      <circle cx="-2" cy="1" r="14" fill="#0A0F1D" />
+      <circle cx="-4" cy="-4" r="7" fill="#FFFFFF" />
+      <g transform="translate(6, 6)">
+        <polygon points="0,-4 1.2,-1.2 4,0 1.2,1.2 0,4 -1.2,1.2 -4,0 -1.2,-1.2" fill="#FFFFFF" />
+      </g>
+      <circle cx="-5.5" cy="7" r="1.8" fill="#BAE6FD" />
+    </g>
+  </g>
+
+  <!-- Paruh Oranye Bulat -->
+  <g id="beak">
+    <path d="M86 102 Q100 96 114 102 Q100 123 86 102 Z" fill="#F97316" />
+    <path d="M89 102 Q100 98 111 102 Q100 114 89 102 Z" fill="#FB923C" />
+  </g>
+
+  <!-- Hoodie Hijau -->
+  <g id="hoodie">
+    <path d="M40 144 Q100 130 160 144 Q166 172 152 188 Q100 196 48 188 Q34 172 40 144 Z" fill="#059669" />
+    <path d="M45 148 Q100 134 155 148 Q160 176 148 190 Q100 198 52 190 Q40 176 45 148 Z" fill="#10B981" />
+    <path d="M52 140 Q100 152 148 140 Q152 154 136 162 Q100 170 64 162 Q48 154 52 140 Z" fill="#34D399" />
+    <path d="M56 142 Q100 150 144 142 Q140 152 130 158 Q100 166 70 158 Q60 152 56 142 Z" fill="#10B981" />
+
+    <path d="M85 158 Q83 172 81 183" stroke="#047857" stroke-width="2.5" stroke-linecap="round" fill="none" />
+    <path d="M115 158 Q117 172 119 183" stroke="#047857" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+    <g transform="translate(81, 184)">
+      <circle cx="0" cy="0" r="6.5" fill="#CA8A04" />
+      <circle cx="0" cy="0" r="5.5" fill="url(#cikoCoinShine)" />
+      <path d="M-1 1.5 Q-0.5 -1 1.5 -1.5 Q0.8 0.8 -1 1.5 Z" fill="#059669" />
+    </g>
+
+    <g transform="translate(119, 184)">
+      <circle cx="0" cy="0" r="6.5" fill="#CA8A04" />
+      <circle cx="0" cy="0" r="5.5" fill="url(#cikoCoinShine)" />
+      <path d="M-1 1.5 Q-0.5 -1 1.5 -1.5 Q0.8 0.8 -1 1.5 Z" fill="#059669" />
+    </g>
+  </g>
+</svg>
