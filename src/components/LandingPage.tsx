@@ -205,7 +205,10 @@ export default function LandingPage({
   const [feedbackSubmitted, setFeedbackSubmitted]   = useState(false);
 
   // ── Ciko Interactive Speech Bubble ──────────────────────────────────────
+  const [showCikoBubble, setShowCikoBubble] = useState(false);
   const [cikoDialogueIndex, setCikoDialogueIndex] = useState(0);
+  const cikoBubbleTimeoutRef = useRef<any>(null);
+
   const cikoDialogues = [
     {
       id: 'Halo, aku Ciko! Siap latihan lima menit hari ini?',
@@ -222,13 +225,45 @@ export default function LandingPage({
     {
       id: 'Waspada tawaran cuan instan. Cek selalu izin resmi OJK sebelum investasi!',
       en: 'Beware of get-rich-quick schemes. Always verify official regulatory permits!'
+    },
+    {
+      id: 'Dana darurat adalah bantalan terbaik sebelum kamu mulai berinvestasi.',
+      en: 'An emergency fund is your safety cushion before starting investments.'
+    },
+    {
+      id: 'Bunga berbunga bekerja ajaib jika kamu mulai sedini mungkin.',
+      en: 'Compound interest works wonders when you start as early as possible.'
     }
   ];
 
   const handleCikoClick = () => {
     playClick();
-    setCikoDialogueIndex((prev) => (prev + 1) % cikoDialogues.length);
+    if (cikoBubbleTimeoutRef.current) {
+      clearTimeout(cikoBubbleTimeoutRef.current);
+    }
+    // Random selection without direct repeating
+    setCikoDialogueIndex((prev) => {
+      let next = Math.floor(Math.random() * cikoDialogues.length);
+      if (cikoDialogues.length > 1 && next === prev) {
+        next = (next + 1) % cikoDialogues.length;
+      }
+      return next;
+    });
+    setShowCikoBubble(true);
+
+    // Auto fade-out back to clean state after 4 seconds
+    cikoBubbleTimeoutRef.current = setTimeout(() => {
+      setShowCikoBubble(false);
+    }, 4000);
   };
+
+  useEffect(() => {
+    return () => {
+      if (cikoBubbleTimeoutRef.current) {
+        clearTimeout(cikoBubbleTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -530,26 +565,30 @@ export default function LandingPage({
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCikoClick(); }}
                 aria-label={language === 'id' ? 'Klik Ciko untuk tips finansial' : 'Click Ciko for financial tips'}
               >
-                {/* Comic Speech Bubble */}
-                <motion.div
-                  key={cikoDialogueIndex}
-                  initial={{ opacity: 0, y: 6, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.25 }}
-                  className="bg-white border-2 border-[#0D1117] px-5 py-3 rounded-2xl max-w-xs sm:max-w-sm mb-3 relative text-center"
-                >
-                  <p className="text-sm font-bold text-[#0D1117] leading-snug">
-                    {language === 'id'
-                      ? cikoDialogues[cikoDialogueIndex].id
-                      : cikoDialogues[cikoDialogueIndex].en}
-                  </p>
-                  <span className="block mt-1 text-[11px] font-bold text-emerald-700 tracking-wide">
-                    {language === 'id' ? 'Klik Ciko untuk tips lain' : 'Tap Ciko for next tip'}
-                  </span>
+                {/* Speech Bubble Container with stable height to prevent layout shifts */}
+                <div className="min-h-[76px] flex items-end justify-center mb-3 w-full px-2">
+                  <AnimatePresence mode="wait">
+                    {showCikoBubble && (
+                      <motion.div
+                        key={cikoDialogueIndex}
+                        initial={{ opacity: 0, y: 10, scale: 0.94 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                        className="bg-white border-2 border-[#0D1117] px-5 py-3 rounded-2xl max-w-xs sm:max-w-sm relative text-center"
+                      >
+                        <p className="text-sm font-bold text-[#0D1117] leading-snug">
+                          {language === 'id'
+                            ? cikoDialogues[cikoDialogueIndex].id
+                            : cikoDialogues[cikoDialogueIndex].en}
+                        </p>
 
-                  {/* Bubble tail pointed down to Ciko */}
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white border-r-2 border-b-2 border-[#0D1117] rotate-45" />
-                </motion.div>
+                        {/* Bubble tail pointed down to Ciko */}
+                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white border-r-2 border-b-2 border-[#0D1117] rotate-45" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* Animated Ciko Mascot */}
                 <div className="group-hover:scale-105 transition-transform duration-200">
