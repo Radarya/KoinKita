@@ -11,6 +11,7 @@ import { useTranslation } from '../lib/LanguageContext';
 import { playClick } from '../lib/audio';
 import { db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import CikoMascot from './CikoMascot';
 
 interface LandingPageProps {
   onLinkGoogle: () => void;
@@ -295,12 +296,12 @@ export default function LandingPage({
 
   const faqs = [
     {
-      q: language === 'id' ? 'Apakah KoinKita sepenuhnya gratis?' : 'Is KoinKita completely free?',
-      a: language === 'id' ? 'Ya. KoinKita 100% gratis tanpa biaya langganan tersembunyi, bertujuan murni meningkatkan literasi keuangan masyarakat Indonesia.' : 'Yes. KoinKita is 100% free with no subscription barriers, dedicated to advancing public financial literacy.'
+      q: language === 'id' ? 'Apakah Ciko sepenuhnya gratis?' : 'Is Ciko completely free?',
+      a: language === 'id' ? 'Ya. Ciko 100% gratis tanpa biaya langganan tersembunyi, bertujuan murni meningkatkan literasi keuangan masyarakat Indonesia.' : 'Yes. Ciko is 100% free with no subscription barriers, dedicated to advancing public financial literacy.'
     },
     {
       q: language === 'id' ? 'Apakah simulasi ini adalah saran keuangan resmi?' : 'Are simulations considered financial advice?',
-      a: language === 'id' ? 'Bukan. Seluruh simulasi KoinKita dibuat untuk tujuan edukatif melatih pola pikir finansial, bukan penasihat keuangan bersertifikasi.' : 'No. All simulations are designed for pedagogical purposes to develop habits, not certified financial consulting.'
+      a: language === 'id' ? 'Bukan. Seluruh simulasi Ciko dibuat untuk tujuan edukatif melatih pola pikir finansial, bukan penasihat keuangan bersertifikasi.' : 'No. All simulations are designed for pedagogical purposes to develop habits, not certified financial consulting.'
     },
     {
       q: language === 'id' ? 'Bagaimana sistem promosi Liga Finansial bekerja?' : 'How does the Weekly Financial League work?',
@@ -356,9 +357,9 @@ export default function LandingPage({
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200 px-5 sm:px-10 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <a href="#" className="flex items-center gap-2.5 group">
-            <img src="/icon.png" alt="KoinKita" className="w-7 h-7 object-cover" />
-            <span className="font-poppins font-black text-lg tracking-tight text-slate-950 uppercase">
-              KOINKITA
+            <CikoMascot size={32} animated={false} />
+            <span className="font-poppins font-black text-xl tracking-tight text-slate-950 uppercase">
+              CIKO
             </span>
           </a>
           <div className="flex items-center gap-3">
@@ -381,13 +382,12 @@ export default function LandingPage({
 
       {/* ── 2. HERO ──────────────────────────────────────────────────────────── */}
       {/*
-        Asymmetric two-column: left = headline + actions, right = Banner.jpg
-        Mobile: stacked, image first at top.
-        Banner.jpg = authentic asset from the project.
+        Asymmetric two-column: left = headline + actions, right = Ciko Mascot Showcase
+        Mobile: stacked, mascot displayed prominently.
       */}
       <section className="overflow-hidden">
-        <div className="max-w-7xl mx-auto px-5 sm:px-10 pt-14 pb-10 lg:pt-20 lg:pb-16">
-          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+        <div className="max-w-7xl mx-auto px-5 sm:px-10 pt-10 pb-10 lg:pt-16 lg:pb-16">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-14">
 
             {/* Left: copy + CTA */}
             <div className="flex-1 min-w-0 order-2 lg:order-1">
@@ -398,7 +398,7 @@ export default function LandingPage({
                 custom={0}
                 className="font-poppins font-black text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.0] tracking-tight text-[#0D1117] mb-5"
               >
-                {language === 'id' ? 'Belajar Uang\nLewat Game.' : 'Learn Money\nThrough Play.'}
+                {language === 'id' ? 'Kuasai Uangmu\nBareng Ciko.' : 'Master Money\nWith Ciko.'}
               </motion.h1>
 
               <motion.p
@@ -409,8 +409,8 @@ export default function LandingPage({
                 className="text-lg sm:text-xl text-slate-700 leading-relaxed max-w-lg mb-8"
               >
                 {language === 'id'
-                  ? 'Empat mini-game seru untuk melatih cara ngatur gaji, hindari penipuan, tumbuhkan aset, dan kuasai istilah keuangan — tanpa teori membosankan.'
-                  : 'Four playful games to master budgeting, dodge scams, grow assets, and unlock financial vocabulary — no boring theory required.'}
+                  ? 'Empat simulasi mini-game seru untuk melatih cara meracik anggaran, membongkar penipuan, menumbuhkan aset, dan menguasai istilah keuangan — dipandu langsung oleh Ciko.'
+                  : 'Four playful simulations to master budgeting, uncover scams, grow compound assets, and unlock financial terms — guided directly by Ciko.'}
               </motion.p>
 
               <motion.div
@@ -472,19 +472,38 @@ export default function LandingPage({
               </motion.p>
             </div>
 
-            {/* Right: Banner.jpg — the authentic KoinKita banner */}
+            {/* Right: Ciko Mascot Hero Showcase */}
             <motion.div
-              initial={{ opacity: 0, x: 32 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] as const }}
-              className="w-full lg:w-[48%] xl:w-[44%] shrink-0 order-1 lg:order-2"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] as const }}
+              className="w-full lg:w-[46%] flex flex-col items-center justify-center order-1 lg:order-2 py-6"
             >
-              <img
-                src="/Banner.jpg"
-                alt="KoinKita — platform edugame finansial"
-                className="w-full h-auto object-cover"
-                loading="eager"
-              />
+              <div className="relative flex flex-col items-center w-full max-w-sm">
+                {/* Speech Bubble ala Duolingo */}
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35, duration: 0.4 }}
+                  className="bg-white border-2 border-emerald-500/20 px-5 py-3 rounded-2xl text-slate-800 text-sm font-bold mb-4 relative text-center shadow-none"
+                >
+                  <span>
+                    {language === 'id'
+                      ? 'Halo! Aku Ciko. Siap latihan 5 menit hari ini? 🐣'
+                      : "Hey! I'm Ciko. Ready for your 5-min financial sprint? 🐣"}
+                  </span>
+                  {/* Bubble tail */}
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white border-r-2 border-b-2 border-emerald-500/20 rotate-45" />
+                </motion.div>
+
+                {/* Animated Ciko Mascot */}
+                <CikoMascot size={280} animated={true} />
+
+                {/* Subtle character badge */}
+                <div className="mt-4 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-100/80 px-4 py-1.5 rounded-full">
+                  <span>{language === 'id' ? 'Maskot & Teman Finansialmu' : 'Your Financial Mascot'}</span>
+                </div>
+              </div>
             </motion.div>
 
           </div>
@@ -743,7 +762,7 @@ export default function LandingPage({
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
           <div className="max-w-xl">
             <h2 className="font-poppins font-black text-3xl sm:text-4xl text-white leading-tight mb-3">
-              {language === 'id' ? 'Bawa KoinKita\ndi Sakumu.' : 'Carry KoinKita\nin Your Pocket.'}
+              {language === 'id' ? 'Bawa Ciko\ndi Sakumu.' : 'Carry Ciko\nin Your Pocket.'}
             </h2>
             <p className="text-emerald-100 text-base sm:text-lg leading-relaxed">
               {language === 'id'
@@ -822,8 +841,8 @@ export default function LandingPage({
           </h2>
           <p className="text-slate-600 text-sm mb-8">
             {language === 'id'
-              ? 'Masukanmu langsung membantu penyempurnaan kurikulum KoinKita.'
-              : 'Your input directly shapes the KoinKita curriculum.'}
+              ? 'Masukanmu langsung membantu penyempurnaan kurikulum Ciko.'
+              : 'Your input directly shapes the Ciko curriculum.'}
           </p>
 
           {feedbackSubmitted ? (
@@ -929,16 +948,16 @@ export default function LandingPage({
         <div className="max-w-7xl mx-auto">
           {/* Large wordmark — closing statement */}
           <div className="font-poppins font-black text-5xl sm:text-7xl lg:text-8xl tracking-tighter text-white mb-8 leading-none">
-            KOINKITA
+            CIKO
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-t border-slate-800 pt-6">
             <p className="text-slate-500 text-sm max-w-sm leading-relaxed">
               {language === 'id'
-                ? 'Platform edugame literasi finansial. Gratis, tanpa iklan, untuk semua.'
-                : 'Financial literacy game platform. Free, ad-free, for everyone.'}
+                ? 'Platform edugame literasi finansial bareng Ciko. Gratis, tanpa iklan, untuk semua.'
+                : 'Financial literacy game platform with Ciko. Free, ad-free, for everyone.'}
             </p>
             <div className="text-right text-xs text-slate-600 space-y-1">
-              <div>&copy; {new Date().getFullYear()} KoinKita.xyz</div>
+              <div>&copy; {new Date().getFullYear()} Ciko</div>
               <div>
                 <a
                   href="https://github.com/Radarya/KoinKita"
