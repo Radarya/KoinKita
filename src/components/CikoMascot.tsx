@@ -36,20 +36,6 @@ export default function CikoMascot({
         className="w-full h-full"
         aria-label="Ciko Mascot"
       >
-        <defs>
-          {/* Subtle Coin Shine */}
-          <linearGradient id="cikoCoinShine" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FDE047" />
-            <stop offset="100%" stopColor="#EAB308" />
-          </linearGradient>
-          {/* Eye Gradient: Vibrant anime blue matching reference image */}
-          <linearGradient id="cikoEyeIris" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#38BDF8" />
-            <stop offset="45%" stopColor="#0284C7" />
-            <stop offset="100%" stopColor="#0B132B" />
-          </linearGradient>
-        </defs>
-
         {/* 1. JENGGER (Red 3-puff crest on head) */}
         <g id="crest">
           <circle cx="118" cy="38" r="14" fill="#DC2626" />
@@ -75,8 +61,8 @@ export default function CikoMascot({
           <g transform="translate(70, 92)">
             {/* White outer sclera */}
             <circle cx="0" cy="0" r="23" fill="#FFFFFF" />
-            {/* Vibrant blue iris */}
-            <circle cx="1" cy="0" r="20" fill="url(#cikoEyeIris)" />
+            {/* Vibrant blue iris (pure flat color) */}
+            <circle cx="1" cy="0" r="20" fill="#0284C7" />
             {/* Pupil core (slightly focused inward toward center) */}
             <circle cx="2" cy="1" r="14" fill="#0A0F1D" />
             {/* Big starry diamond highlight (top-left) */}
@@ -93,8 +79,8 @@ export default function CikoMascot({
           <g transform="translate(130, 92)">
             {/* White outer sclera */}
             <circle cx="0" cy="0" r="23" fill="#FFFFFF" />
-            {/* Vibrant blue iris */}
-            <circle cx="-1" cy="0" r="20" fill="url(#cikoEyeIris)" />
+            {/* Vibrant blue iris (pure flat color) */}
+            <circle cx="-1" cy="0" r="20" fill="#0284C7" />
             {/* Pupil core (slightly focused inward toward center) */}
             <circle cx="-2" cy="1" r="14" fill="#0A0F1D" />
             {/* Big starry diamond highlight (top-left) */}
@@ -151,13 +137,13 @@ export default function CikoMascot({
           {/* 6. DNA FINANSIAL: Gold coin medallion charms */}
           <g transform="translate(81, 184)">
             <circle cx="0" cy="0" r="6.5" fill="#CA8A04" />
-            <circle cx="0" cy="0" r="5.5" fill="url(#cikoCoinShine)" />
+            <circle cx="0" cy="0" r="5.5" fill="#EAB308" />
             <path d="M-1 1.5 Q-0.5 -1 1.5 -1.5 Q0.8 0.8 -1 1.5 Z" fill="#059669" />
           </g>
 
           <g transform="translate(119, 184)">
             <circle cx="0" cy="0" r="6.5" fill="#CA8A04" />
-            <circle cx="0" cy="0" r="5.5" fill="url(#cikoCoinShine)" />
+            <circle cx="0" cy="0" r="5.5" fill="#EAB308" />
             <path d="M-1 1.5 Q-0.5 -1 1.5 -1.5 Q0.8 0.8 -1 1.5 Z" fill="#059669" />
           </g>
         </g>

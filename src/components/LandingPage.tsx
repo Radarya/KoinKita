@@ -494,33 +494,9 @@ export default function LandingPage({
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] as const }}
-              className="w-full lg:w-[46%] flex flex-col items-center justify-center order-1 lg:order-2 py-6"
+              className="w-full lg:w-[46%] flex items-center justify-center order-1 lg:order-2 py-6"
             >
-              <div className="relative flex flex-col items-center w-full max-w-sm">
-                {/* Speech Bubble */}
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.35, duration: 0.4 }}
-                  className="bg-white border-2 border-emerald-500/20 px-5 py-3 rounded-2xl text-slate-800 text-sm font-bold mb-4 relative text-center shadow-none"
-                >
-                  <span>
-                    {language === 'id'
-                      ? 'Halo, aku Ciko. Siap latihan lima menit hari ini?'
-                      : "Hey, I'm Ciko. Ready for your five-minute financial sprint?"}
-                  </span>
-                  {/* Bubble tail */}
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white border-r-2 border-b-2 border-emerald-500/20 rotate-45" />
-                </motion.div>
-
-                {/* Animated Ciko Mascot */}
-                <CikoMascot size={280} animated={true} />
-
-                {/* Subtle character badge */}
-                <div className="mt-4 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-100/80 px-4 py-1.5 rounded-full">
-                  <span>{language === 'id' ? 'Maskot & Teman Finansialmu' : 'Your Financial Mascot'}</span>
-                </div>
-              </div>
+              <CikoMascot size={320} animated={true} />
             </motion.div>
 
           </div>
