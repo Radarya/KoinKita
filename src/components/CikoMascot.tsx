@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 interface CikoMascotProps {
   size?: number | string;
   className?: string;
-  pose?: 'hero' | 'icon' | 'detective' | 'chef' | 'investor';
+  pose?: 'hero' | 'icon' | 'detective' | 'chef';
   animated?: boolean;
 }
 
@@ -14,7 +14,6 @@ export default function CikoMascot({
   pose = 'hero',
   animated = true
 }: CikoMascotProps) {
-  // If size is a number, format it as px for style, otherwise pass through string
   const dimension = typeof size === 'number' ? `${size}px` : size;
 
   return (
@@ -34,176 +33,205 @@ export default function CikoMascot({
         viewBox="0 0 200 200"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full drop-shadow-sm"
+        className="w-full h-full"
         aria-label="Ciko Mascot"
       >
-        {/* Definition of Gradients & Filters */}
         <defs>
-          {/* Subtle Coin Shine */}
-          <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          {/* Subtle Coin Gradient */}
+          <linearGradient id="cikoCoinShine" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#FDE047" />
             <stop offset="100%" stopColor="#EAB308" />
           </linearGradient>
-          {/* Eye Gradient */}
-          <linearGradient id="eyeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#38BDF8" />
-            <stop offset="40%" stopColor="#0284C7" />
+          {/* Eye Gradient: Deep warm navy to lively sky blue */}
+          <linearGradient id="cikoEyeIris" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#0284C7" />
+            <stop offset="70%" stopColor="#0369A1" />
             <stop offset="100%" stopColor="#0F172A" />
           </linearGradient>
         </defs>
 
-        {/* ── 1. JENGGER (RED CREST) ─────────────────────────────────── */}
-        <g id="crest">
-          {/* Back/Right crest puff */}
-          <circle cx="120" cy="38" r="14" fill="#DC2626" />
-          {/* Front/Center crest puff (taller) */}
-          <circle cx="102" cy="30" r="18" fill="#EF4444" />
-          {/* Left crest puff */}
-          <circle cx="86" cy="40" r="13" fill="#DC2626" />
+        {/* 1. JENGGER (Soft organic 3-lobe red crest) */}
+        <g id="ciko-crest">
+          <path
+            d="M84 48 C80 34 92 24 100 24 C108 24 120 34 116 48 Z"
+            fill="#EF4444"
+          />
+          <path
+            d="M74 52 C70 40 80 32 88 34 C94 36 96 46 92 54 Z"
+            fill="#DC2626"
+          />
+          <path
+            d="M108 54 C104 46 106 36 112 34 C120 32 130 40 126 52 Z"
+            fill="#DC2626"
+          />
         </g>
 
-        {/* ── 2. HEAD & BODY (ROUND CHUBBY CHICK) ─────────────────────── */}
-        <g id="body">
-          {/* Main head/body shape */}
-          <ellipse cx="100" cy="104" rx="66" ry="62" fill="#FBBF24" />
-          {/* Warm base tone */}
+        {/* 2. CHUBBY HEAD & BODY */}
+        <g id="ciko-body">
+          {/* Outer silhouette */}
           <path
-            d="M38 120 C38 152 66 166 100 166 C134 166 162 152 162 120 C162 100 156 80 148 70 C136 56 118 50 100 50 C82 50 64 56 52 70 C44 80 38 100 38 120 Z"
+            d="M44 114 C40 148 64 168 100 168 C136 168 160 148 156 114 C154 82 138 52 100 52 C62 52 46 82 44 114 Z"
             fill="#F59E0B"
           />
-          {/* Face highlight (bright sunny yellow) */}
-          <ellipse cx="100" cy="98" rx="58" ry="48" fill="#FBBF24" />
-          {/* Cheeks (subtle blush) */}
-          <ellipse cx="58" cy="116" rx="10" ry="6" fill="#F59E0B" opacity="0.6" />
-          <ellipse cx="142" cy="116" rx="10" ry="6" fill="#F59E0B" opacity="0.6" />
+          {/* Inner face tone */}
+          <path
+            d="M48 112 C44 142 66 162 100 162 C134 162 156 142 152 112 C150 84 136 58 100 58 C64 58 50 84 48 112 Z"
+            fill="#FBBF24"
+          />
+
+          {/* Soft blushing cheeks */}
+          <ellipse cx="62" cy="118" rx="10" ry="6" fill="#F97316" opacity="0.35" />
+          <ellipse cx="138" cy="118" rx="10" ry="6" fill="#F97316" opacity="0.35" />
         </g>
 
-        {/* ── 3. EYES (BIG SPARKLING ANIME/CARTOON GLINTS) ─────────────── */}
-        <g id="eyes">
+        {/* 3. WARM FRIENDLY EYES (With soft eyelids, not creepy staring) */}
+        <g id="ciko-eyes">
+          {/* Cute soft eyebrows */}
+          <path
+            d="M58 74 Q70 68 82 72"
+            stroke="#D97706"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <path
+            d="M118 72 Q130 68 142 74"
+            stroke="#D97706"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            fill="none"
+          />
+
           {/* LEFT EYE */}
-          <g transform="translate(68, 92)">
-            {/* White outer contour */}
-            <circle cx="0" cy="0" r="23" fill="#FFFFFF" />
+          <g transform="translate(72, 95)">
+            {/* White base */}
+            <ellipse cx="0" cy="0" rx="19" ry="21" fill="#FFFFFF" />
             {/* Iris */}
-            <circle cx="0" cy="0" r="20" fill="url(#eyeGrad)" />
+            <ellipse cx="1" cy="0" rx="16" ry="18" fill="url(#cikoEyeIris)" />
             {/* Pupil core */}
-            <circle cx="0" cy="2" r="14" fill="#0A0F1D" />
-            {/* Big diamond/star shine */}
-            <circle cx="-5" cy="-5" r="7.5" fill="#FFFFFF" />
-            {/* Secondary small glint */}
-            <circle cx="6" cy="6" r="3.5" fill="#FFFFFF" />
-            {/* Tiny accent spark */}
-            <circle cx="-6" cy="7" r="1.8" fill="#BAE6FD" />
+            <ellipse cx="1" cy="2" rx="11" ry="12" fill="#090D16" />
+            {/* Large friendly highlight at top-left */}
+            <circle cx="-4" cy="-5" r="6" fill="#FFFFFF" />
+            {/* Secondary warm glint at bottom-right */}
+            <circle cx="5" cy="5" r="2.8" fill="#FFFFFF" />
+            {/* Upper eyelid contour (softens gaze into a warm smile) */}
+            <path
+              d="M-19 -4 Q0 -22 19 -4"
+              stroke="#F59E0B"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              fill="none"
+            />
           </g>
 
           {/* RIGHT EYE */}
-          <g transform="translate(132, 92)">
-            {/* White outer contour */}
-            <circle cx="0" cy="0" r="23" fill="#FFFFFF" />
+          <g transform="translate(128, 95)">
+            {/* White base */}
+            <ellipse cx="0" cy="0" rx="19" ry="21" fill="#FFFFFF" />
             {/* Iris */}
-            <circle cx="0" cy="0" r="20" fill="url(#eyeGrad)" />
+            <ellipse cx="-1" cy="0" rx="16" ry="18" fill="url(#cikoEyeIris)" />
             {/* Pupil core */}
-            <circle cx="0" cy="2" r="14" fill="#0A0F1D" />
-            {/* Big diamond/star shine */}
-            <circle cx="-5" cy="-5" r="7.5" fill="#FFFFFF" />
-            {/* Secondary small glint */}
-            <circle cx="6" cy="6" r="3.5" fill="#FFFFFF" />
-            {/* Tiny accent spark */}
-            <circle cx="-6" cy="7" r="1.8" fill="#BAE6FD" />
+            <ellipse cx="-1" cy="2" rx="11" ry="12" fill="#090D16" />
+            {/* Large friendly highlight at top-left */}
+            <circle cx="-6" cy="-5" r="6" fill="#FFFFFF" />
+            {/* Secondary warm glint at bottom-right */}
+            <circle cx="3" cy="5" r="2.8" fill="#FFFFFF" />
+            {/* Upper eyelid contour */}
+            <path
+              d="M-19 -4 Q0 -22 19 -4"
+              stroke="#F59E0B"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              fill="none"
+            />
           </g>
         </g>
 
-        {/* ── 4. BEAK (CUTE ORANGE TRIANGLE) ─────────────────────────── */}
-        <g id="beak">
-          {/* Base shadow */}
-          <polygon points="84,106 116,106 100,126" fill="#EA580C" />
+        {/* 4. BEAK & SMILING MOUTH (Curved and smiling, no nostrils) */}
+        <g id="ciko-beak">
           {/* Upper beak */}
           <path
-            d="M84 106 Q100 101 116 106 Q100 123 84 106 Z"
+            d="M86 106 Q100 102 114 106 Q100 122 86 106 Z"
             fill="#F97316"
           />
-          {/* Lower beak curve */}
+          {/* Beak highlight */}
           <path
-            d="M87 107 Q100 126 113 107 Q100 115 87 107 Z"
+            d="M89 106 Q100 103 111 106 Q100 115 89 106 Z"
             fill="#FB923C"
           />
-          {/* Tiny nostrils */}
-          <circle cx="96" cy="104" r="1" fill="#C2410C" />
-          <circle cx="104" cy="104" r="1" fill="#C2410C" />
+          {/* Cute happy lower beak / smile */}
+          <path
+            d="M91 114 Q100 126 109 114"
+            stroke="#EA580C"
+            strokeWidth="3"
+            strokeLinecap="round"
+            fill="none"
+          />
         </g>
 
-        {/* ── 5. HOODIE (STREETWEAR EMERALD GREEN) ────────────────────── */}
-        <g id="hoodie">
-          {/* Hood collar fold behind neck */}
+        {/* 5. COZY GREEN HOODIE */}
+        <g id="ciko-hoodie">
+          {/* Back fold of hoodie */}
           <path
-            d="M40 148 Q100 134 160 148 Q166 172 152 188 Q100 196 48 188 Q34 172 40 148 Z"
+            d="M44 146 Q100 132 156 146 Q164 174 150 190 Q100 198 50 190 Q36 174 44 146 Z"
             fill="#059669"
           />
-          {/* Main hoodie body */}
+          {/* Front hoodie body */}
           <path
-            d="M45 152 Q100 138 155 152 Q160 176 148 190 Q100 198 52 190 Q40 176 45 152 Z"
+            d="M48 150 Q100 136 152 150 Q158 174 146 190 Q100 198 54 190 Q42 174 48 150 Z"
             fill="#10B981"
           />
-          {/* Hood cowl rim wrapping under chin */}
+          {/* Pouch / Kangaroo pocket */}
           <path
-            d="M52 144 Q100 156 148 144 Q152 158 136 166 Q100 174 64 166 Q48 158 52 144 Z"
+            d="M66 170 Q100 166 134 170 Q130 186 100 188 Q70 186 66 170 Z"
+            fill="#059669"
+            opacity="0.5"
+          />
+          {/* Hoodie collar fold framing chin */}
+          <path
+            d="M56 144 Q100 156 144 144 Q148 158 134 166 Q100 174 66 166 Q52 158 56 144 Z"
             fill="#34D399"
           />
           <path
-            d="M56 146 Q100 154 144 146 Q140 156 130 162 Q100 170 70 162 Q60 156 56 146 Z"
+            d="M60 146 Q100 154 140 146 Q136 156 128 162 Q100 170 72 162 Q64 156 60 146 Z"
             fill="#10B981"
           />
 
-          {/* Hoodie drawstrings */}
-          <path d="M86 162 Q84 174 82 184" stroke="#047857" strokeWidth="3" strokeLinecap="round" fill="none" />
-          <path d="M114 162 Q116 174 118 184" stroke="#047857" strokeWidth="3" strokeLinecap="round" fill="none" />
+          {/* Drawstrings */}
+          <path d="M86 160 Q84 174 82 184" stroke="#047857" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          <path d="M114 160 Q116 174 118 184" stroke="#047857" strokeWidth="2.5" strokeLinecap="round" fill="none" />
 
-          {/* ── 6. DNA FINANSIAL: GOLD COIN MEDALLION ON DRAWSTRING ────── */}
-          {/* Left coin medallion */}
-          <g id="coin-medallion-left" transform="translate(82, 185)">
-            <circle cx="0" cy="0" r="7" fill="#CA8A04" />
-            <circle cx="0" cy="0" r="6" fill="url(#coinGrad)" />
-            {/* Sprout leaf inside coin */}
-            <path
-              d="M-1.5 2 Q-1 -1 2 -2 Q1 1 -1.5 2 Z"
-              fill="#059669"
-            />
-            <path
-              d="M-0.5 0.5 Q-3 -1 -2 -3 Q0.5 -1.5 -0.5 0.5 Z"
-              fill="#34D399"
-            />
+          {/* 6. DNA FINANSIAL: Gold coin medallion charms */}
+          <g transform="translate(82, 185)">
+            <circle cx="0" cy="0" r="6.5" fill="#CA8A04" />
+            <circle cx="0" cy="0" r="5.5" fill="url(#cikoCoinShine)" />
+            {/* Tiny sprout */}
+            <path d="M-1 1.5 Q-0.5 -1 1.5 -1.5 Q0.8 0.8 -1 1.5 Z" fill="#059669" />
           </g>
 
-          {/* Right coin medallion */}
-          <g id="coin-medallion-right" transform="translate(118, 185)">
-            <circle cx="0" cy="0" r="7" fill="#CA8A04" />
-            <circle cx="0" cy="0" r="6" fill="url(#coinGrad)" />
-            {/* Sprout leaf inside coin */}
-            <path
-              d="M-1.5 2 Q-1 -1 2 -2 Q1 1 -1.5 2 Z"
-              fill="#059669"
-            />
-            <path
-              d="M-0.5 0.5 Q-3 -1 -2 -3 Q0.5 -1.5 -0.5 0.5 Z"
-              fill="#34D399"
-            />
+          <g transform="translate(118, 185)">
+            <circle cx="0" cy="0" r="6.5" fill="#CA8A04" />
+            <circle cx="0" cy="0" r="5.5" fill="url(#cikoCoinShine)" />
+            {/* Tiny sprout */}
+            <path d="M-1 1.5 Q-0.5 -1 1.5 -1.5 Q0.8 0.8 -1 1.5 Z" fill="#059669" />
           </g>
         </g>
 
-        {/* ── 7. POSE ACCESSORIES (IF NEEDED) ─────────────────────────── */}
+        {/* 7. DETECTIVE POSE ACCESSORY (IF NEEDED) */}
         {pose === 'detective' && (
           <g id="detective-hat">
-            <ellipse cx="100" cy="46" rx="46" ry="10" fill="#4B5563" />
-            <path d="M70 46 C70 24 130 24 130 46 Z" fill="#374151" />
-            <rect x="74" y="40" width="52" height="6" fill="#F59E0B" />
+            <ellipse cx="100" cy="46" rx="44" ry="9" fill="#4B5563" />
+            <path d="M72 46 C72 26 128 26 128 46 Z" fill="#374151" />
+            <rect x="76" y="41" width="48" height="5" fill="#F59E0B" />
           </g>
         )}
 
+        {/* 8. CHEF POSE ACCESSORY (IF NEEDED) */}
         {pose === 'chef' && (
           <g id="chef-hat">
-            <ellipse cx="100" cy="40" rx="36" ry="10" fill="#E5E7EB" />
-            <path d="M72 40 Q60 20 80 14 Q100 8 120 14 Q140 20 128 40 Z" fill="#FFFFFF" />
-            <rect x="74" y="34" width="52" height="6" fill="#D1D5DB" />
+            <ellipse cx="100" cy="40" rx="34" ry="9" fill="#E5E7EB" />
+            <path d="M74 40 Q62 22 80 16 Q100 10 120 16 Q138 22 126 40 Z" fill="#FFFFFF" />
+            <rect x="76" y="35" width="48" height="5" fill="#D1D5DB" />
           </g>
         )}
       </svg>

@@ -33,7 +33,7 @@ const fadeUp = {
 
 // ─── Inline SVG illustrations (subject-drawn, no external images) ────────────
 
-/** Koki Anggaran — a pot balancing two stacks of coins */
+/** Koki Anggaran: a pot balancing two stacks of coins */
 function IllustKoki() {
   return (
     <svg viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
@@ -59,7 +59,7 @@ function IllustKoki() {
   );
 }
 
-/** Detektif Cuan — magnifying glass over a suspicious document */
+/** Detektif Cuan: magnifying glass over a suspicious document */
 function IllustDetektif() {
   return (
     <svg viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
@@ -74,7 +74,7 @@ function IllustDetektif() {
       <rect x="66" y="82" width="78" height="10" rx="2" stroke="#EF4444" strokeWidth="1.5" />
       <rect x="66" y="100" width="44" height="8" rx="2" fill="#E5E7EB" />
       <rect x="66" y="115" width="66" height="8" rx="2" fill="#E5E7EB" />
-      {/* OJK stamp — green circle */}
+      {/* OJK stamp: green circle */}
       <circle cx="135" cy="138" r="18" fill="#D1FAE5" stroke="#059669" strokeWidth="2" />
       <text x="135" y="143" textAnchor="middle" fill="#059669" fontSize="9" fontWeight="800">OJK</text>
       {/* Magnifying glass */}
@@ -88,7 +88,7 @@ function IllustDetektif() {
   );
 }
 
-/** Pohon Aset — a growing money tree with coin leaves */
+/** Pohon Aset: a growing money tree with coin leaves */
 function IllustPohon() {
   return (
     <svg viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
@@ -116,7 +116,7 @@ function IllustPohon() {
   );
 }
 
-/** Fin-Wordle — letter tiles spelling a finance term */
+/** Fin-Wordle: letter tiles spelling a finance term */
 function IllustWordle() {
   const tiles = [
     { letter: 'S', color: '#059669', text: 'white' },
@@ -286,11 +286,11 @@ export default function LandingPage({
   ];
 
   const ranks = [
-    { title: language === 'id' ? 'Pemula' : 'Beginner',              xp: '0 – 999 XP',         desc: language === 'id' ? 'Langkah awal memahami nilai dasar mata uang.' : 'First steps in understanding base cash flow.' },
-    { title: language === 'id' ? 'Sadar Finansial' : 'Aware',         xp: '1.000 – 4.999 XP',   desc: language === 'id' ? 'Memisahkan kebutuhan dari godaan konsumtif.' : 'Distinguishing needs from impulse purchases.' },
-    { title: language === 'id' ? 'Bijak Belanja' : 'Wise Spender',    xp: '5.000 – 14.999 XP',  desc: language === 'id' ? 'Menguasai alokasi anggaran tanpa defisit.' : 'Zero-deficit budget mastery every month.' },
-    { title: language === 'id' ? 'Investor Cerdas' : 'Smart Investor', xp: '15.000 – 29.999 XP', desc: language === 'id' ? 'Memahami SBN dan emas untuk mengalahkan inflasi.' : 'Bonds and gold to safeguard against inflation.' },
-    { title: language === 'id' ? 'Ahli Anggaran' : 'Budget Expert',   xp: '30.000 – 49.999 XP', desc: language === 'id' ? 'Tangguh menghadapi guncangan pasar global.' : 'Portfolio resilience through macro turbulence.' },
+    { title: language === 'id' ? 'Pemula' : 'Beginner',              xp: '0 - 999 XP',         desc: language === 'id' ? 'Langkah awal memahami nilai dasar mata uang.' : 'First steps in understanding base cash flow.' },
+    { title: language === 'id' ? 'Sadar Finansial' : 'Aware',         xp: '1.000 - 4.999 XP',   desc: language === 'id' ? 'Memisahkan kebutuhan dari godaan konsumtif.' : 'Distinguishing needs from impulse purchases.' },
+    { title: language === 'id' ? 'Bijak Belanja' : 'Wise Spender',    xp: '5.000 - 14.999 XP',  desc: language === 'id' ? 'Menguasai alokasi anggaran tanpa defisit.' : 'Zero-deficit budget mastery every month.' },
+    { title: language === 'id' ? 'Investor Cerdas' : 'Smart Investor', xp: '15.000 - 29.999 XP', desc: language === 'id' ? 'Memahami SBN dan emas untuk mengalahkan inflasi.' : 'Bonds and gold to safeguard against inflation.' },
+    { title: language === 'id' ? 'Ahli Anggaran' : 'Budget Expert',   xp: '30.000 - 49.999 XP', desc: language === 'id' ? 'Tangguh menghadapi guncangan pasar global.' : 'Portfolio resilience through macro turbulence.' },
     { title: language === 'id' ? 'Master Kekayaan' : 'Wealth Master', xp: '50.000+ XP',          desc: language === 'id' ? 'Kemandirian finansial sejati, aset bekerja untukmu.' : 'True independence with compound yields working for you.' },
   ];
 
@@ -409,8 +409,8 @@ export default function LandingPage({
                 className="text-lg sm:text-xl text-slate-700 leading-relaxed max-w-lg mb-8"
               >
                 {language === 'id'
-                  ? 'Empat simulasi mini-game seru untuk melatih cara meracik anggaran, membongkar penipuan, menumbuhkan aset, dan menguasai istilah keuangan — dipandu langsung oleh Ciko.'
-                  : 'Four playful simulations to master budgeting, uncover scams, grow compound assets, and unlock financial terms — guided directly by Ciko.'}
+                  ? 'Empat simulasi mini-game seru untuk melatih cara meracik anggaran, membongkar penipuan, menumbuhkan aset, dan menguasai istilah keuangan, dipandu langsung oleh Ciko.'
+                  : 'Four playful simulations to master budgeting, uncover scams, grow compound assets, and unlock financial terms, guided directly by Ciko.'}
               </motion.p>
 
               <motion.div
@@ -458,7 +458,7 @@ export default function LandingPage({
                 </button>
               </motion.div>
 
-              {/* Social signal — plain text, no pill badge */}
+              {/* Social signal: plain text */}
               <motion.p
                 variants={fadeUp}
                 initial="hidden"
@@ -467,8 +467,8 @@ export default function LandingPage({
                 className="mt-5 text-sm text-slate-500 font-medium"
               >
                 {language === 'id'
-                  ? 'Gratis selamanya · Tanpa iklan · 4 mini-game aktif'
-                  : 'Free forever · No ads · 4 active mini-games'}
+                  ? 'Gratis selamanya / Tanpa iklan / 4 simulasi aktif'
+                  : 'Free forever / No ads / 4 active simulations'}
               </motion.p>
             </div>
 
@@ -480,7 +480,7 @@ export default function LandingPage({
               className="w-full lg:w-[46%] flex flex-col items-center justify-center order-1 lg:order-2 py-6"
             >
               <div className="relative flex flex-col items-center w-full max-w-sm">
-                {/* Speech Bubble ala Duolingo */}
+                {/* Speech Bubble */}
                 <motion.div
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -489,8 +489,8 @@ export default function LandingPage({
                 >
                   <span>
                     {language === 'id'
-                      ? 'Halo! Aku Ciko. Siap latihan 5 menit hari ini? 🐣'
-                      : "Hey! I'm Ciko. Ready for your 5-min financial sprint? 🐣"}
+                      ? 'Halo, aku Ciko. Siap latihan lima menit hari ini?'
+                      : "Hey, I'm Ciko. Ready for your five-minute financial sprint?"}
                   </span>
                   {/* Bubble tail */}
                   <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-white border-r-2 border-b-2 border-emerald-500/20 rotate-45" />
@@ -645,11 +645,11 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* ── 4. FOUR GAMES — Asymmetric, illustrated ──────────────────────────── */}
+      {/* 4. FOUR GAMES: Asymmetric, illustrated */}
       {/*
         Each game card: full-width colored ground + illustration + prose.
         Alternating layout per asymmetric-neighbors rule.
-        No gameplay screenshots — subject-drawn SVG illustrations.
+        No gameplay screenshots: subject-drawn SVG illustrations.
       */}
       <section className="py-16 sm:py-24 px-5 sm:px-10">
         <div className="max-w-7xl mx-auto">
@@ -715,10 +715,10 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* ── 5. LIGA & RANKS — Full-width flat bg, typographic list ──────────── */}
+      {/* 5. LIGA & RANKS: Full-width flat bg, typographic list */}
       {/*
         Section inversion from light to slightly-tinted ground.
-        No card grid — a descriptive two-column run with rank names at large scale.
+        No card grid: a descriptive two-column run with rank names at large scale.
       */}
       <section className="bg-[#0D1117] py-16 sm:py-24 px-5 sm:px-10">
         <div className="max-w-7xl mx-auto">
@@ -757,7 +757,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* ── 6. ANDROID APK — Accent-ground section ───────────────────────────── */}
+      {/* 6. ANDROID APK: Accent-ground section */}
       <section className="bg-emerald-600 py-14 sm:py-20 px-5 sm:px-10">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
           <div className="max-w-xl">
@@ -943,10 +943,10 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* ── 9. FOOTER ─────────────────────────────────────────────────────────── */}
+      {/* 9. FOOTER */}
       <footer className="bg-[#0D1117] py-12 sm:py-16 px-5 sm:px-10">
         <div className="max-w-7xl mx-auto">
-          {/* Large wordmark — closing statement */}
+          {/* Large wordmark: closing statement */}
           <div className="font-poppins font-black text-5xl sm:text-7xl lg:text-8xl tracking-tighter text-white mb-8 leading-none">
             CIKO
           </div>
