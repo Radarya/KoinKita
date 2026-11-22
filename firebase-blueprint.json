@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile metrics like streak, total grams, target golden metrics, and theme preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "totalGrams": { "type": "number" },
+        "streak": { "type": "number" },
+        "lastInvestmentTimestamp": { "type": "number" },
+        "targetName": { "type": "string" },
+        "targetPriceInput": { "type": "string" },
+        "isDark": { "type": "boolean" },
+        "weatherStatus": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Individually logged gold accumulation transaction",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "amount": { "type": "number" },
+        "grams": { "type": "number" },
+        "note": { "type": "string" },
+        "habit": { "type": "string" },
+        "reflection": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "amount", "grams"]
+    },
+    "InboxMessage": {
+      "title": "InboxMessage",
+      "description": "User inbox messages such as friend requests and game invitations",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "fromUserId": { "type": "string" },
+        "fromUserName": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["userId", "type", "fromUserId", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/inbox/{messageId}": {
+      "schema": "InboxMessage",
+      "description": "Global inbox collection for user-to-user messaging and notifications"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Aggregated user profile details"
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "List of absolute gold investments logs"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+# CIKO (KoinKita)
+
+CIKO adalah platform edugame literasi keuangan Indonesia gratis dan tanpa iklan. Pembelajaran disusun dalam kurikulum Ekspedisi Nusantara berjenjang: 6 Semester, 31 Unit, dan 175 Keping Materi dengan Buku Saku rujukan resmi OJK, Bank Indonesia, LPS 3T, dan PP 20/2026.
+
+## Kurikulum & Fitur Utama
+- [Ekspedisi 6 Semester](https://koinkita.xyz/): Dari Kampung Transaksi (Rupiah 3D, prioritas belanja) hingga Kota Kemandirian Ekonomi (investasi, UMKM PP 20/2026, KPR, dan stress test keluarga).
+- [Sistem 5 Nyawa & Latihan](https://koinkita.xyz/): Kesalahan tercatat ke Bank Kesalahan dan dapat ditebus lewat Flashcard Konsep serta Tebus Kesalahan.
+- [TPB, UTS & UAS](https://koinkita.xyz/): Tes Penempatan Bersama untuk melompat hingga Semester 4 serta ujian kompetensi tengah/akhir semester.
+- [Arena & Liga Mingguan](https://koinkita.xyz/): Kompetisi mingguan 30 pemain dari Pemula hingga Master Kekayaan.
+
+## Useful Links
+- [Play CIKO](https://koinkita.xyz/)
+- [Sitemap](https://koinkita.xyz/sitemap.xml)
